@@ -1,20 +1,19 @@
-﻿{
+{
     "logging": {
         "level": "info",
         "enableConsoleLog": true,
         "enableConsoleColors": true,
         "logFile": "",
-        "apiLogFile": "",
         "logBaseDirectory": "",
         "perPoolLogFile": false
     },
     "banning": {
-        "manager": "Integrated",
+        "manager": "integrated",
         "banOnJunkReceive": true,
         "banOnInvalidShares": false
     },
     "notifications": {
-        "enabled": false,
+        "enabled": true,
         "email": {
             "host": "smtp.example.com",
             "port": 587,
@@ -91,6 +90,7 @@
         "payoutSchemeConfig": {
           "factor": 2.0
         }
-      }
+      },
+      "addressType": "litecoin"
     }]
 }
