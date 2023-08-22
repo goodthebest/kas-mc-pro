@@ -24,7 +24,7 @@ public enum CoinFamily
 
     [EnumMember(Value = "equihash")]
     Equihash,
-
+    
     [EnumMember(Value = "conceal")]
     Conceal,
     
@@ -214,6 +214,9 @@ public partial class BitcoinTemplate : CoinTemplate
     [DefaultValue(1.0d)]
     public double ShareMultiplier { get; set; } = 1.0d;
 
+   [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+    public bool HasMWEB { get; set; }
+    
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
     public double? HashrateMultiplier { get; set; }
 
@@ -855,7 +858,7 @@ public partial class ClusterPaymentProcessingConfig
     /// <summary>
     /// Indentifier used in coinbase transactions to identify the pool
     /// </summary>
-    public string CoinbaseString  { get; set; }
+    public string CoinbaseString { get; set; }
 }
 
 public partial class PersistenceConfig
