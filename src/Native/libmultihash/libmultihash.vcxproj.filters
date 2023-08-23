@@ -80,6 +80,9 @@
     <ClInclude Include="skein.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="skein2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="stdint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -380,6 +383,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="skein.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="skein2.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="x11.c">
