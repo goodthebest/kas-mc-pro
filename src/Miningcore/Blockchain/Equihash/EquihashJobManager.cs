@@ -49,15 +49,15 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
     private async Task<RpcResponse<EquihashBlockTemplate>> GetBlockTemplateAsync(CancellationToken ct)
     {
         var subsidyResponse = await rpc.ExecuteAsync<ZCashBlockSubsidy>(logger, BitcoinCommands.GetBlockSubsidy, ct);
-        
-        var result = await rpc.ExecuteAsync<EquihashBlockTemplate>(logger,
-            BitcoinCommands.GetBlockTemplate, ct, extraPoolConfig?.GBTArgs ?? (object) GetBlockTemplateParams());
 
-        if(subsidyResponse.Error == null && result.Error == null && result.Response != null)
+        var result = await rpc.ExecuteAsync<EquihashBlockTemplate>(logger,
+            BitcoinCommands.GetBlockTemplate, ct, extraPoolConfig?.GBTArgs ?? (object)GetBlockTemplateParams());
+
+        if (subsidyResponse.Error == null && result.Error == null && result.Response != null)
             result.Response.Subsidy = subsidyResponse.Response;
-        else if(subsidyResponse.Error?.Code != (int) BitcoinRPCErrorCode.RPC_METHOD_NOT_FOUND)
+        else if (subsidyResponse.Error?.Code != (int)BitcoinRPCErrorCode.RPC_METHOD_NOT_FOUND)
             result = new RpcResponse<EquihashBlockTemplate>(null, new JsonRpcError(-1, $"{BitcoinCommands.GetBlockSubsidy} failed", null));
-        
+
         return result;
     }
 
@@ -70,7 +70,7 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
 
     protected override IDestination AddressToDestination(string address, BitcoinAddressType? addressType)
     {
-        if(!coin.UsesZCashAddressFormat)
+        if (!coin.UsesZCashAddressFormat)
             return base.AddressToDestination(address, addressType);
 
         var decoded = Encoders.Base58.DecodeData(address);
@@ -81,14 +81,14 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
 
     private EquihashJob CreateJob()
     {
-        switch(coin.Symbol)
+        switch (coin.Symbol)
         {
             case "BTG":
                 return new BitcoinGoldJob();
 
             case "MNX":
                 return new MinexcoinJob();
-            
+
             case "VRSC":
                 return new VeruscoinJob();
         }
@@ -100,7 +100,7 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
     {
         try
         {
-            if(forceUpdate)
+            if (forceUpdate)
                 lastJobRebroadcast = clock.Now;
 
             var response = string.IsNullOrEmpty(json) ?
@@ -108,7 +108,7 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
                 GetBlockTemplateFromJson(json);
 
             // may happen if daemon is currently not connected to peers
-            if(response.Error != null)
+            if (response.Error != null)
             {
                 logger.Warn(() => $"Unable to update job. Daemon responded with: {response.Error.Message} Code {response.Error.Code}");
                 return (false, forceUpdate);
@@ -122,28 +122,28 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
                     (job.BlockTemplate?.PreviousBlockhash != blockTemplate.PreviousBlockhash ||
                         blockTemplate.Height > job.BlockTemplate?.Height));
 
-            if(isNew)
+            if (isNew)
                 messageBus.NotifyChainHeight(poolConfig.Id, blockTemplate.Height, poolConfig.Template);
 
-            if(isNew || forceUpdate)
+            if (isNew || forceUpdate)
             {
                 job = CreateJob();
 
                 job.Init(blockTemplate, NextJobId(),
                     poolConfig, clusterConfig, clock, poolAddressDestination, network, solver);
 
-                lock(jobLock)
+                lock (jobLock)
                 {
                     validJobs.Insert(0, job);
 
                     // trim active jobs
-                    while(validJobs.Count > maxActiveJobs)
+                    while (validJobs.Count > maxActiveJobs)
                         validJobs.RemoveAt(validJobs.Count - 1);
                 }
 
-                if(isNew)
+                if (isNew)
                 {
-                    if(via != null)
+                    if (via != null)
                         logger.Info(() => $"Detected new block {blockTemplate.Height} [{via}]");
                     else
                         logger.Info(() => $"Detected new block {blockTemplate.Height}");
@@ -158,7 +158,7 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
 
                 else
                 {
-                    if(via != null)
+                    if (via != null)
                         logger.Debug(() => $"Template update {blockTemplate.Height} [{via}]");
                     else
                         logger.Debug(() => $"Template update {blockTemplate.Height}");
@@ -170,12 +170,12 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
             return (isNew, forceUpdate);
         }
 
-        catch(OperationCanceledException)
+        catch (OperationCanceledException)
         {
             // ignored
         }
 
-        catch(Exception ex)
+        catch (Exception ex)
         {
             logger.Error(ex, () => $"Error during {nameof(UpdateJob)}");
         }
@@ -200,18 +200,28 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
 
     public override async Task<bool> ValidateAddressAsync(string address, CancellationToken ct)
     {
-        if(string.IsNullOrEmpty(address))
+        if (string.IsNullOrEmpty(address))
             return false;
 
-        // handle t-addr
-        if(await base.ValidateAddressAsync(address, ct))
-            return true;
+        switch (coin.Symbol)
+        {
+            case "VRSC":
+                // handle t-addr
+                if (await base.ValidateAddressAsync(address, ct))
+                    return true;
 
-        // handle z-addr
-        var result = await rpc.ExecuteAsync<ValidateAddressResponse>(logger,
-            EquihashCommands.ZValidateAddress, ct, new[] { address });
+                return false;
+            default:
+                // handle t-addr
+                if (await base.ValidateAddressAsync(address, ct))
+                    return true;
 
-        return result.Response is {IsValid: true};
+                // handle z-addr
+                var result = await rpc.ExecuteAsync<ValidateAddressResponse>(logger,
+                    EquihashCommands.ZValidateAddress, ct, new[] { address });
+
+                return result.Response is { IsValid: true };
+        }
     }
 
     public object[] GetSubscriberData(StratumConnection worker)
@@ -238,7 +248,7 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
         Contract.RequiresNonNull(worker);
         Contract.RequiresNonNull(submission);
 
-        if(submission is not object[] submitParams)
+        if (submission is not object[] submitParams)
             throw new StratumException(StratumError.Other, "invalid params");
 
         var context = worker.ContextAs<BitcoinWorkerContext>();
@@ -250,53 +260,53 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
         var extraNonce2 = submitParams[3] as string;
         var solution = submitParams[4] as string;
 
-        if(string.IsNullOrEmpty(workerValue))
+        if (string.IsNullOrEmpty(workerValue))
             throw new StratumException(StratumError.Other, "missing or invalid workername");
 
-        if(string.IsNullOrEmpty(solution))
+        if (string.IsNullOrEmpty(solution))
             throw new StratumException(StratumError.Other, "missing or invalid solution");
 
         EquihashJob job;
 
-        lock(jobLock)
+        lock (jobLock)
         {
             job = validJobs.FirstOrDefault(x => x.JobId == jobId);
         }
 
-        if(job == null)
+        if (job == null)
             throw new StratumException(StratumError.JobNotFound, "job not found");
 
         // validate & process
         var (share, blockHex) = job.ProcessShare(worker, extraNonce2, nTime, solution);
 
         // if block candidate, submit & check if accepted by network
-        if(share.IsBlockCandidate)
+        if (share.IsBlockCandidate)
         {
             logger.Info(() => $"Submitting block {share.BlockHeight} [{share.BlockHash}]");
-            
+
             SubmitResult acceptResponse;
-            
-            switch(coin.Symbol)
+
+            switch (coin.Symbol)
             {
                 case "VRSC":
                     // when PBaaS activates we must use the coinbasetxn from daemon to get proper fee pool calculations in coinbase
                     var solutionVersion = job.BlockTemplate.Solution.Substring(0, 8);
                     var reversedSolutionVersion = uint.Parse(solutionVersion.HexToReverseByteArray().ToHexString(), NumberStyles.HexNumber);
                     var isPBaaSActive = (reversedSolutionVersion > 6);
-                    
+
                     acceptResponse = await SubmitVeruscoinBlockAsync(share, blockHex, isPBaaSActive, ct);
-                    
+
                     break;
                 default:
                     acceptResponse = await SubmitBlockAsync(share, blockHex, ct);
-                    
+
                     break;
             }
 
             // is it still a block candidate?
             share.IsBlockCandidate = acceptResponse.Accepted;
 
-            if(share.IsBlockCandidate)
+            if (share.IsBlockCandidate)
             {
                 logger.Info(() => $"Daemon accepted block {share.BlockHeight} [{share.BlockHash}] submitted by {context.Miner}");
 
@@ -327,11 +337,11 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
 
         return share;
     }
-    
+
     protected async Task<SubmitResult> SubmitVeruscoinBlockAsync(Share share, string blockHex, bool isPBaaSActive, CancellationToken ct)
     {
         var requestCommand = isPBaaSActive ? VeruscoinCommands.SubmitMergedBlock : BitcoinCommands.SubmitBlock;
-        var batch = new []
+        var batch = new[]
         {
             new RpcRequest(requestCommand, new[] { blockHex }),
             new RpcRequest(BitcoinCommands.GetBlock, new[] { share.BlockHash })
@@ -345,7 +355,7 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
             submitResult.Error?.Code.ToString(CultureInfo.InvariantCulture) ??
             submitResult.Response?.ToString();
 
-        if((!isPBaaSActive && !string.IsNullOrEmpty(submitError)) || (isPBaaSActive && !submitError.Contains("accepted")))
+        if ((!isPBaaSActive && !string.IsNullOrEmpty(submitError)) || (isPBaaSActive && !submitError.Contains("accepted")))
         {
             logger.Warn(() => $"Block {share.BlockHeight} submission failed with: {submitError}");
             messageBus.SendMessage(new AdminNotification("Block submission failed", $"Pool {poolConfig.Id} {(!string.IsNullOrEmpty(share.Source) ? $"[{share.Source.ToUpper()}] " : string.Empty)}failed to submit block {share.BlockHeight}: {submitError}"));
@@ -357,7 +367,7 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
         var block = acceptResult.Response?.ToObject<Bitcoin.DaemonResponses.Block>();
         var accepted = acceptResult.Error == null && block?.Hash == share.BlockHash;
 
-        if(!accepted)
+        if (!accepted)
         {
             logger.Warn(() => $"Block {share.BlockHeight} submission failed for pool {poolConfig.Id} because block was not found after submission");
             messageBus.SendMessage(new AdminNotification($"[{share.PoolId.ToUpper()}]-[{share.Source}] Block submission failed", $"[{share.PoolId.ToUpper()}]-[{share.Source}] Block {share.BlockHeight} submission failed for pool {poolConfig.Id} because block was not found after submission"));
