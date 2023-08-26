@@ -200,27 +200,27 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
 
     public override async Task<bool> ValidateAddressAsync(string address, CancellationToken ct)
     {
-        if (string.IsNullOrEmpty(address))
+        if(string.IsNullOrEmpty(address))
             return false;
-
-        switch (coin.Symbol)
+        
+        switch(coin.Symbol)
         {
             case "VRSC":
                 // handle t-addr
-                if (await base.ValidateAddressAsync(address, ct))
+                if(await base.ValidateAddressAsync(address, ct))
                     return true;
-
+                
                 return false;
             default:
                 // handle t-addr
-                if (await base.ValidateAddressAsync(address, ct))
+                if(await base.ValidateAddressAsync(address, ct))
                     return true;
-
+                
                 // handle z-addr
                 var result = await rpc.ExecuteAsync<ValidateAddressResponse>(logger,
                     EquihashCommands.ZValidateAddress, ct, new[] { address });
-
-                return result.Response is { IsValid: true };
+                
+                return result.Response is {IsValid: true};
         }
     }
 
