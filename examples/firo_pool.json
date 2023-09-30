@@ -43,6 +43,25 @@
         "interval": 600,
         "shareRecoveryFile": "recovered-shares.txt"
     },
+    "api": {
+        "enabled": true,
+        "listenAddress": "*",
+        "port": 4000,
+        "metricsIpWhitelist": [],
+        "rateLimiting": {
+            "disabled": true,
+            "rules": [
+                {
+                    "Endpoint": "*",
+                    "Period": "1s",
+                    "Limit": 5
+                }
+            ],
+            "ipWhitelist": [
+                ""
+            ]
+        }
+    },
     "pools": [{
         "id": "firo1",
         "enabled": true,
@@ -65,7 +84,6 @@
                 "percentage": 1
             }
         ],
-        "hasBrokenSendMany": true,
         "blockRefreshInterval": 0,
         "jobRebroadcastTimeout": 0,
         "clientConnectionTimeout": 600,
@@ -120,8 +138,7 @@
             "payoutScheme": "PPLNS",
             "payoutSchemeConfig": {
                 "factor": 0.5
-            },
-            "minersPayTxFees": true
+            }
         }
     }]
 }

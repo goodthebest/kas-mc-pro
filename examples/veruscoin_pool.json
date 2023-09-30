@@ -43,6 +43,25 @@
         "interval": 600,
         "shareRecoveryFile": "recovered-shares.txt"
     },
+    "api": {
+        "enabled": true,
+        "listenAddress": "*",
+        "port": 4000,
+        "metricsIpWhitelist": [],
+        "rateLimiting": {
+            "disabled": true,
+            "rules": [
+                {
+                    "Endpoint": "*",
+                    "Period": "1s",
+                    "Limit": 5
+                }
+            ],
+            "ipWhitelist": [
+                ""
+            ]
+        }
+    },
     "pools": [{
         "id": "vrsc1",
         "enabled": true,

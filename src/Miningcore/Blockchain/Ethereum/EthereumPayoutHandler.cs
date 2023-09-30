@@ -166,7 +166,7 @@ public class EthereumPayoutHandler : PayoutHandlerBase,
                                 var gasUsed = blockHashResponse.Response.GasUsed;
 
                                 var burnedFee = (decimal) 0;
-                                if(extraPoolConfig?.ChainTypeOverride == "Ethereum" || extraPoolConfig?.ChainTypeOverride == "Main" || extraPoolConfig?.ChainTypeOverride == "MainPow" || extraPoolConfig?.ChainTypeOverride == "Ubiq" || extraPoolConfig?.ChainTypeOverride == "EtherOne" || extraPoolConfig?.ChainTypeOverride == "Pink")
+                                if(extraPoolConfig?.ChainTypeOverride == "Ethereum" || extraPoolConfig?.ChainTypeOverride == "Main" || extraPoolConfig?.ChainTypeOverride == "MainPow" || extraPoolConfig?.ChainTypeOverride == "Ubiq" || extraPoolConfig?.ChainTypeOverride == "EtherOne" || extraPoolConfig?.ChainTypeOverride == "Pink" || extraPoolConfig?.ChainTypeOverride == "Rethereum")
                                     burnedFee = (baseGas * gasUsed / EthereumConstants.Wei);
 
                                 block.Hash = blockHash;
@@ -298,7 +298,7 @@ public class EthereumPayoutHandler : PayoutHandlerBase,
         // ensure we have peers
         var infoResponse = await rpcClient.ExecuteAsync<string>(logger, EC.GetPeerCount, ct);
 
-        if((networkType == EthereumNetworkType.Main || extraPoolConfig?.ChainTypeOverride == "Classic" || extraPoolConfig?.ChainTypeOverride == "Mordor" || networkType == EthereumNetworkType.MainPow || extraPoolConfig?.ChainTypeOverride == "Ubiq" || extraPoolConfig?.ChainTypeOverride == "EtherOne" || extraPoolConfig?.ChainTypeOverride == "Pink" || extraPoolConfig?.ChainTypeOverride == "OctaSpace" || extraPoolConfig?.ChainTypeOverride == "OctaSpaceTestnet") &&
+        if((networkType == EthereumNetworkType.Main || extraPoolConfig?.ChainTypeOverride == "Classic" || extraPoolConfig?.ChainTypeOverride == "Mordor" || networkType == EthereumNetworkType.MainPow || extraPoolConfig?.ChainTypeOverride == "Ubiq" || extraPoolConfig?.ChainTypeOverride == "EtherOne" || extraPoolConfig?.ChainTypeOverride == "Pink" || extraPoolConfig?.ChainTypeOverride == "OctaSpace" || extraPoolConfig?.ChainTypeOverride == "OctaSpaceTestnet" || extraPoolConfig?.ChainTypeOverride == "Rethereum") &&
            (infoResponse.Error != null || string.IsNullOrEmpty(infoResponse.Response) ||
                infoResponse.Response.IntegralFromHex<int>() < EthereumConstants.MinPayoutPeerCount))
         {
@@ -433,6 +433,16 @@ public class EthereumPayoutHandler : PayoutHandlerBase,
                 
                return OctaSpaceConstants.BaseRewardInitial;
 
+            case GethChainType.Rethereum:
+                if(height >= RethereumConstants.LondonHeight)
+                    return RethereumConstants.LondonBlockReward;
+                if(height >= RethereumConstants.ArrowGlacierHeight)
+                    return RethereumConstants.ArrowGlacierBlockReward;
+                if(height >= RethereumConstants.GrayGlacierHeight)
+                    return RethereumConstants.GrayGlacierBlockReward;
+
+               return RethereumConstants.BaseRewardInitial;
+            
             default:
                 throw new Exception("Unable to determine block reward: Unsupported chain type");
         }
@@ -484,6 +494,10 @@ public class EthereumPayoutHandler : PayoutHandlerBase,
                 // blocks older than the previous block are not rewarded
                 if (reward < 0)
                     reward = 0;
+                
+                break;
+            case GethChainType.Rethereum:
+                reward = 0.1m;
                 
                 break;
             default:

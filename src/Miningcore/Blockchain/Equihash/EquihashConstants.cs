@@ -35,6 +35,14 @@ public static class EquihashCommands
     public const string ZGetListAddresses = "z_listaddresses";
     public const string ZValidateAddress = "z_validateaddress";
     public const string ZShieldCoinbase = "z_shieldcoinbase";
+    
+    /// <summary>
+    /// Some projects like Veruscoin does not require shielding before being able to spend coins.
+    /// They can also sends coins from a t-address to t-addresses and z-addresses
+    /// Returns an operation-id. You use the operationid value with z_getoperationstatus and
+    /// z_getoperationresult to obtain the result of sending funds, which if successful, will be a txid.
+    /// </summary>
+    public const string SendCurrency = "sendcurrency";
 
     /// <summary>
     /// Returns an operationid. You use the operationid value with z_getoperationstatus and

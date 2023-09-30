@@ -15,16 +15,20 @@ public class SOLOPaymentScheme : IPayoutScheme
 {
     public SOLOPaymentScheme(
         IShareRepository shareRepo,
+        IBlockRepository blockRepo,
         IBalanceRepository balanceRepo)
     {
         Contract.RequiresNonNull(shareRepo);
+        Contract.RequiresNonNull(blockRepo);
         Contract.RequiresNonNull(balanceRepo);
 
         this.shareRepo = shareRepo;
+        this.blockRepo = blockRepo;
         this.balanceRepo = balanceRepo;
     }
 
     private readonly IBalanceRepository balanceRepo;
+    private readonly IBlockRepository blockRepo;
     private readonly IShareRepository shareRepo;
     private static readonly ILogger logger = LogManager.GetLogger("SOLO Payment", typeof(SOLOPaymentScheme));
 
@@ -55,9 +59,11 @@ public class SOLOPaymentScheme : IPayoutScheme
         // delete discarded shares
         if(shareCutOffDate.HasValue)
         {
+            // warning: some multichains coins like ALPH have none-linear blockHeight, so we CAN NOT discard old shares if older blocks are still pending
+            var pendingBlockBefore = await blockRepo.GetBlockBeforeCountAsync(con, poolConfig.Id, new[] { BlockStatus.Pending }, block.Created);
             var cutOffCount = await shareRepo.CountSharesByMinerAsync(con, tx, poolConfig.Id, block.Miner, ct);
 
-            if(cutOffCount > 0)
+            if(cutOffCount > 0 && pendingBlockBefore < 1)
             {
                 logger.Info(() => $"Deleting {cutOffCount} discarded shares for {block.Miner}");
 

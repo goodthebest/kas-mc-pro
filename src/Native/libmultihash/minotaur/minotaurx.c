@@ -32,7 +32,7 @@
 
 // Config
 #define MINOTAUR_ALGO_COUNT 16
-static const yespower_params_t yespower_params = {YESPOWER_1_0, 2048, 8, "et in arcadia ego", 17};
+static const yespower_minotaur_params_t yespower_minotaur_params = {YESPOWER_1_0, 2048, 8, "et in arcadia ego", 17};
 
 typedef struct TortureNode TortureNode;
 typedef struct TortureGarden TortureGarden;
@@ -158,7 +158,7 @@ void get_hash(void *output, const void *input, TortureGarden *garden, unsigned i
             break;
         // NB: The CPU-hard gate must be case MINOTAUR_ALGO_COUNT.
         case 16:
-            yespower_tls(input, 64, &yespower_params, (yespower_binary_t*)hash);
+            yespower_minotaur_tls(input, 64, &yespower_minotaur_params, (yespower_minotaur_binary_t*)hash);
     }
 
     // Output the hash

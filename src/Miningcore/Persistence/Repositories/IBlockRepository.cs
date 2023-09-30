@@ -13,6 +13,7 @@ public interface IBlockRepository
     Task<Block[]> PageBlocksAsync(IDbConnection con, BlockStatus[] status, int page, int pageSize, CancellationToken ct);
     Task<Block[]> GetPendingBlocksForPoolAsync(IDbConnection con, string poolId);
     Task<Block> GetBlockBeforeAsync(IDbConnection con, string poolId, BlockStatus[] status, DateTime before);
+    Task<uint> GetBlockBeforeCountAsync(IDbConnection con, string poolId, BlockStatus[] status, DateTime before);
     Task<uint> GetPoolBlockCountAsync(IDbConnection con, string poolId, CancellationToken ct);
     Task<DateTime?> GetLastPoolBlockTimeAsync(IDbConnection con, string poolId);
     Task<Block> GetBlockByPoolHeightAndTypeAsync(IDbConnection con, string poolId, long height, string type);

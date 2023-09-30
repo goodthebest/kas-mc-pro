@@ -69,6 +69,7 @@ public class BeamJobManager : JobManagerBase<BeamJob>
     private BeamPoolConfigExtra extraPoolConfig;
     public ulong? Forkheight;
     public ulong? Forkheight2;
+    protected string PoolNoncePrefix;
     private BeamCoinTemplate coin;
     
     protected IObservable<string> BeamSubscribeStratumApiSocketClient(CancellationToken ct, DaemonEndpointConfig endPoint,
@@ -91,14 +92,14 @@ public class BeamJobManager : JobManagerBase<BeamJob>
                         try
                         {
                             int port = endPoint.Port;
-                            IPHostEntry ipHostEntry = await Dns.GetHostEntryAsync(endPoint.Host);
-                            IPEndPoint ipEndPoint = new IPEndPoint(ipHostEntry.AddressList[1], port);
+                            IPAddress[] iPAddress = await Dns.GetHostAddressesAsync(endPoint.Host, AddressFamily.InterNetwork, cts.Token);
+                            IPEndPoint ipEndPoint = new IPEndPoint(iPAddress.First(), port);
                             using Socket client = new(SocketType.Stream, ProtocolType.Tcp);
                             client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
                             client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendTimeout, 1);
                             client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 1);
                             client.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
-                            logger.Debug(() => $"Establishing socket connection with `{ipHostEntry.AddressList[1]}:{port}`");
+                            logger.Debug(() => $"Establishing socket connection with `{iPAddress.First().ToString()}:{port}`");
                             await client.ConnectAsync(ipEndPoint, cts.Token);
                             if (client.Connected)
                                 logger.Debug(() => $"Socket connection succesffuly established");
@@ -138,6 +139,8 @@ public class BeamJobManager : JobManagerBase<BeamJob>
                                         if (!line.Contains("job"))
                                         {
                                             var loginResponse = JsonConvert.DeserializeObject<BeamLoginResponse>(line);
+                                            logger.Debug(() => $"Updating pool Nonceprefix");
+                                            PoolNoncePrefix = loginResponse?.Nonceprefix;
                                             logger.Debug(() => $"Updating Forkheight values");
                                             Forkheight = (loginResponse?.Forkheight > 0) ? loginResponse.Forkheight : null;
                                             Forkheight2 = (loginResponse?.Forkheight2 > 0) ? loginResponse.Forkheight2 : null;
@@ -212,7 +215,7 @@ public class BeamJobManager : JobManagerBase<BeamJob>
 
             var job = currentJob;
 
-            var isNew = job == null || (blockTemplate != null && blockTemplate.Input != null && blockTemplate.Height > job.BlockTemplate?.Height);
+            var isNew = job == null || (blockTemplate != null && blockTemplate.Input != null && (blockTemplate.JobId != job.BlockTemplate?.JobId || blockTemplate.Height > job.BlockTemplate?.Height));
 
             if(isNew)
             {
@@ -240,8 +243,11 @@ public class BeamJobManager : JobManagerBase<BeamJob>
                     logger.Info(() => $"Detected new block {blockTemplate.Height}");
 
                 // update stats
-                BlockchainStats.LastNetworkBlockTime = clock.Now;
-                BlockchainStats.BlockHeight = blockTemplate.Height;
+                if (blockTemplate.Height > BlockchainStats.BlockHeight)
+                {
+                    BlockchainStats.LastNetworkBlockTime = clock.Now;
+                    BlockchainStats.BlockHeight = blockTemplate.Height;
+                }
                 BlockchainStats.NetworkDifficulty = (double) job.BlockTemplate.Difficulty;
             }
 
@@ -335,7 +341,7 @@ public class BeamJobManager : JobManagerBase<BeamJob>
         }
     }
     
-    public object[] GetSubscriberData(StratumConnection worker)
+    public string GetSubscriberData(StratumConnection worker)
     {
         Contract.RequiresNonNull(worker);
 
@@ -343,14 +349,8 @@ public class BeamJobManager : JobManagerBase<BeamJob>
 
         // assign unique ExtraNonce1 to worker (miner)
         context.ExtraNonce1 = extraNonceProvider.Next();
-
-        // setup response data
-        var responseData = new object[]
-        {
-            context.ExtraNonce1
-        };
-
-        return responseData;
+        
+        return context.ExtraNonce1;
     }
 
     private void SubmitBlock(CancellationToken ct, DaemonEndpointConfig endPoint, object request, Share share, object payload = null, JsonSerializerSettings payloadJsonSerializerSettings = null)
@@ -369,23 +369,23 @@ public class BeamJobManager : JobManagerBase<BeamJob>
                 try
                 {
                     int port = endPoint.Port;
-                    IPHostEntry ipHostEntry = await Dns.GetHostEntryAsync(endPoint.Host);
-                    IPEndPoint ipEndPoint = new IPEndPoint(ipHostEntry.AddressList[1], port);
+                    IPAddress[] iPAddress = await Dns.GetHostAddressesAsync(endPoint.Host, AddressFamily.InterNetwork, cts.Token);
+                    IPEndPoint ipEndPoint = new IPEndPoint(iPAddress.First(), port);
                     using Socket client = new(SocketType.Stream, ProtocolType.Tcp);
                     //client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
                     client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendTimeout, 1);
                     client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 1);
                     client.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
-                    logger.Debug(() => $"[Submit Block] - Establishing socket connection with `{ipHostEntry.AddressList[1]}:{port}`");
+                    logger.Debug(() => $"[Submit Block] - Establishing socket connection with `{iPAddress.First().ToString()}:{port}`");
                     await client.ConnectAsync(ipEndPoint, cts.Token);
                     if (client.Connected)
-                        logger.Debug(() => $"[Submit Block] - Socket connection succesffuly established");
+                        logger.Debug(() => $"[Submitting block] - Socket connection succesffuly established");
 
                     using NetworkStream stream = new NetworkStream(client, false);
                     string json = JsonConvert.SerializeObject(request, payloadJsonSerializerSettings);
                     byte[] requestData = Encoding.UTF8.GetBytes($"{json}\r\n");
 
-                    logger.Debug(() => $"[Submit Block] - Sending request `{json}`");
+                    logger.Debug(() => $"[Submitting block] - Sending request `{json}`");
                     // send
                     await stream.WriteAsync(requestData, 0, requestData.Length, cts.Token);
 
@@ -548,7 +548,7 @@ public class BeamJobManager : JobManagerBase<BeamJob>
             var shareSubmitRequest = new BeamSubmitRequest
             {
                 Id = JobId,
-                Nonce = nonce,
+                Nonce = (!string.IsNullOrEmpty(PoolNoncePrefix)) ? PoolNoncePrefix : nonce,
                 Output = solution
             };
             
@@ -557,8 +557,9 @@ public class BeamJobManager : JobManagerBase<BeamJob>
             logger.Info(() => $"Daemon accepted block {share.BlockHeight} [{share.BlockHash}] submitted by {context.Miner}");
                             
             // persist the coinbase transaction-hash to allow the payment processor
-            // Be aware for BEAM, the block verification and confirmation is performed with `share.BlockHash`
-            share.TransactionConfirmationData = share.BlockHeight.ToString();
+            // Be aware for BEAM, the block verification and confirmation must be performed with `share.BlockHash` if the socket did not return a `Nonceprefix` after login
+            share.TransactionConfirmationData = (!string.IsNullOrEmpty(PoolNoncePrefix)) ? share.BlockHash : share.BlockHeight.ToString();
+            share.BlockHash = (!string.IsNullOrEmpty(PoolNoncePrefix)) ? null : solution + nonce;
             
             OnBlockFound();
         }

@@ -27,6 +27,18 @@ public abstract partial class CoinTemplate
     public string Source { get; set; }
 }
 
+public partial class AlephiumCoinTemplate
+{
+    #region Overrides of CoinTemplate
+
+    public override string GetAlgorithmName()
+    {
+        return "Blake3";
+    }
+
+    #endregion
+}
+
 public partial class BeamCoinTemplate
 {
     #region Overrides of CoinTemplate
@@ -153,8 +165,14 @@ public partial class EquihashCoinTemplate
 
     public override string GetAlgorithmName()
     {
-        // TODO: return variant
-        return "Equihash";
+        switch(Symbol)
+        {
+            case "VRSC":
+                return "Verushash";
+            default:
+                // TODO: return variant
+                return "Equihash";
+        }
     }
 
     #endregion

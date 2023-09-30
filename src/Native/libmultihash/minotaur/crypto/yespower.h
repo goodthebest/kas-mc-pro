@@ -39,53 +39,53 @@ extern "C" {
 
 /**
  * Internal type used by the memory allocator.  Please do not use it directly.
- * Use yespower_local_t instead.
+ * Use yespower_minotaur_local_t instead.
  */
 typedef struct {
 	void *base, *aligned;
 	size_t base_size, aligned_size;
-} yespower_region_t;
+} yespower_minotaur_region_t;
 
 /**
  * Type for thread-local (RAM) data structure.
  */
-typedef yespower_region_t yespower_local_t;
+typedef yespower_minotaur_region_t yespower_minotaur_local_t;
 
 /*
- * Type for yespower algorithm version numbers.
+ * Type for yespower_minotaur algorithm version numbers.
  */
-typedef enum { YESPOWER_0_5 = 5, YESPOWER_1_0 = 10 } yespower_version_t;
+typedef enum { YESPOWER_0_5 = 5, YESPOWER_1_0 = 10 } yespower_minotaur_version_t;
 
 /**
- * yespower parameters combined into one struct.
+ * yespower_minotaur parameters combined into one struct.
  */
 typedef struct {
-	yespower_version_t version;
+	yespower_minotaur_version_t version;
 	uint32_t N, r;
 	const uint8_t *pers;
 	size_t perslen;
-} yespower_params_t;
+} yespower_minotaur_params_t;
 
 /**
- * A 256-bit yespower hash.
+ * A 256-bit yespower_minotaur hash.
  */
 typedef struct {
 	unsigned char uc[32];
-} yespower_binary_t;
+} yespower_minotaur_binary_t;
 
 /**
- * yespower_init_local(local):
+ * yespower_minotaur_init_local(local):
  * Initialize the thread-local (RAM) data structure.  Actual memory allocation
- * is currently fully postponed until a call to yespower().
+ * is currently fully postponed until a call to yespower_minotaur().
  *
  * Return 0 on success; or -1 on error.
  *
  * MT-safe as long as local is local to the thread.
  */
-extern int yespower_init_local(yespower_local_t *local);
+extern int yespower_minotaur_init_local(yespower_minotaur_local_t *local);
 
 /**
- * yespower_free_local(local):
+ * yespower_minotaur_free_local(local):
  * Free memory that may have been allocated for an initialized thread-local
  * (RAM) data structure.
  *
@@ -93,35 +93,35 @@ extern int yespower_init_local(yespower_local_t *local);
  *
  * MT-safe as long as local is local to the thread.
  */
-extern int yespower_free_local(yespower_local_t *local);
+extern int yespower_minotaur_free_local(yespower_minotaur_local_t *local);
 
 /**
- * yespower(local, src, srclen, params, dst):
- * Compute yespower(src[0 .. srclen - 1], N, r), to be checked for "< target".
+ * yespower_minotaur(local, src, srclen, params, dst):
+ * Compute yespower_minotaur(src[0 .. srclen - 1], N, r), to be checked for "< target".
  * local is the thread-local data structure, allowing to preserve and reuse a
  * memory allocation across calls, thereby reducing processing overhead.
  *
  * Return 0 on success; or -1 on error.
  *
- * local must be initialized with yespower_init_local().
+ * local must be initialized with yespower_minotaur_init_local().
  *
  * MT-safe as long as local and dst are local to the thread.
  */
-extern int yespower(yespower_local_t *local,
+extern int yespower_minotaur(yespower_minotaur_local_t *local,
     const uint8_t *src, size_t srclen,
-    const yespower_params_t *params, yespower_binary_t *dst);
+    const yespower_minotaur_params_t *params, yespower_minotaur_binary_t *dst);
 
 /**
- * yespower_tls(src, srclen, params, dst):
- * Compute yespower(src[0 .. srclen - 1], N, r), to be checked for "< target".
+ * yespower_minotaur_tls(src, srclen, params, dst):
+ * Compute yespower_minotaur(src[0 .. srclen - 1], N, r), to be checked for "< target".
  * The memory allocation is maintained internally using thread-local storage.
  *
  * Return 0 on success; or -1 on error.
  *
  * MT-safe as long as dst is local to the thread.
  */
-extern int yespower_tls(const uint8_t *src, size_t srclen,
-    const yespower_params_t *params, yespower_binary_t *dst);
+extern int yespower_minotaur_tls(const uint8_t *src, size_t srclen,
+    const yespower_minotaur_params_t *params, yespower_minotaur_binary_t *dst);
 
 #ifdef __cplusplus
 }

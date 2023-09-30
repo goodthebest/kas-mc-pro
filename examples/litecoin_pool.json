@@ -43,10 +43,30 @@
         "interval": 600,
         "shareRecoveryFile": "recovered-shares.txt"
     },
+    "api": {
+        "enabled": true,
+        "listenAddress": "*",
+        "port": 4000,
+        "metricsIpWhitelist": [],
+        "rateLimiting": {
+            "disabled": true,
+            "rules": [
+                {
+                    "Endpoint": "*",
+                    "Period": "1s",
+                    "Limit": 5
+                }
+            ],
+            "ipWhitelist": [
+                ""
+            ]
+        }
+    },
     "pools": [{
       "id": "ltc1",
       "enabled": true,
       "coin": "litecoin",
+      "addressType": "litecoin",
       "address": "LNDA11u4HWzbJaBGiHDvs6SmA8M6avB3wH",
       "rewardRecipients": [
         {

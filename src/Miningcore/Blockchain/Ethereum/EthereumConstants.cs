@@ -95,6 +95,19 @@ public class PinkConstants
     public const decimal BaseRewardInitial = 1.0m;
 }
 
+// Rethereum
+public class RethereumConstants
+{
+    public const ulong EpochLength = 32000;
+    public const ulong LondonHeight = 15787969;
+    public const decimal LondonBlockReward = 3.0m;
+    public const ulong ArrowGlacierHeight = 27200177;
+    public const decimal ArrowGlacierBlockReward = 2.0m;
+    public const ulong GrayGlacierHeight = 40725107;
+    public const decimal GrayGlacierBlockReward = 1.0m;
+    public const decimal BaseRewardInitial = 4.0m;
+}
+
 // UBIQ block reward distribution - 
 // https://github.com/ubiq/UIPs/issues/16 - https://ubiqsmart.com/en/monetary-policy
 public class UbiqConstants
@@ -125,6 +138,7 @@ public enum EthereumNetworkType
     Pink = 10100,
     OctaSpace = 800001,
     OctaSpaceTestnet = 800002,
+    Rethereum = 622277,
 
     Unknown = -1,
 }
@@ -142,6 +156,7 @@ public enum GethChainType
     Pink = 10100,
     OctaSpace,
     OctaSpaceTestnet,
+    Rethereum,
     
     Unknown = -1,
 }

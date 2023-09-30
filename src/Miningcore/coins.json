@@ -1535,6 +1535,7 @@
                 }
             ]
         },
+        "hasMWEB": true,
         "shareMultiplier": 65536,
         "explorerBlockLink": "https://chainz.cryptoid.info/ltc/block.dws?$height$.htm",
         "explorerTxLink": "https://chainz.cryptoid.info/ltc/tx.dws?{0}.htm",
@@ -3856,7 +3857,7 @@
             }
         },
         "usesZCashAddressFormat": false,
-        "useBitcoinPayoutHandler": true,
+        "useBitcoinPayoutHandler": false,
         "explorerBlockLink": "https://explorer.veruscoin.io/block/$height$",
         "explorerTxLink": "https://explorer.veruscoin.io/tx/{0}",
         "explorerAccountLink": "https://explorer.veruscoin.io/address/{0}"
@@ -4492,6 +4493,24 @@
         "explorerAccountLink": "https://pinkscan.org/address/{0}",
         "ethasher": "ethash"
     },
+    "rethereum": {
+        "name": "Rethereum",
+        "canonicalName": "Rethereum",
+        "symbol": "RTH",
+        "family": "ethereum",
+        "website": "https://www.rethereum.org/",
+        "market": "",
+        "twitter": "",
+        "telegram": "",
+        "discord": "https://discord.gg/xCB4AJDEFb",
+        "explorerBlockLinks": {
+            "block": "https://explorer.rethereum.org/block/$height$",
+            "uncle": "https://explorer.rethereum.org/block/$hash$"
+        },
+        "explorerTxLink": "https://explorer.rethereum.org/tx/{0}",
+        "explorerAccountLink": "https://explorer.rethereum.org/address/{0}",
+        "ethasher": "ethashb3"
+    },
     "ubiq": {
         "name": "Ubiq",
         "canonicalName": "Ubiq",
@@ -4515,13 +4534,27 @@
         "canonicalName": "Ergo",
         "symbol": "ERG",
         "family": "ergo",
-        "website": "",
+        "website": "https://ergoplatform.org/",
         "market": "",
-        "twitter": "",
-        "telegram": "",
-        "discord": "",
+        "twitter": "https://twitter.com/Ergo_Platform",
+        "telegram": "https://t.me/ergoplatform",
+        "discord": "https://discord.gg/RC8M4Bkgsy",
         "explorerBlockLink": "https://explorer.ergoplatform.com/en/blocks/$hash$",
         "explorerTxLink": "https://explorer.ergoplatform.com/en/transactions/{0}",
         "explorerAccountLink": "https://explorer.ergoplatform.com/en/addresses/{0}"
+    },
+    "alephium": {
+        "name": "Alephium",
+        "canonicalName": "Alephium",
+        "symbol": "ALPH",
+        "family": "alephium",
+        "website": "https://alephium.org/",
+        "market": "https://coinmarketcap.com/currencies/alephium/",
+        "twitter": "https://twitter.com/alephium",
+        "telegram": "https://t.me/alephiumgroup",
+        "discord": "https://discord.gg/JErgRBfRSB",
+        "explorerBlockLink": "https://explorer.alephium.org/blocks/$hash$",
+        "explorerTxLink": "https://explorer.alephium.org/transactions/{0}",
+        "explorerAccountLink": "https://explorer.alephium.org/addresses/{0}"
     }
 }

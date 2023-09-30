@@ -410,6 +410,18 @@ public class BitcoinJob
             if(isPoS)
                 bs.ReadWrite((byte) 0);
 
+            // if pool supports MWEB, we have to append the MWEB data to the block
+            // https://github.com/litecoin-project/litecoin/blob/0.21/doc/mweb/mining-changes.md
+            if(coin.HasMWEB)
+            {
+                var separator = new byte[] { 0x01 };
+                var mweb = BlockTemplate.Extra.SafeExtensionDataAs<MwebBlockTemplateExtra>();
+                var mwebRaw = mweb.Mweb.HexToByteArray();
+
+                bs.ReadWrite(ref separator);
+                bs.ReadWrite(ref mwebRaw);
+            }
+
             return stream.ToArray();
         }
     }

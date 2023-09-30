@@ -203,25 +203,20 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
         if(string.IsNullOrEmpty(address))
             return false;
         
-        switch(coin.Symbol)
+        // handle t-addr
+        if(await base.ValidateAddressAsync(address, ct))
+            return true;
+        
+        if(!coin.UseBitcoinPayoutHandler)
         {
-            case "VRSC":
-                // handle t-addr
-                if(await base.ValidateAddressAsync(address, ct))
-                    return true;
-                
-                return false;
-            default:
-                // handle t-addr
-                if(await base.ValidateAddressAsync(address, ct))
-                    return true;
-                
-                // handle z-addr
-                var result = await rpc.ExecuteAsync<ValidateAddressResponse>(logger,
-                    EquihashCommands.ZValidateAddress, ct, new[] { address });
-                
-                return result.Response is {IsValid: true};
+            // handle z-addr
+            var result = await rpc.ExecuteAsync<ValidateAddressResponse>(logger,
+                EquihashCommands.ZValidateAddress, ct, new[] { address });
+
+            return result.Response is {IsValid: true};
         }
+        
+        return false;
     }
 
     public object[] GetSubscriberData(StratumConnection worker)

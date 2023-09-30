@@ -107,7 +107,7 @@
 #undef HUGEPAGE_SIZE
 #endif
 
-static void *alloc_region(yespower_region_t *region, size_t size)
+static void *alloc_region(yespower_minotaur_region_t *region, size_t size)
 {
 	size_t base_size = size;
 	uint8_t *base, *aligned;
@@ -163,13 +163,13 @@ static void *alloc_region(yespower_region_t *region, size_t size)
 	return aligned;
 }
 
-static inline void init_region(yespower_region_t *region)
+static inline void init_region(yespower_minotaur_region_t *region)
 {
 	region->base = region->aligned = NULL;
 	region->base_size = region->aligned_size = 0;
 }
 
-static int free_region(yespower_region_t *region)
+static int free_region(yespower_minotaur_region_t *region)
 {
 	if (region->base) {
 #ifdef MAP_ANON
@@ -1102,19 +1102,19 @@ static void smix(uint8_t *B, size_t r, uint32_t N,
 #undef smix
 
 /**
- * yespower(local, src, srclen, params, dst):
- * Compute yespower(src[0 .. srclen - 1], N, r), to be checked for "< target".
+ * yespower_minotaur(local, src, srclen, params, dst):
+ * Compute yespower_minotaur(src[0 .. srclen - 1], N, r), to be checked for "< target".
  * local is the thread-local data structure, allowing to preserve and reuse a
  * memory allocation across calls, thereby reducing its overhead.
  *
  * Return 0 on success; or -1 on error.
  */
-int yespower(yespower_local_t *local,
+int yespower_minotaur(yespower_minotaur_local_t *local,
     const uint8_t *src, size_t srclen,
-    const yespower_params_t *params,
-    yespower_binary_t *dst)
+    const yespower_minotaur_params_t *params,
+    yespower_minotaur_binary_t *dst)
 {
-	yespower_version_t version = params->version;
+	yespower_minotaur_version_t version = params->version;
 	uint32_t N = params->N;
 	uint32_t r = params->r;
 	const uint8_t *pers = params->pers;
@@ -1164,11 +1164,11 @@ int yespower(yespower_local_t *local,
 	SHA256_Buf(src, srclen, sha256);
 
 	if (version == YESPOWER_0_5) {
-		PBKDF2_SHA256(sha256, sizeof(sha256), src, srclen, 1,
+		YESPOWER_MINOTAUR_PBKDF2_SHA256(sha256, sizeof(sha256), src, srclen, 1,
 		    B, B_size);
 		memcpy(sha256, B, sizeof(sha256));
 		smix(B, r, N, V, XY, &ctx);
-		PBKDF2_SHA256(sha256, sizeof(sha256), B, B_size, 1,
+		YESPOWER_MINOTAUR_PBKDF2_SHA256(sha256, sizeof(sha256), B, B_size, 1,
 		    (uint8_t *)dst, sizeof(*dst));
 
 		if (pers) {
@@ -1187,7 +1187,7 @@ int yespower(yespower_local_t *local,
 			srclen = 0;
 		}
 
-		PBKDF2_SHA256(sha256, sizeof(sha256), src, srclen, 1, B, 128);
+		YESPOWER_MINOTAUR_PBKDF2_SHA256(sha256, sizeof(sha256), src, srclen, 1, B, 128);
 		memcpy(sha256, B, sizeof(sha256));
 		smix_1_0(B, r, N, V, XY, &ctx);
 		HMAC_SHA256_Buf(B + B_size - 64, 64,
@@ -1222,33 +1222,33 @@ fail:
 #endif
 
 /**
- * yespower_tls(src, srclen, params, dst):
- * Compute yespower(src[0 .. srclen - 1], N, r), to be checked for "< target".
+ * yespower_minotaur_tls(src, srclen, params, dst):
+ * Compute yespower_minotaur(src[0 .. srclen - 1], N, r), to be checked for "< target".
  * The memory allocation is maintained internally using thread-local storage.
  *
  * Return 0 on success; or -1 on error.
  */
-int yespower_tls(const uint8_t *src, size_t srclen,
-    const yespower_params_t *params, yespower_binary_t *dst)
+int yespower_minotaur_tls(const uint8_t *src, size_t srclen,
+    const yespower_minotaur_params_t *params, yespower_minotaur_binary_t *dst)
 {
 	static thread_local int initialized = 0;
-	static thread_local yespower_local_t local;
+	static thread_local yespower_minotaur_local_t local;
 
 	if (!initialized) {
 		init_region(&local);
 		initialized = 1;
 	}
 
-	return yespower(&local, src, srclen, params, dst);
+	return yespower_minotaur(&local, src, srclen, params, dst);
 }
 
-int yespower_init_local(yespower_local_t *local)
+int yespower_minotaur_init_local(yespower_minotaur_local_t *local)
 {
 	init_region(local);
 	return 0;
 }
 
-int yespower_free_local(yespower_local_t *local)
+int yespower_minotaur_free_local(yespower_minotaur_local_t *local)
 {
 	return free_region(local);
 }

@@ -246,9 +246,12 @@ public class BeamPayoutHandler : PayoutHandlerBase,
                 result.Add(block);
 
                 messageBus.NotifyBlockConfirmationProgress(poolConfig.Id, block, coin);
+                
+                // Be aware for BEAM, the block verification and confirmation must be performed with `block.Hash` if the socket did not return a `Nonceprefix` after login
+                bool IsOrphaned = (!string.IsNullOrEmpty(block.Hash)) ? (!string.IsNullOrEmpty(rpcResult.Response?.Pow) && rpcResult.Response?.Pow.Contains(block.Hash) == false) : (!string.IsNullOrEmpty(rpcResult.Response?.BlockHash) && rpcResult.Response?.BlockHash == block.TransactionConfirmationData);
 
                 // orphaned?
-                if(!string.IsNullOrEmpty(rpcResult.Response?.Pow) && rpcResult.Response?.Pow.Contains(block.Hash) == false)
+                if(IsOrphaned)
                 {
                     block.Hash = null;
                     block.Status = BlockStatus.Orphaned;
@@ -261,8 +264,7 @@ public class BeamPayoutHandler : PayoutHandlerBase,
                 // matured and spendable?
                 if((lastBlock.Height - block.BlockHeight) >= BeamConstants.PayoutMinBlockConfirmations)
                 {
-                    block.TransactionConfirmationData = rpcResult.Response?.BlockHash;
-                    block.Hash = rpcResult.Response?.BlockHash;
+                    block.Hash = (!string.IsNullOrEmpty(block.Hash)) ? rpcResult.Response?.BlockHash : null;
                     block.Status = BlockStatus.Confirmed;
                     block.ConfirmationProgress = 1;
                     block.Reward = GetBaseBlockReward(block.BlockHeight); // base reward

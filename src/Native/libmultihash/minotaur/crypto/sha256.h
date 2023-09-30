@@ -38,16 +38,16 @@ extern "C" {
  * Use #defines in order to avoid namespace collisions with anyone else's
  * SHA256 code (e.g., the code in OpenSSL).
  */
-#define SHA256_Init libcperciva_SHA256_Init
-#define SHA256_Update libcperciva_SHA256_Update
-#define SHA256_Final libcperciva_SHA256_Final
-#define SHA256_Buf libcperciva_SHA256_Buf
-#define SHA256_CTX libcperciva_SHA256_CTX
-#define HMAC_SHA256_Init libcperciva_HMAC_SHA256_Init
-#define HMAC_SHA256_Update libcperciva_HMAC_SHA256_Update
-#define HMAC_SHA256_Final libcperciva_HMAC_SHA256_Final
-#define HMAC_SHA256_Buf libcperciva_HMAC_SHA256_Buf
-#define HMAC_SHA256_CTX libcperciva_HMAC_SHA256_CTX
+#define SHA256_Init libcperciva_SHA256_MINOTAUR_Init
+#define SHA256_Update libcperciva_SHA256_MINOTAUR_Update
+#define SHA256_Final libcperciva_SHA256_MINOTAUR_Final
+#define SHA256_Buf libcperciva_SHA256_MINOTAUR_Buf
+#define SHA256_CTX libcperciva_SHA256_MINOTAUR_CTX
+#define HMAC_SHA256_Init libcperciva_HMAC_SHA256_MINOTAUR_Init
+#define HMAC_SHA256_Update libcperciva_HMAC_SHA256_MINOTAUR_Update
+#define HMAC_SHA256_Final libcperciva_HMAC_SHA256_MINOTAUR_Final
+#define HMAC_SHA256_Buf libcperciva_HMAC_SHA256_MINOTAUR_Buf
+#define HMAC_SHA256_CTX libcperciva_HMAC_SHA256_MINOTAUR_CTX
 
 /* Context structure for SHA256 operations. */
 typedef struct {
@@ -115,11 +115,11 @@ void HMAC_SHA256_Final(uint8_t[32], HMAC_SHA256_CTX *);
 void HMAC_SHA256_Buf(const void *, size_t, const void *, size_t, uint8_t[32]);
 
 /**
- * PBKDF2_SHA256(passwd, passwdlen, salt, saltlen, c, buf, dkLen):
+ * YESPOWER_MINOTAUR_PBKDF2_SHA256(passwd, passwdlen, salt, saltlen, c, buf, dkLen):
  * Compute PBKDF2(passwd, salt, c, dkLen) using HMAC-SHA256 as the PRF, and
  * write the output to buf.  The value dkLen must be at most 32 * (2^32 - 1).
  */
-void PBKDF2_SHA256(const uint8_t *, size_t, const uint8_t *, size_t,
+void YESPOWER_MINOTAUR_PBKDF2_SHA256(const uint8_t *, size_t, const uint8_t *, size_t,
     uint64_t, uint8_t *, size_t);
 
 #ifdef __cplusplus

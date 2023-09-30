@@ -78,9 +78,11 @@ public class PROPPaymentScheme : IPayoutScheme
         // delete discarded shares
         if(shareCutOffDate.HasValue)
         {
+            // warning: some multichains coins like ALPH have none-linear blockHeight, so we CAN NOT discard old shares if older blocks are still pending
+            var pendingBlockBefore = await blockRepo.GetBlockBeforeCountAsync(con, poolConfig.Id, new[] { BlockStatus.Pending }, block.Created);
             var cutOffCount = await shareRepo.CountSharesBeforeAsync(con, tx, poolConfig.Id, shareCutOffDate.Value, ct);
 
-            if(cutOffCount > 0)
+            if(cutOffCount > 0 && pendingBlockBefore < 1)
             {
                 await LogDiscardedSharesAsync(ct, poolConfig, block, shareCutOffDate.Value);
 

@@ -87,7 +87,8 @@ public class BeamJob
         if(isBlockCandidate)
         {
             result.IsBlockCandidate = true;
-            result.BlockHash = solution + nonce;
+            //result.BlockHash = solution + nonce;
+            result.BlockHash = solutionHash.ToHexString();
         }
 
         return (result, null, BeamConstants.BeamRpcShareAccepted);

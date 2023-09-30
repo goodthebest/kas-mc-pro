@@ -17,6 +17,9 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="allium.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="bcrypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -78,6 +81,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="skein.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="skein2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="skydoge.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stdint.h">
@@ -272,10 +281,40 @@
     <ClInclude Include="verthash\h2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="yescrypt\sha256.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="yescrypt\yescrypt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="yespower\crypto\blake2b-yp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="yespower\crypto\sph_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="yespower\insecure_memzero.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="yespower\sha256.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="yespower\sysendian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="yespower\yespower.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="blake2\ref\blake2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="blake2\ref\blake2-impl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="blake3\blake3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="blake3\blake3_impl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sha256csm.h">
@@ -323,6 +362,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="allium.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="blake.c">
@@ -380,6 +422,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="skein.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="skein2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="skydoge.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="x11.c">
@@ -553,6 +601,30 @@
     <ClCompile Include="verthash\tiny_sha3\sha3.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="yescrypt\sha256.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="yescrypt\yescrypt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="yescrypt\yescrypt-opt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="yescrypt\yescrypt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="yespower\crypto\blake2b-yp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="yespower\yespower-blake2b.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="yespower\yespower-combined.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="yespower\yespower-platform.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="blake2\ref\blake2bp-ref.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -569,6 +641,42 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="blake2\ref\blake2xs-ref.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blake3\blake3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blake3\blake3_avx2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blake3\blake3_avx2_x86-64_unix.S">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blake3\blake3_avx512.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blake3\blake3_avx512_x86-64_unix.S">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blake3\blake3_avx512_x86-64_windows_gnu.S">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blake3\blake3_dispatch.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blake3\blake3_neon.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blake3\blake3_portable.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blake3\blake3_sse41.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blake3\blake3_sse41_x86-64_unix.S">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blake3\blake3_sse41_x86-64_windows_gnu.S">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sha256csm.c">

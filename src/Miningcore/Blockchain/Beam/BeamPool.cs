@@ -100,13 +100,6 @@ public class BeamPool : PoolBase
                 logger.Info(() => $"[{connection.ConnectionId}] Setting static difficulty of {staticDiff.Value}");
             }
             
-            var data = new object[]
-            {
-                connection.ConnectionId,
-            }
-            .Concat(manager.GetSubscriberData(connection))
-            .ToArray();
-            
             // setup worker context
             context.IsSubscribed = true;
             context.UserAgent = request?.UserAgent;
@@ -115,7 +108,7 @@ public class BeamPool : PoolBase
             var loginResponse = new BeamLoginResponse {
                 Code = BeamConstants.BeamRpcLoginSuccess,
                 Description = "Login successful",
-                Nonceprefix = connection.ConnectionId,
+                Nonceprefix = manager.GetSubscriberData(connection),
                 Forkheight = manager?.Forkheight,
                 Forkheight2 = manager?.Forkheight2
             };

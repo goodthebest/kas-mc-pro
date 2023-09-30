@@ -13,6 +13,7 @@ using Miningcore.Time;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NLog;
+using Org.BouncyCastle.Crypto.Parameters;
 
 namespace Miningcore.Blockchain.Bitcoin;
 
@@ -32,6 +33,17 @@ public class BitcoinJobManager : BitcoinJobManagerBase<BitcoinJob>
     protected override object[] GetBlockTemplateParams()
     {
         var result = base.GetBlockTemplateParams();
+        
+        if(coin.HasMWEB)
+        {
+            result = new object[]
+            {
+                new
+                {
+                    rules = new[] {"segwit", "mweb"},
+                }
+            };
+        }
 
         if(coin.BlockTemplateRpcExtraParams != null)
         {
@@ -42,6 +54,39 @@ public class BitcoinJobManager : BitcoinJobManagerBase<BitcoinJob>
         }
 
         return result;
+    }
+    
+    protected override async Task EnsureDaemonsSynchedAsync(CancellationToken ct)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
+
+        var syncPendingNotificationShown = false;
+
+        do
+        {
+            var response = await rpc.ExecuteAsync<BlockTemplate>(logger,
+                BitcoinCommands.GetBlockTemplate, ct, GetBlockTemplateParams());
+
+            var isSynched = response.Error == null;
+
+            if(isSynched)
+            {
+                logger.Info(() => "All daemons synched with blockchain");
+                break;
+            }
+            else
+            {
+                logger.Debug(() => $"Daemon reports error: {response.Error?.Message}");
+            }
+
+            if(!syncPendingNotificationShown)
+            {
+                logger.Info(() => "Daemon is still syncing with network. Manager will be started once synced.");
+                syncPendingNotificationShown = true;
+            }
+
+            await ShowDaemonSyncProgressAsync(ct);
+        } while(await timer.WaitForNextTickAsync(ct));
     }
 
     protected async Task<RpcResponse<BlockTemplate>> GetBlockTemplateAsync(CancellationToken ct)

@@ -16,26 +16,29 @@ namespace Miningcore.Configuration;
 
 public enum CoinFamily
 {
+    [EnumMember(Value = "alephium")]
+    Alephium,
+    
     [EnumMember(Value = "beam")]
     Beam,
 
     [EnumMember(Value = "bitcoin")]
     Bitcoin,
 
-    [EnumMember(Value = "equihash")]
-    Equihash,
-
     [EnumMember(Value = "conceal")]
     Conceal,
     
     [EnumMember(Value = "cryptonote")]
     Cryptonote,
+    
+    [EnumMember(Value = "equihash")]
+    Equihash,
+    
+    [EnumMember(Value = "ergo")]
+    Ergo,
 
     [EnumMember(Value = "ethereum")]
     Ethereum,
-
-    [EnumMember(Value = "ergo")]
-    Ergo,
     
     [EnumMember(Value = "progpow")]
     Progpow,
@@ -136,15 +139,20 @@ public abstract partial class CoinTemplate
     [JsonIgnore]
     public static readonly Dictionary<CoinFamily, Type> Families = new()
     {
+        {CoinFamily.Alephium, typeof(AlephiumCoinTemplate)},
         {CoinFamily.Beam, typeof(BeamCoinTemplate)},
         {CoinFamily.Bitcoin, typeof(BitcoinTemplate)},
-        {CoinFamily.Equihash, typeof(EquihashCoinTemplate)},
         {CoinFamily.Conceal, typeof(ConcealCoinTemplate)},
         {CoinFamily.Cryptonote, typeof(CryptonoteCoinTemplate)},
-        {CoinFamily.Ethereum, typeof(EthereumCoinTemplate)},
+        {CoinFamily.Equihash, typeof(EquihashCoinTemplate)},
         {CoinFamily.Ergo, typeof(ErgoCoinTemplate)},
+        {CoinFamily.Ethereum, typeof(EthereumCoinTemplate)},
         {CoinFamily.Progpow, typeof(ProgpowTemplate)},
     };
+}
+
+public partial class AlephiumCoinTemplate : CoinTemplate
+{
 }
 
 public partial class BeamCoinTemplate : CoinTemplate
@@ -214,6 +222,9 @@ public partial class BitcoinTemplate : CoinTemplate
     [DefaultValue(1.0d)]
     public double ShareMultiplier { get; set; } = 1.0d;
 
+    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+    public bool HasMWEB { get; set; }
+
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
     public double? HashrateMultiplier { get; set; }
 
@@ -234,6 +245,246 @@ public partial class BitcoinTemplate : CoinTemplate
 
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string BlockSerializer { get; set; }
+}
+
+public enum ConcealSubfamily
+{
+    [EnumMember(Value = "none")]
+    None,
+}
+
+public partial class ConcealCoinTemplate : CoinTemplate
+{
+    [JsonProperty(Order = -7, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+    [DefaultValue(ConcealSubfamily.None)]
+    [JsonConverter(typeof(StringEnumConverter), true)]
+    public ConcealSubfamily Subfamily { get; set; }
+
+    /// <summary>
+    /// Broader Cryptonight hash family
+    /// </summary>
+    [JsonConverter(typeof(StringEnumConverter), true)]
+    [JsonProperty(Order = -5)]
+    public CryptonightHashType Hash { get; set; }
+
+    /// <summary>
+    /// Set to 0 for automatic selection from blobtemplate
+    /// </summary>
+    [JsonProperty(Order = -4, DefaultValueHandling = DefaultValueHandling.Include)]
+    public int HashVariant { get; set; }
+    
+    /// <summary>
+    /// Conceal network hashrate = `Difficulty / DifficultyTarget`
+    /// See: parameter -> DIFFICULTY_TARGET in src/CryptoNoteConfig.h
+    /// </summary>
+    public ulong DifficultyTarget { get; set; }
+    
+    /// <summary>
+    /// Smallest unit for Blockreward formatting
+    /// </summary>
+    public decimal SmallestUnit { get; set; }
+
+    /// <summary>
+    /// Prefix of a valid address
+    /// See: parameter -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/CryptoNoteConfig.h
+    /// </summary>
+    public ulong AddressPrefix { get; set; }
+
+    /// <summary>
+    /// Prefix of a valid testnet-address
+    /// See: parameter -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/CryptoNoteConfig.h
+    /// </summary>
+    public ulong AddressPrefixTestnet { get; set; }
+
+    /// <summary>
+    /// Prefix of a valid integrated address
+    /// See: parameter -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/CryptoNoteConfig.h
+    /// </summary>
+    public ulong AddressPrefixIntegrated { get; set; }
+
+    /// <summary>
+    /// Prefix of a valid integrated testnet-address
+    /// See: parameter -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/CryptoNoteConfig.h
+    /// </summary>
+    public ulong AddressPrefixIntegratedTestnet { get; set; }
+
+    /// <summary>
+    /// Fraction of block reward, the pool really gets to keep
+    /// </summary>
+    [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+    [DefaultValue(1.0d)]
+    public decimal BlockrewardMultiplier { get; set; }
+}
+
+public enum CryptonoteSubfamily
+{
+    [EnumMember(Value = "none")]
+    None,
+}
+
+public enum CryptonightHashType
+{
+    [EnumMember(Value = "randomx")]
+    RandomX,
+
+    [EnumMember(Value = "randomarq")]
+    RandomARQ,
+
+    [EnumMember(Value = "cn0")]
+    Cryptonight0,
+
+    [EnumMember(Value = "cn1")]
+    Cryptonight1,
+
+    [EnumMember(Value = "cn2")]
+    Cryptonight2,
+
+    [EnumMember(Value = "cn-half")]
+    CryptonightHalf,
+
+    [EnumMember(Value = "cn-double")]
+    CryptonightDouble,
+
+    [EnumMember(Value = "cn-r")]
+    CryptonightR,
+
+    [EnumMember(Value = "cn-rto")]
+    CryptonightRTO,
+
+    [EnumMember(Value = "cn-rwz")]
+    CryptonightRWZ,
+
+    [EnumMember(Value = "cn-zls")]
+    CryptonightZLS,
+
+    [EnumMember(Value = "cn-ccx")]
+    CryptonightCCX,
+
+    [EnumMember(Value = "cn-gpu")]
+    CryptonightGPU,
+
+    [EnumMember(Value = "cn-fast")]
+    CryptonightFast,
+
+    [EnumMember(Value = "cn-xao")]
+    CryptonightXAO,
+
+    [EnumMember(Value = "gr")]
+    Ghostrider,
+
+    [EnumMember(Value = "cn_lite0")]
+    CryptonightLite0,
+
+    [EnumMember(Value = "cn_lite1")]
+    CryptonightLite1,
+
+    [EnumMember(Value = "cn_heavy")]
+    CryptonightHeavy,
+
+    [EnumMember(Value = "cn_heavy_xhv")]
+    CryptonightHeavyXHV,
+
+    [EnumMember(Value = "cn_heavy_tube")]
+    CryptonightHeavyTube,
+
+    [EnumMember(Value = "cn_pico")]
+    CryptonightPico,
+
+    [EnumMember(Value = "argon_chukwa")]
+    ArgonCHUKWA,
+
+    [EnumMember(Value = "argon_chukwa_v2")]
+    ArgonCHUKWAV2,
+
+    [EnumMember(Value = "argon_wrkz")]
+    ArgonWRKZ,
+}
+
+public partial class CryptonoteCoinTemplate : CoinTemplate
+{
+    [JsonProperty(Order = -7, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+    [DefaultValue(CryptonoteSubfamily.None)]
+    [JsonConverter(typeof(StringEnumConverter), true)]
+    public CryptonoteSubfamily Subfamily { get; set; }
+
+    /// <summary>
+    /// Broader Cryptonight hash family
+    /// </summary>
+    [JsonConverter(typeof(StringEnumConverter), true)]
+    [JsonProperty(Order = -5)]
+    public CryptonightHashType Hash { get; set; }
+
+    /// <summary>
+    /// Set to 0 for automatic selection from blobtemplate
+    /// </summary>
+    [JsonProperty(Order = -4, DefaultValueHandling = DefaultValueHandling.Include)]
+    public int HashVariant { get; set; }
+
+    /// <summary>
+    /// Smallest unit for Blockreward formatting
+    /// </summary>
+    public decimal SmallestUnit { get; set; }
+
+    /// <summary>
+    /// Prefix of a valid address
+    /// See: namespace config -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/cryptonote_config.h
+    /// </summary>
+    public ulong AddressPrefix { get; set; }
+
+    /// <summary>
+    /// Sub Prefix of a valid sub address
+    /// See: namespace config -> CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX in src/cryptonote_config.h
+    /// </summary>
+    public ulong SubAddressPrefix { get; set; }
+
+    /// <summary>
+    /// Prefix of a valid testnet-address
+    /// See: namespace config -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/cryptonote_config.h
+    /// </summary>
+    public ulong AddressPrefixTestnet { get; set; }
+
+    /// <summary>
+    /// Sub Prefix of a valid testnet-address
+    /// See: namespace config -> CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX in src/cryptonote_config.h
+    /// </summary>
+    public ulong SubAddressPrefixTestnet { get; set; }
+
+    /// <summary>
+    /// Prefix of a valid stagenet-address
+    /// See: namespace config -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/cryptonote_config.h
+    /// </summary>
+    public ulong AddressPrefixStagenet { get; set; }
+
+    /// <summary>
+    /// Sub Prefix of a valid stagenet-address
+    /// See: namespace config -> CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX in src/cryptonote_config.h
+    /// </summary>
+    public ulong SubAddressPrefixStagenet { get; set; }
+
+    /// <summary>
+    /// Prefix of a valid integrated address
+    /// See: namespace testnet -> CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX  in src/cryptonote_config.h
+    /// </summary>
+    public ulong AddressPrefixIntegrated { get; set; }
+
+    /// <summary>
+    /// Prefix of a valid integrated stagenet-address
+    /// See: namespace testnet -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/cryptonote_config.h
+    /// </summary>
+    public ulong AddressPrefixIntegratedStagenet { get; set; }
+
+    /// <summary>
+    /// Prefix of a valid integrated testnet-address
+    /// See: namespace testnet -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/cryptonote_config.h
+    /// </summary>
+    public ulong AddressPrefixIntegratedTestnet { get; set; }
+
+    /// <summary>
+    /// Fraction of block reward, the pool really gets to keep
+    /// </summary>
+    [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+    [DefaultValue(1.0d)]
+    public decimal BlockrewardMultiplier { get; set; }
 }
 
 public enum EquihashSubfamily
@@ -341,244 +592,8 @@ public partial class EquihashCoinTemplate : CoinTemplate
     public bool UseBitcoinPayoutHandler { get; set; }
 }
 
-public enum ConcealSubfamily
+public partial class ErgoCoinTemplate : CoinTemplate
 {
-    [EnumMember(Value = "none")]
-    None,
-}
-
-public enum CryptonoteSubfamily
-{
-    [EnumMember(Value = "none")]
-    None,
-}
-
-public enum CryptonightHashType
-{
-    [EnumMember(Value = "randomx")]
-    RandomX,
-
-    [EnumMember(Value = "randomarq")]
-    RandomARQ,
-
-    [EnumMember(Value = "cn0")]
-    Cryptonight0,
-
-    [EnumMember(Value = "cn1")]
-    Cryptonight1,
-
-    [EnumMember(Value = "cn2")]
-    Cryptonight2,
-
-    [EnumMember(Value = "cn-half")]
-    CryptonightHalf,
-
-    [EnumMember(Value = "cn-double")]
-    CryptonightDouble,
-
-    [EnumMember(Value = "cn-r")]
-    CryptonightR,
-
-    [EnumMember(Value = "cn-rto")]
-    CryptonightRTO,
-
-    [EnumMember(Value = "cn-rwz")]
-    CryptonightRWZ,
-
-    [EnumMember(Value = "cn-zls")]
-    CryptonightZLS,
-
-    [EnumMember(Value = "cn-ccx")]
-    CryptonightCCX,
-
-    [EnumMember(Value = "cn-gpu")]
-    CryptonightGPU,
-
-    [EnumMember(Value = "cn-fast")]
-    CryptonightFast,
-
-    [EnumMember(Value = "cn-xao")]
-    CryptonightXAO,
-
-    [EnumMember(Value = "gr")]
-    Ghostrider,
-
-    [EnumMember(Value = "cn_lite0")]
-    CryptonightLite0,
-
-    [EnumMember(Value = "cn_lite1")]
-    CryptonightLite1,
-
-    [EnumMember(Value = "cn_heavy")]
-    CryptonightHeavy,
-
-    [EnumMember(Value = "cn_heavy_xhv")]
-    CryptonightHeavyXHV,
-
-    [EnumMember(Value = "cn_heavy_tube")]
-    CryptonightHeavyTube,
-
-    [EnumMember(Value = "cn_pico")]
-    CryptonightPico,
-
-    [EnumMember(Value = "argon_chukwa")]
-    ArgonCHUKWA,
-
-    [EnumMember(Value = "argon_chukwa_v2")]
-    ArgonCHUKWAV2,
-
-    [EnumMember(Value = "argon_wrkz")]
-    ArgonWRKZ,
-}
-
-public partial class ConcealCoinTemplate : CoinTemplate
-{
-    [JsonProperty(Order = -7, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
-    [DefaultValue(ConcealSubfamily.None)]
-    [JsonConverter(typeof(StringEnumConverter), true)]
-    public ConcealSubfamily Subfamily { get; set; }
-
-    /// <summary>
-    /// Broader Cryptonight hash family
-    /// </summary>
-    [JsonConverter(typeof(StringEnumConverter), true)]
-    [JsonProperty(Order = -5)]
-    public CryptonightHashType Hash { get; set; }
-
-    /// <summary>
-    /// Set to 0 for automatic selection from blobtemplate
-    /// </summary>
-    [JsonProperty(Order = -4, DefaultValueHandling = DefaultValueHandling.Include)]
-    public int HashVariant { get; set; }
-    
-    /// <summary>
-    /// Conceal network hashrate = `Difficulty / DifficultyTarget`
-    /// See: parameter -> DIFFICULTY_TARGET in src/CryptoNoteConfig.h
-    /// </summary>
-    public ulong DifficultyTarget { get; set; }
-    
-    /// <summary>
-    /// Smallest unit for Blockreward formatting
-    /// </summary>
-    public decimal SmallestUnit { get; set; }
-
-    /// <summary>
-    /// Prefix of a valid address
-    /// See: parameter -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/CryptoNoteConfig.h
-    /// </summary>
-    public ulong AddressPrefix { get; set; }
-
-    /// <summary>
-    /// Prefix of a valid testnet-address
-    /// See: parameter -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/CryptoNoteConfig.h
-    /// </summary>
-    public ulong AddressPrefixTestnet { get; set; }
-
-    /// <summary>
-    /// Prefix of a valid integrated address
-    /// See: parameter -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/CryptoNoteConfig.h
-    /// </summary>
-    public ulong AddressPrefixIntegrated { get; set; }
-
-    /// <summary>
-    /// Prefix of a valid integrated testnet-address
-    /// See: parameter -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/CryptoNoteConfig.h
-    /// </summary>
-    public ulong AddressPrefixIntegratedTestnet { get; set; }
-
-    /// <summary>
-    /// Fraction of block reward, the pool really gets to keep
-    /// </summary>
-    [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
-    [DefaultValue(1.0d)]
-    public decimal BlockrewardMultiplier { get; set; }
-}
-
-public partial class CryptonoteCoinTemplate : CoinTemplate
-{
-    [JsonProperty(Order = -7, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
-    [DefaultValue(CryptonoteSubfamily.None)]
-    [JsonConverter(typeof(StringEnumConverter), true)]
-    public CryptonoteSubfamily Subfamily { get; set; }
-
-    /// <summary>
-    /// Broader Cryptonight hash family
-    /// </summary>
-    [JsonConverter(typeof(StringEnumConverter), true)]
-    [JsonProperty(Order = -5)]
-    public CryptonightHashType Hash { get; set; }
-
-    /// <summary>
-    /// Set to 0 for automatic selection from blobtemplate
-    /// </summary>
-    [JsonProperty(Order = -4, DefaultValueHandling = DefaultValueHandling.Include)]
-    public int HashVariant { get; set; }
-
-    /// <summary>
-    /// Smallest unit for Blockreward formatting
-    /// </summary>
-    public decimal SmallestUnit { get; set; }
-
-    /// <summary>
-    /// Prefix of a valid address
-    /// See: namespace config -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/cryptonote_config.h
-    /// </summary>
-    public ulong AddressPrefix { get; set; }
-
-    /// <summary>
-    /// Sub Prefix of a valid sub address
-    /// See: namespace config -> CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX in src/cryptonote_config.h
-    /// </summary>
-    public ulong SubAddressPrefix { get; set; }
-
-    /// <summary>
-    /// Prefix of a valid testnet-address
-    /// See: namespace config -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/cryptonote_config.h
-    /// </summary>
-    public ulong AddressPrefixTestnet { get; set; }
-
-    /// <summary>
-    /// Sub Prefix of a valid testnet-address
-    /// See: namespace config -> CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX in src/cryptonote_config.h
-    /// </summary>
-    public ulong SubAddressPrefixTestnet { get; set; }
-
-    /// <summary>
-    /// Prefix of a valid stagenet-address
-    /// See: namespace config -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/cryptonote_config.h
-    /// </summary>
-    public ulong AddressPrefixStagenet { get; set; }
-
-    /// <summary>
-    /// Sub Prefix of a valid stagenet-address
-    /// See: namespace config -> CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX in src/cryptonote_config.h
-    /// </summary>
-    public ulong SubAddressPrefixStagenet { get; set; }
-
-    /// <summary>
-    /// Prefix of a valid integrated address
-    /// See: namespace testnet -> CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX  in src/cryptonote_config.h
-    /// </summary>
-    public ulong AddressPrefixIntegrated { get; set; }
-
-    /// <summary>
-    /// Prefix of a valid integrated stagenet-address
-    /// See: namespace testnet -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/cryptonote_config.h
-    /// </summary>
-    public ulong AddressPrefixIntegratedStagenet { get; set; }
-
-    /// <summary>
-    /// Prefix of a valid integrated testnet-address
-    /// See: namespace testnet -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/cryptonote_config.h
-    /// </summary>
-    public ulong AddressPrefixIntegratedTestnet { get; set; }
-
-    /// <summary>
-    /// Fraction of block reward, the pool really gets to keep
-    /// </summary>
-    [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
-    [DefaultValue(1.0d)]
-    public decimal BlockrewardMultiplier { get; set; }
 }
 
 public enum EthereumSubfamily
@@ -595,13 +610,9 @@ public partial class EthereumCoinTemplate : CoinTemplate
     public EthereumSubfamily Subfamily { get; set; }
     
     /// <summary>
-    /// Which hashing algorithm to use. (ethash, etchash or ubqhash)
+    /// Which hashing algorithm to use. (ethash, etchash, ubqhash or ethashb3)
     /// </summary>
     public string Ethasher { get; set; } = "ethash";
-}
-
-public partial class ErgoCoinTemplate : CoinTemplate
-{
 }
 
 public partial class ProgpowTemplate : BitcoinTemplate
