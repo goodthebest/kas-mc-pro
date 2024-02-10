@@ -75,7 +75,7 @@ public class AdminApiController : ApiControllerBase
         return "Ok";
     }
 
-        [HttpGet("payment/processing/enable")]
+    [HttpGet("payment/processing/enable")]
     public ActionResult<string> EnablePoolsPaymentProcessing()
     {
         var poolIdsUpdated = new List<string>();
