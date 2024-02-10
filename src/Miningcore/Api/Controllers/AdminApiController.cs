@@ -75,6 +75,76 @@ public class AdminApiController : ApiControllerBase
         return "Ok";
     }
 
+        [HttpGet("payment/processing/enable")]
+    public ActionResult<string> EnablePoolsPaymentProcessing()
+    {
+        var poolIdsUpdated = new List<string>();
+        foreach(var pool in pools.Values)
+        {
+            if(!pool.Config.Enabled)
+                continue;
+
+            poolIdsUpdated.Add(pool.Config.Id);
+            pool.Config.PaymentProcessing.Enabled = true;
+        }
+
+        // Join the poolIdsUpdated into CSV string
+        var poolIdsCsv = String.Join(",", poolIdsUpdated);
+        logger.Info(()=> $"Enabled payment processing for pool {poolIdsCsv}");
+
+        return poolIdsCsv;
+    }
+
+    [HttpGet("payment/processing/disable")]
+    public ActionResult<string> DisablePoolsPaymentProcessing()
+    {
+        var poolIdsUpdated = new List<string>();
+        foreach(var pool in pools.Values)
+        {
+            if(!pool.Config.Enabled)
+                continue;
+
+            poolIdsUpdated.Add(pool.Config.Id);
+            pool.Config.PaymentProcessing.Enabled = false;
+        }
+
+        // Join the poolIdsUpdated into CSV string
+        var poolIdsCsv = String.Join(",", poolIdsUpdated);
+        logger.Info(()=> $"Disabled payment processing for pool {poolIdsCsv}");
+
+        return poolIdsCsv;
+    }
+
+    [HttpGet("payment/processing/{poolId}/enable")]
+    public ActionResult<string> EnablePoolPaymentProcessing(string poolId)
+    {
+        if (string.IsNullOrEmpty(poolId))
+            throw new ApiException("Missing pool ID", HttpStatusCode.BadRequest);
+
+        pools.TryGetValue(poolId, out var poolInstance);
+        if(poolInstance == null)
+            return "-1";
+
+        poolInstance.Config.PaymentProcessing.Enabled = true;
+        logger.Info(()=> $"Enabled payment processing for pool {poolId}");
+        return "Ok";
+    }
+
+    [HttpGet("payment/processing/{poolId}/disable")]
+    public ActionResult<string> DisablePoolPaymentProcessing(string poolId)
+    {
+        if (string.IsNullOrEmpty(poolId))
+            throw new ApiException("Missing pool ID", HttpStatusCode.BadRequest);
+
+        pools.TryGetValue(poolId, out var poolInstance);
+        if(poolInstance == null)
+            return "-1";
+
+        poolInstance.Config.PaymentProcessing.Enabled = false;
+        logger.Info(()=> $"Disabled payment processing for pool {poolId}");
+        return "Ok";
+    }
+
     [HttpGet("stats/gc")]
     public ActionResult<Responses.AdminGcStats> GetGcStats()
     {
