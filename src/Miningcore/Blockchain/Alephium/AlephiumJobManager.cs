@@ -41,7 +41,7 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
         this.clock = clock;
         this.extraNonceProvider = extraNonceProvider;
     }
-    
+
     private DaemonEndpointConfig[] daemonEndpoints;
     private AlephiumCoinTemplate coin;
     private AlephiumClient rpc;
@@ -53,7 +53,7 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
     private AlephiumPaymentProcessingConfigExtra extraPoolPaymentProcessingConfig;
     protected int maxActiveJobs;
     private int socketJobMessageBufferSize;
-    
+
     protected IObservable<AlephiumBlockTemplate[]> AlephiumSubscribeStratumApiSocketClient(CancellationToken ct, DaemonEndpointConfig endPoint,
         AlephiumDaemonEndpointConfigExtra extraDaemonEndpoint, object payload = null,
         JsonSerializerSettings payloadJsonSerializerSettings = null)
@@ -88,16 +88,16 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
                             string hello = "hello";
                             byte[] requestData = Encoding.UTF8.GetBytes($"{hello}\r\n");
                             int receivedBytes;
-                            
+
                             // Message
                             byte messageType;
                             uint messageLength;
-                            
+
                             MemoryStream memory = new MemoryStream();
                             long remainingBytes;
                             byte[] remainingDataBytes;
                             BinaryReader reader;
-                            
+
                             // Job
                             //int offset;
                             AlephiumBlockTemplate[] alephiumBlockTemplate;
@@ -110,7 +110,7 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
                             byte[] txsBlob;
                             uint targetLength;
                             byte[] targetBlob;
-                            
+
                             ChainInfo chainInfo;
 
                             logger.Debug(() => $"Sending request `{hello}`");
@@ -230,7 +230,7 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
                         {
                             logger.Error(() => $"{ex.GetType().Name} '{ex.Message}' while streaming socket responses. Reconnecting in 10s");
                         }
-                        
+
                         if(!cts.IsCancellationRequested)
                         {
                             await Task.Delay(TimeSpan.FromSeconds(10), cts.Token);
@@ -238,27 +238,27 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
                         }
                 }
             }, cts.Token);
-            
+
             return Disposable.Create(() => { cts.Cancel(); });
         }));
     }
-    
+
     private uint ReadBigEndianUInt32(BinaryReader reader, int count = 4)
     {
         byte[] tmpByte = reader.ReadBytes(count);
         Array.Reverse(tmpByte);
         return BitConverter.ToUInt32(tmpByte, 0);
     }
-    
+
     private void SetupJobUpdates(CancellationToken ct)
     {
         // Prepare data for the stratum API socket
         var daemonEndpoint = daemonEndpoints.First();
         var extraDaemonEndpoint = daemonEndpoint.Extra.SafeExtensionDataAs<AlephiumDaemonEndpointConfigExtra>();
-        
+
         if(extraDaemonEndpoint?.MinerApiPort == null)
             throw new PoolStartupException("Alephium Node's Miner API Port `minerApiPort` not provided", poolConfig.Id);
-        
+
         var blockFound = blockFoundSubject.Synchronize();
         var pollTimerRestart = blockFoundSubject.Synchronize();
 
@@ -271,7 +271,7 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
         var getWorkSocket = AlephiumSubscribeStratumApiSocketClient(ct, daemonEndpoint, extraDaemonEndpoint)
             .Publish()
             .RefCount();
-            
+
         triggers.Add(getWorkSocket
             .Select(blockTemplates => (JobRefreshBy.Socket, blockTemplates))
             .Publish()
@@ -382,7 +382,7 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
             }
         }, cts.Token);
     }
-    
+
     private async Task UpdateNetworkStatsAsync(CancellationToken ct)
     {
         try
@@ -391,7 +391,7 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
             var info = await rpc.GetInfosInterCliquePeerInfoAsync(ct);
             var infoHashrate = await rpc.GetInfosCurrentHashrateAsync(null, ct);
             var infoDifficulty = await rpc.GetInfosCurrentDifficultyAsync(ct);
-            
+
             BlockchainStats.ConnectedPeers = info.Count;
             BlockchainStats.NetworkDifficulty = (double) infoDifficulty.Difficulty;
             BlockchainStats.NetworkHashrate = AlephiumUtils.TranslateApiHashrate(infoHashrate.Hashrate);
@@ -417,7 +417,7 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
         JsonSerializerSettings payloadJsonSerializerSettings = null)
     {
         Contract.RequiresNonNull(coinbase);
-        
+
         bool succeed = false;
         byte[] receiveBuffer = new byte[8192];
 
@@ -468,13 +468,13 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
 
             client.Shutdown(SocketShutdown.Both);
         }
-        
+
         catch(Exception)
         {
             // We lost that battle
             messageBus.SendMessage(new AdminNotification("Block submission failed", $"Pool {poolConfig.Id} failed to submit block"));
         }
-        
+
         return succeed;
     }
 
@@ -510,7 +510,7 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
         Contract.RequiresNonNull(submitParams);
 
         var context = worker.ContextAs<AlephiumWorkerContext>();
-        
+
         var jobId = submitParams.JobId;
         var nonce = submitParams.Nonce;
 
@@ -540,7 +540,7 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
         if(share.IsBlockCandidate)
         {
             logger.Info(() => $"Submitting block {share.BlockHeight} [{share.BlockHash}]");
-            
+
             // Prepare data for the stratum API socket
             var daemonEndpoint = daemonEndpoints.First();
             var extraDaemonEndpoint = daemonEndpoint.Extra.SafeExtensionDataAs<AlephiumDaemonEndpointConfigExtra>();
@@ -551,7 +551,7 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
 
             // is it still a block candidate?
             share.IsBlockCandidate = acceptResponse;
-            
+
             if(share.IsBlockCandidate)
             {
                 logger.Info(() => $"Daemon accepted block {share.BlockHeight} [{share.BlockHash}] submitted by {context.Miner}");
@@ -599,29 +599,29 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
             // validate pool wallet name
             if(string.IsNullOrEmpty(extraPoolPaymentProcessingConfig.WalletName))
                 throw new PoolStartupException($"Pool payment wallet name is not configured", poolConfig.Id);
-            
+
             // check configured pool wallet name belongs to wallet
             var validityWalletName = await Guard(() => rpc.NameAsync(extraPoolPaymentProcessingConfig.WalletName, ct),
                 ex=> throw new PoolStartupException($"Error validating pool payment wallet name: {ex}", poolConfig.Id));
-            
+
             // unlocked wallet if locked
             if(validityWalletName.Locked)
             {
                 var walletPassword = extraPoolPaymentProcessingConfig.WalletPassword ?? string.Empty;
-                
+
                 await Guard(() => rpc.NameUnlockAsync(extraPoolPaymentProcessingConfig.WalletName, new WalletUnlock {Password = walletPassword}, ct),
                     ex=> throw new PoolStartupException($"Error validating pool payment wallet name: {ex}", poolConfig.Id));
-                
+
                 logger.Info(() => $"Pool payment wallet is unlocked");
             }
-            
+
             // check configured pool wallet has 4 addresses
             var validityWalletMinerAddresses = await Guard(() => rpc.NameAddressesAsync(extraPoolPaymentProcessingConfig.WalletName, ct),
                 ex=> throw new PoolStartupException($"Error validating pool payment wallet name: {ex}", poolConfig.Id));
-            
+
             if (validityWalletMinerAddresses?.Addresses1.Count < 4)
                 throw new PoolStartupException($"Pool payment wallet name: {extraPoolPaymentProcessingConfig.WalletName} must have 4 miner's addresses", poolConfig.Id);
-            
+
             // check configured address belongs to wallet
             var walletAddresses = await Guard(() => rpc.NameAddressesAddressAsync(extraPoolPaymentProcessingConfig.WalletName, poolConfig.Address, ct),
                 ex=> throw new PoolStartupException($"Pool address: {poolConfig.Address} is not controlled by pool wallet name: {extraPoolPaymentProcessingConfig.WalletName} - Error: {ex}", poolConfig.Id));
@@ -629,10 +629,10 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
             if(walletAddresses.Address != poolConfig.Address)
                 throw new PoolStartupException($"Pool address: {poolConfig.Address} is not controlled by pool wallet name: {extraPoolPaymentProcessingConfig.WalletName}", poolConfig.Id);
         }
-        
+
         var infosChainParams = await Guard(() => rpc.GetInfosChainParamsAsync(ct),
             ex=> throw new PoolStartupException($"Daemon reports: {ex.Message}", poolConfig.Id));
-        
+
         switch(infosChainParams?.NetworkId)
         {
             case 0:
@@ -651,7 +651,7 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
         // update stats
         BlockchainStats.NetworkType = network;
         BlockchainStats.RewardType = "POW";
-        
+
         await UpdateNetworkStatsAsync(ct);
 
         // Periodically update network stats
@@ -671,10 +671,10 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
 
         extraPoolConfig = pc.Extra.SafeExtensionDataAs<AlephiumPoolConfigExtra>();
         extraPoolPaymentProcessingConfig = pc.PaymentProcessing.Extra.SafeExtensionDataAs<AlephiumPaymentProcessingConfigExtra>();
-        
+
         maxActiveJobs = extraPoolConfig?.MaxActiveJobs ?? 8;
         socketJobMessageBufferSize = extraPoolConfig?.SocketJobMessageBufferSize ?? 131072;
-        
+
         // extract standard daemon endpoints
         daemonEndpoints = pc.Daemons
             .Where(x => string.IsNullOrEmpty(x.Category))
