@@ -59,11 +59,12 @@ public static class KaspaConstants
 
 public static class SedraConstants
 {
-    // List of KLS prefixes: https://github.com/karlsen-network/karlsend/blob/master/util/address.go
+    // List of SDR prefixes: https://github.com/sedracoin/sedrad/blob/main/util/address.go
     public const string ChainPrefixDevnet = "sedradev";
     public const string ChainPrefixSimnet = "sedrasim";
     public const string ChainPrefixTestnet = "sedratest";
     public const string ChainPrefixMainnet = "sedra";
+    
 
 }
 

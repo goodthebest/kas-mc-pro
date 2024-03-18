@@ -374,19 +374,18 @@ public class KaspaAddressUtility
                 };
 
                 break;
-                
-            case "SDR":
+
+             case "SDR":
                 this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
                 {
-                    
                     { SedraConstants.ChainPrefixMainnet, KaspaBech32Prefix.KaspaMain },
                     { SedraConstants.ChainPrefixDevnet, KaspaBech32Prefix.KaspaDev },
                     { SedraConstants.ChainPrefixTestnet, KaspaBech32Prefix.KaspaTest },
                     { SedraConstants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
-
                 };
-                break;
 
+                break;
+                
             default:
                 this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
                 {
