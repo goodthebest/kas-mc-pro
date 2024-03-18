@@ -375,7 +375,7 @@ public class KaspaAddressUtility
 
                 break;
             case "SDR":
-                this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>P
+                this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
                 {
                     
                     { SedraConstants.ChainPrefixMainnet, KaspaBech32Prefix.KaspaMain },
