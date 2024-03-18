@@ -384,7 +384,8 @@ public class KaspaAddressUtility
                     { SedraConstants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
 
                 };
-
+                break;
+                
             default:
                 this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
                 {
