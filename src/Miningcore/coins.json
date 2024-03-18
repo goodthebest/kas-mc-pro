@@ -4822,5 +4822,20 @@
         "explorerBlockLink": "https://explorer.pyrin.network/blocks/$hash$",
         "explorerTxLink": "https://explorer.pyrin.network/txs/{0}",
         "explorerAccountLink": "https://explorer.pyrin.network/addresses/{0}"
+    },
+    "sedra": {
+        "name": "Sedra",
+        "canonicalName": "Sedra",
+        "symbol": "SDR",
+        "family": "kaspa",
+        "website": "https://www.sedracoin.com/",
+        "market": "",
+        "twitter": "",
+        "telegram": "",
+        "discord": "",
+        "explorerBlockLink": "https://explorer.sedracoin.com/blocks/$hash$",
+        "explorerTxLink": "https://explorer.sedracoin.com/txs/{0}",
+        "explorerAccountLink": "https://explorer.sedracoin.com/addresses/{0}"
     }
+
 }
