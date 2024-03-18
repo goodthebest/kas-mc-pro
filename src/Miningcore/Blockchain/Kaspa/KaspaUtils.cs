@@ -374,6 +374,7 @@ public class KaspaAddressUtility
                 };
 
                 break;
+                
             case "SDR":
                 this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
                 {
@@ -385,7 +386,7 @@ public class KaspaAddressUtility
 
                 };
                 break;
-                
+
             default:
                 this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
                 {

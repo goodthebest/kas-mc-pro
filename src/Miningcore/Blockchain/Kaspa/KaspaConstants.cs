@@ -57,7 +57,7 @@ public static class KaspaConstants
     public const int Blake2bSize256 = 32;
 }
 
-public static class SedracoinConstants
+public static class SedraConstants
 {
     // List of KLS prefixes: https://github.com/karlsen-network/karlsend/blob/master/util/address.go
     public const string ChainPrefixDevnet = "sedradev";
