@@ -375,6 +375,17 @@ public class KaspaAddressUtility
 
                 break;
 
+            case "BGA":
+                this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
+                {
+                    { BugnaConstants.ChainPrefixMainnet, KaspaBech32Prefix.KaspaMain },
+                    { BugnaConstants.ChainPrefixDevnet, KaspaBech32Prefix.KaspaDev },
+                    { BugnaConstants.ChainPrefixTestnet, KaspaBech32Prefix.KaspaTest },
+                    { BugnaConstants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
+                };
+
+                break;
+                
              case "SDR":
                 this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
                 {

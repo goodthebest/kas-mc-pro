@@ -16,6 +16,7 @@ using Miningcore.Blockchain.Kaspa.Configuration;
 using Miningcore.Blockchain.Kaspa.Custom.Karlsencoin;
 using Miningcore.Blockchain.Kaspa.Custom.Pyrin;
 using Miningcore.Blockchain.Kaspa.Custom.Sedra;
+using Miningcore.Blockchain.Kaspa.Custom.Bugna;
 using NLog;
 using Miningcore.Configuration;
 using Miningcore.Crypto;

@@ -68,7 +68,16 @@ public static class SedraConstants
 
 }
 
+public static class BugnaConstants
+{
+    // List of BGA prefixes: https://github.com/bugnanetwork/bugnad/blob/master/util/address.go
+    public const string ChainPrefixDevnet = "bugnadev";
+    public const string ChainPrefixSimnet = "bugnasim";
+    public const string ChainPrefixTestnet = "bugnatest";
+    public const string ChainPrefixMainnet = "bugna";
+    
 
+}
 public static class KarlsencoinConstants
 {
     // List of KLS prefixes: https://github.com/karlsen-network/karlsend/blob/master/util/address.go

@@ -4836,6 +4836,20 @@
         "explorerBlockLink": "https://explorer.sedracoin.com/blocks/$hash$",
         "explorerTxLink": "https://explorer.sedracoin.com/txs/{0}",
         "explorerAccountLink": "https://explorer.sedracoin.com/addresses/{0}"
+    },
+    "bugna": {
+        "name": "Bugna",
+        "canonicalName": "Bugna",
+        "symbol": "BGA",
+        "family": "kaspa",
+        "website": "https://bugna.org/",
+        "market": "",
+        "twitter": "",
+        "telegram": "",
+        "discord": "",
+        "explorerBlockLink": "https://explorer.bugna.org/blocks/$hash$",
+        "explorerTxLink": "https://explorer.bugna.org/txs/{0}",
+        "explorerAccountLink": "https://explorer.bugna.org/addresses/{0}"
     }
 
 }
