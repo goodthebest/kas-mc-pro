@@ -329,9 +329,9 @@ public class KaspaJobManager : JobManagerBase<KaspaJob>
                         logger.Debug(() => $"Difficulty: {job.Difficulty}");
                         
                         if(via != null)
-                            logger.Info(() => $"Detected new block {job.BlockTemplate.Header.DaaScore} [{via}]");
+                            logger.Debug(() => $"Detected new block {job.BlockTemplate.Header.DaaScore} [{via}]");
                         else
-                            logger.Info(() => $"Detected new block {job.BlockTemplate.Header.DaaScore}");
+                            logger.Debug(() => $"Detected new block {job.BlockTemplate.Header.DaaScore}");
 
                         // update stats
                         if (job.BlockTemplate.Header.DaaScore > BlockchainStats.BlockHeight)
