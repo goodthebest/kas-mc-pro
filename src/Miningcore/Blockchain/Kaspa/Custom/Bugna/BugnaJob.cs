@@ -6,7 +6,7 @@ using Miningcore.Extensions;
 
 namespace Miningcore.Blockchain.Kaspa.Custom.Bugna;
 
-public class Bugna : KaspaJob
+public class BugnaJob : KaspaJob
 {
     public BugnaJob(IHashAlgorithm customBlockHeaderHasher, IHashAlgorithm customCoinbaseHasher, IHashAlgorithm customShareHasher) : base(customBlockHeaderHasher, customCoinbaseHasher, customShareHasher)
     {
