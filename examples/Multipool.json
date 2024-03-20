@@ -6,7 +6,7 @@
         "logFile": "",
         "apiLogFile": "",
         "logBaseDirectory": "",
-        "perPoolLogFile": false
+        "perPoolLogFile": true
     },
     "banning": {
         "manager": "Integrated",
@@ -66,11 +66,11 @@
         "id": "kas1",
         "enabled": true,
         "coin": "kaspa",
-        "address": "kaspa:qpee454h906cyt6pqr5gfegpxx7xjqp79dtwcqz8t698ugulhq8fxg56uaxm9",
+        "address": "kaspa:xxxxx",
         "rewardRecipients": [
             {
                 "type": "op",
-                "address": "kaspa:qpee454h906cyt6pqr5gfegpxx7xjqp79dtwcqz8t698ugulhq8fxg56uaxm9",
+                "address": "kaspa:xxxxx",
                 "percentage": 1
             }
         ],
@@ -140,15 +140,15 @@
         "id": "sdr1",
         "enabled": true,
         "coin": "sedra",
-        "address": "kaspa:qpee454h906cyt6pqr5gfegpxx7xjqp79dtwcqz8t698ugulhq8fxg56uaxm9",
+        "address": "sedra:xxxxx",
         "rewardRecipients": [
             {
                 "type": "op",
-                "address": "kaspa:qpee454h906cyt6pqr5gfegpxx7xjqp79dtwcqz8t698ugulhq8fxg56uaxm9",
+                "address": "sedra:xxxxx",
                 "percentage": 1
             }
         ],
-        "protobufWalletRpcServiceName": "kaspawalletd.kaspawalletd",
+        "protobufWalletRpcServiceName": "sedrawalletd.sedrawalletd",
         "clientConnectionTimeout": 600,
         "banning": {
             "enabled": true,
@@ -157,7 +157,7 @@
             "checkThreshold": 50
         },
         "ports": {
-            "4094": {
+            "4094": {    
                 "listenAddress": "0.0.0.0",
                 "difficulty": 1000,
                 "varDiff": {
@@ -202,15 +202,88 @@
         ],
         "paymentProcessing": {
             "enabled": true,
-            "walletPassword": "<The Kaspa's wallet password which owns the pool address>",
+            "walletPassword": "<The sedra's wallet password which owns the pool address>",
             "minimumPayment": 1,
             "payoutScheme": "PPLNS",
             "payoutSchemeConfig": {
                 "factor": 0.5
             }
         }
+    }, 
+    {
+        "id": "bga1",
+        "enabled": true,
+        "coin": "bugna",
+        "address": "bugna:xxxx",
+        "rewardRecipients": [
+            {
+                "type": "op",
+                "address": "bugna.xxxx",
+                "percentage": 1
+            }
+        ],
+        "protobufWalletRpcServiceName": "bugnawalletd.bugnawalletd",
+        "clientConnectionTimeout": 600,
+        "banning": {
+            "enabled": true,
+            "time": 600,
+            "invalidPercent": 50,
+            "checkThreshold": 50
+        },
+        "ports": {
+            "4094": {
+                "listenAddress": "0.0.0.0",
+                "difficulty": 1000,
+                "varDiff": {
+                    "minDiff": 2,
+                    "maxDiff": null,
+                    "targetTime": 15,
+                    "retargetTime": 90,
+                    "variancePercent": 100,
+                    "maxDelta": 512
+                }
+            },
+            "4095": {
+                "listenAddress": "0.0.0.0",
+                "difficulty": 4,
+                "tls": false,
+                "tlsPfxFile": "<Your directory for the pfx file>",
+                "tlsPfxPassword": "password",
+                "varDiff": {
+                    "minDiff": 2,
+                    "maxDiff": null,
+                    "targetTime": 15,
+                    "retargetTime": 90,
+                    "variancePercent": 100,
+                    "maxDelta": 512
+                }
+            }
+        },
+        "daemons": [
+            {
+                "host": "127.0.0.1",
+                "port": 38138,
+                "user": null,
+                "password": null
+            },
+            {
+                "host": "127.0.0.1",
+                "port": 8086,
+                "user": null,
+                "password": null,
+                "category": "wallet"
+            }
+        ],
+        "paymentProcessing": {
+            "enabled": true,
+            "walletPassword": "<The Bugna's wallet password which owns the pool address>",
+            "minimumPayment": 1,
+            "payoutScheme": "PPLNS",
+            "payoutSchemeConfig": {
+                "factor": 0.5
+            }
+        }    
     }
-
 
 
 
