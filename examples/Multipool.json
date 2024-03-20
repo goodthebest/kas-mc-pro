@@ -85,7 +85,7 @@
         "ports": {
             "3094": {
                 "listenAddress": "0.0.0.0",
-                "difficulty":1000,
+                "difficulty": 1000,
                 "varDiff": {
                     "minDiff": 2,
                     "maxDiff": null,
@@ -97,10 +97,7 @@
             },
             "3095": {
                 "listenAddress": "0.0.0.0",
-                "difficulty": 4,
-                "tls": false,
-                "tlsPfxFile": "<Your directory for the pfx file>",
-                "tlsPfxPassword": "password",
+                "difficulty": 4000,
                 "varDiff": {
                     "minDiff": 2,
                     "maxDiff": null,
@@ -109,6 +106,31 @@
                     "variancePercent": 100,
                     "maxDelta": 512
                 }
+            },
+            "3096": {
+                "listenAddress": "0.0.0.0",
+                "difficulty": 8000,
+                "varDiff": {
+                    "minDiff": 2,
+                    "maxDiff": null,
+                    "targetTime": 15,
+                    "retargetTime": 90,
+                    "variancePercent": 100,
+                    "maxDelta": 512
+                }
+            },
+            "3097":{
+                "listenAddress": "0.0.0.0",
+                "difficulty": 12000,
+                "varDiff": {
+                    "minDiff": 2,
+                    "maxDiff": null,
+                    "targetTime": 15,
+                    "retargetTime": 90,
+                    "variancePercent": 100,
+                    "maxDelta": 1000
+                }
+
             }
         },
         "daemons": [
@@ -157,7 +179,7 @@
             "checkThreshold": 50
         },
         "ports": {
-            "4094": {    
+            "4094": {
                 "listenAddress": "0.0.0.0",
                 "difficulty": 1000,
                 "varDiff": {
@@ -171,10 +193,7 @@
             },
             "4095": {
                 "listenAddress": "0.0.0.0",
-                "difficulty": 4,
-                "tls": false,
-                "tlsPfxFile": "<Your directory for the pfx file>",
-                "tlsPfxPassword": "password",
+                "difficulty": 4000,
                 "varDiff": {
                     "minDiff": 2,
                     "maxDiff": null,
@@ -182,6 +201,30 @@
                     "retargetTime": 90,
                     "variancePercent": 100,
                     "maxDelta": 512
+                }
+            },
+            "4096": {
+                "listenAddress": "0.0.0.0",
+                "difficulty": 8000,
+                "varDiff": {
+                    "minDiff": 2,
+                    "maxDiff": null,
+                    "targetTime": 15,
+                    "retargetTime": 90,
+                    "variancePercent": 100,
+                    "maxDelta": 512
+                }
+            },
+            "4097":{
+                "listenAddress": "0.0.0.0",
+                "difficulty": 12000,
+                "varDiff": {
+                    "minDiff": 2,
+                    "maxDiff": null,
+                    "targetTime": 15,
+                    "retargetTime": 90,
+                    "variancePercent": 100,
+                    "maxDelta": 1000
                 }
             }
         },
@@ -231,7 +274,7 @@
             "checkThreshold": 50
         },
         "ports": {
-            "4094": {
+            "5094": {
                 "listenAddress": "0.0.0.0",
                 "difficulty": 1000,
                 "varDiff": {
@@ -243,12 +286,9 @@
                     "maxDelta": 512
                 }
             },
-            "4095": {
+            "5095": {
                 "listenAddress": "0.0.0.0",
-                "difficulty": 4,
-                "tls": false,
-                "tlsPfxFile": "<Your directory for the pfx file>",
-                "tlsPfxPassword": "password",
+                "difficulty": 4000,
                 "varDiff": {
                     "minDiff": 2,
                     "maxDiff": null,
@@ -257,8 +297,32 @@
                     "variancePercent": 100,
                     "maxDelta": 512
                 }
+            },
+            "5096": {
+                "listenAddress": "0.0.0.0",
+                "difficulty": 8000,
+                "varDiff": {
+                    "minDiff": 2,
+                    "maxDiff": null,
+                    "targetTime": 15,
+                    "retargetTime": 90,
+                    "variancePercent": 100,
+                    "maxDelta": 512
+                }
+            },
+            "5097":{
+                "listenAddress": "0.0.0.0",
+                "difficulty": 12000,
+                "varDiff": {
+                    "minDiff": 2,
+                    "maxDiff": null,
+                    "targetTime": 15,
+                    "retargetTime": 90,
+                    "variancePercent": 100,
+                    "maxDelta": 1000
+                }
             }
-        },
+            },
         "daemons": [
             {
                 "host": "127.0.0.1",
@@ -284,8 +348,5 @@
             }
         }    
     }
-
-
-
 ]
 }
