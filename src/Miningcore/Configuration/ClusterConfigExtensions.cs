@@ -262,11 +262,6 @@ public partial class KaspaCoinTemplate
                 return "Karlsenhash";
             case "PYI":
                 return "Pyrinhash";
-            case "SDR":
-                return "Sedrahash";
-            case "BGA":
-                return "Bugnahash";
-                
             default:
                 // TODO: return variant
                 return "kHeavyHash";
