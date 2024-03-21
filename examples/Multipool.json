@@ -85,50 +85,50 @@
         "ports": {
             "3094": {
                 "listenAddress": "0.0.0.0",
-                "difficulty": 1000,
+                "difficulty": 2199,
                 "varDiff": {
-                    "minDiff": 2,
+                    "minDiff": 2199,
                     "maxDiff": null,
-                    "targetTime": 15,
-                    "retargetTime": 90,
-                    "variancePercent": 100,
+                    "targetTime": 1,
+                    "retargetTime": 30,
+                    "variancePercent": 5,
                     "maxDelta": 512
                 }
             },
             "3095": {
                 "listenAddress": "0.0.0.0",
-                "difficulty": 4000,
+                "difficulty": 17592,
                 "varDiff": {
-                    "minDiff": 2,
+                    "minDiff": 17592,
                     "maxDiff": null,
-                    "targetTime": 15,
-                    "retargetTime": 90,
-                    "variancePercent": 100,
-                    "maxDelta": 512
+                    "targetTime": 1,
+                    "retargetTime": 30,
+                    "variancePercent": 5,
+                    "maxDelta": 2000
                 }
             },
             "3096": {
                 "listenAddress": "0.0.0.0",
-                "difficulty": 8000,
+                "difficulty": 35184,
                 "varDiff": {
-                    "minDiff": 2,
+                    "minDiff": 35184,
                     "maxDiff": null,
-                    "targetTime": 15,
-                    "retargetTime": 90,
-                    "variancePercent": 100,
-                    "maxDelta": 512
+                    "targetTime": 1,
+                    "retargetTime": 30,
+                    "variancePercent": 5,
+                    "maxDelta": 2000
                 }
             },
             "3097":{
                 "listenAddress": "0.0.0.0",
-                "difficulty": 12000,
+                "difficulty": 70368,
                 "varDiff": {
-                    "minDiff": 2,
+                    "minDiff": 70368,
                     "maxDiff": null,
-                    "targetTime": 15,
-                    "retargetTime": 90,
-                    "variancePercent": 100,
-                    "maxDelta": 1000
+                    "targetTime": 1,
+                    "retargetTime": 30,
+                    "variancePercent": 5,
+                    "maxDelta": 2000
                 }
 
             }
@@ -181,51 +181,52 @@
         "ports": {
             "4094": {
                 "listenAddress": "0.0.0.0",
-                "difficulty": 1000,
+                "difficulty": 2199,
                 "varDiff": {
-                    "minDiff": 2,
+                    "minDiff": 2199,
                     "maxDiff": null,
-                    "targetTime": 15,
-                    "retargetTime": 90,
-                    "variancePercent": 100,
+                    "targetTime": 1,
+                    "retargetTime": 30,
+                    "variancePercent": 5,
                     "maxDelta": 512
                 }
             },
             "4095": {
                 "listenAddress": "0.0.0.0",
-                "difficulty": 4000,
+                "difficulty": 17592,
                 "varDiff": {
-                    "minDiff": 2,
+                    "minDiff": 17592,
                     "maxDiff": null,
-                    "targetTime": 15,
-                    "retargetTime": 90,
-                    "variancePercent": 100,
-                    "maxDelta": 512
+                    "targetTime": 1,
+                    "retargetTime": 30,
+                    "variancePercent": 5,
+                    "maxDelta": 2000
                 }
             },
             "4096": {
                 "listenAddress": "0.0.0.0",
-                "difficulty": 8000,
+                "difficulty": 35184,
                 "varDiff": {
-                    "minDiff": 2,
+                    "minDiff": 35184,
                     "maxDiff": null,
-                    "targetTime": 15,
-                    "retargetTime": 90,
-                    "variancePercent": 100,
-                    "maxDelta": 512
+                    "targetTime": 1,
+                    "retargetTime": 30,
+                    "variancePercent": 5,
+                    "maxDelta": 2000
                 }
             },
             "4097":{
                 "listenAddress": "0.0.0.0",
-                "difficulty": 12000,
+                "difficulty": 70368,
                 "varDiff": {
-                    "minDiff": 2,
+                    "minDiff": 70368,
                     "maxDiff": null,
-                    "targetTime": 15,
-                    "retargetTime": 90,
-                    "variancePercent": 100,
-                    "maxDelta": 1000
+                    "targetTime": 1,
+                    "retargetTime": 30,
+                    "variancePercent": 5,
+                    "maxDelta": 2000
                 }
+
             }
         },
         "daemons": [
@@ -276,53 +277,55 @@
         "ports": {
             "5094": {
                 "listenAddress": "0.0.0.0",
-                "difficulty": 1000,
+                "difficulty": 2199,
                 "varDiff": {
-                    "minDiff": 2,
+                    "minDiff": 2199,
                     "maxDiff": null,
-                    "targetTime": 15,
-                    "retargetTime": 90,
-                    "variancePercent": 100,
+                    "targetTime": 1,
+                    "retargetTime": 30,
+                    "variancePercent": 5,
                     "maxDelta": 512
                 }
             },
             "5095": {
                 "listenAddress": "0.0.0.0",
-                "difficulty": 4000,
+                "difficulty": 17592,
                 "varDiff": {
-                    "minDiff": 2,
+                    "minDiff": 17592,
                     "maxDiff": null,
-                    "targetTime": 15,
-                    "retargetTime": 90,
-                    "variancePercent": 100,
-                    "maxDelta": 512
+                    "targetTime": 1,
+                    "retargetTime": 30,
+                    "variancePercent": 5,
+                    "maxDelta": 2000
                 }
             },
             "5096": {
                 "listenAddress": "0.0.0.0",
-                "difficulty": 8000,
+                "difficulty": 35184,
                 "varDiff": {
-                    "minDiff": 2,
+                    "minDiff": 35184,
                     "maxDiff": null,
-                    "targetTime": 15,
-                    "retargetTime": 90,
-                    "variancePercent": 100,
-                    "maxDelta": 512
+                    "targetTime": 1,
+                    "retargetTime": 30,
+                    "variancePercent": 5,
+                    "maxDelta": 2000
                 }
             },
             "5097":{
                 "listenAddress": "0.0.0.0",
-                "difficulty": 12000,
+                "difficulty": 70368,
                 "varDiff": {
-                    "minDiff": 2,
+                    "minDiff": 70368,
                     "maxDiff": null,
-                    "targetTime": 15,
-                    "retargetTime": 90,
-                    "variancePercent": 100,
-                    "maxDelta": 1000
+                    "targetTime": 1,
+                    "retargetTime": 30,
+                    "variancePercent": 5,
+                    "maxDelta": 2000
                 }
+
             }
-            },
+
+        },
         "daemons": [
             {
                 "host": "127.0.0.1",
