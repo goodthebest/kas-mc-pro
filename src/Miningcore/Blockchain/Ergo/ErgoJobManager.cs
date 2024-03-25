@@ -417,6 +417,10 @@ public class ErgoJobManager : JobManagerBase<ErgoJob>
         if(info?.IsMining != true)
             throw new PoolStartupException("Mining is disabled in Ergo Daemon", poolConfig.Id);
 
+        // update stats
+        if(!string.IsNullOrEmpty(info?.AppVersion))
+            BlockchainStats.NodeVersion = info?.AppVersion;
+
         return true;
     }
 

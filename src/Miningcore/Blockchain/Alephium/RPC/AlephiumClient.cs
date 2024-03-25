@@ -10939,24 +10939,24 @@ namespace Miningcore.Blockchain.Alephium
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string FromPublicKey { get; set; } = default!;
 
-        [Newtonsoft.Json.JsonProperty("fromPublicKeyType", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string FromPublicKeyType { get; set; } = default!;
+        [Newtonsoft.Json.JsonProperty("fromPublicKeyType", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string? FromPublicKeyType { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("destinations", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<Terminus> Destinations { get; set; } = new System.Collections.ObjectModel.Collection<Terminus>();
 
-        [Newtonsoft.Json.JsonProperty("utxos", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<OutputRef> Utxos { get; set; } = default!;
+        [Newtonsoft.Json.JsonProperty("utxos", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<OutputRef>? Utxos { get; set; } = default!;
 
-        [Newtonsoft.Json.JsonProperty("gasAmount", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int GasAmount { get; set; } = default!;
+        [Newtonsoft.Json.JsonProperty("gasAmount", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? GasAmount { get; set; } = default!;
 
-        [Newtonsoft.Json.JsonProperty("gasPrice", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string GasPrice { get; set; } = default!;
+        [Newtonsoft.Json.JsonProperty("gasPrice", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string? GasPrice { get; set; } = default!;
 
-        [Newtonsoft.Json.JsonProperty("targetBlockHash", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string TargetBlockHash { get; set; } = default!;
+        [Newtonsoft.Json.JsonProperty("targetBlockHash", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string? TargetBlockHash { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -12166,8 +12166,8 @@ namespace Miningcore.Blockchain.Alephium
         [Newtonsoft.Json.JsonProperty("upnp", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Upnp { get; set; } = default!;
 
-        [Newtonsoft.Json.JsonProperty("externalAddress", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ExternalAddress ExternalAddress { get; set; } = default!;
+        [Newtonsoft.Json.JsonProperty("externalAddress", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ExternalAddress? ExternalAddress { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -12604,20 +12604,20 @@ namespace Miningcore.Blockchain.Alephium
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string ToAddress { get; set; } = default!;
 
-        [Newtonsoft.Json.JsonProperty("lockTime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public long LockTime { get; set; } = default!;
+        [Newtonsoft.Json.JsonProperty("lockTime", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public long? LockTime { get; set; } = default!;
 
-        [Newtonsoft.Json.JsonProperty("gasAmount", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int GasAmount { get; set; } = default!;
+        [Newtonsoft.Json.JsonProperty("gasAmount", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? GasAmount { get; set; } = default!;
 
-        [Newtonsoft.Json.JsonProperty("gasPrice", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string GasPrice { get; set; } = default!;
+        [Newtonsoft.Json.JsonProperty("gasPrice", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string? GasPrice { get; set; } = default!;
 
-        [Newtonsoft.Json.JsonProperty("utxosLimit", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int UtxosLimit { get; set; } = default!;
+        [Newtonsoft.Json.JsonProperty("utxosLimit", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? UtxosLimit { get; set; } = default!;
 
-        [Newtonsoft.Json.JsonProperty("targetBlockHash", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string TargetBlockHash { get; set; } = default!;
+        [Newtonsoft.Json.JsonProperty("targetBlockHash", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string? TargetBlockHash { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

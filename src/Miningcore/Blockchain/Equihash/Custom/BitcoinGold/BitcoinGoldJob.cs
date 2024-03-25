@@ -13,16 +13,15 @@ namespace Miningcore.Blockchain.Equihash.Custom.BitcoinGold;
 
 public class BitcoinGoldJob : EquihashJob
 {
-    protected uint coinbaseIndex = 4294967295u;
-    protected uint coinbaseSequence = 4294967295u;
-    private static uint txInputCount = 1u;
-    private static uint txLockTime;
-
     protected override Transaction CreateOutputTransaction()
     {
         rewardToPool = new Money(BlockTemplate.CoinbaseValue, MoneyUnit.Satoshi);
 
-        var tx = Transaction.Create(network);
+        var txNetwork = Network.GetNetwork(networkParams.CoinbaseTxNetwork);
+        var tx = Transaction.Create(txNetwork);
+
+        // set versions
+        tx.Version = txVersion;
 
         // pool reward (t-addr)
         tx.Outputs.Add(rewardToPool, poolAddressDestination);
@@ -67,7 +66,7 @@ public class BitcoinGoldJob : EquihashJob
         }
     }
 
-    private byte[] SerializeOutputTransaction(Transaction tx)
+    protected override byte[] SerializeOutputTransaction(Transaction tx)
     {
         var withDefaultWitnessCommitment = !string.IsNullOrEmpty(BlockTemplate.DefaultWitnessCommitment);
 
@@ -133,6 +132,25 @@ public class BitcoinGoldJob : EquihashJob
         };
 
         return blockHeader.ToBytes();
+    }
+
+    protected override byte[] SerializeBlock(Span<byte> header, Span<byte> coinbase, Span<byte> solution)
+    {
+        var transactionCount = (uint) BlockTemplate.Transactions.Length + 1; // +1 for prepended coinbase tx
+        var rawTransactionBuffer = BuildRawTransactionBuffer();
+
+        using(var stream = new MemoryStream())
+        {
+            var bs = new BitcoinStream(stream, true);
+
+            bs.ReadWrite(header);
+            bs.ReadWrite(solution);
+            bs.ReadWriteAsVarInt(ref transactionCount);
+            bs.ReadWrite(coinbase);
+            bs.ReadWrite(rawTransactionBuffer);
+
+            return stream.ToArray();
+        }
     }
 
     public override void Init(EquihashBlockTemplate blockTemplate, string jobId,

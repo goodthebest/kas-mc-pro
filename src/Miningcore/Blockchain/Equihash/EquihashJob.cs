@@ -46,13 +46,19 @@ public class EquihashJob
     protected bool isOverwinterActive;
     protected bool isSaplingActive;
 
-    // temporary reflection hack to force overwinter
-    protected static readonly FieldInfo overwinterField = typeof(ZcashTransaction).GetField("fOverwintered", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
-    protected static readonly FieldInfo versionGroupField = typeof(ZcashTransaction).GetField("nVersionGroupId", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
-
     // serialization constants
     protected byte[] sha256Empty = new byte[32];
     protected uint txVersion = 1u; // transaction version (currently 1) - see https://en.bitcoin.it/wiki/Transaction
+    protected string poolHex = "436564726963204352495350494E";
+    protected uint coinbaseIndex = 4294967295u;
+    protected uint coinbaseSequence = 4294967295u;
+    protected static uint txInputCount = 1u;
+    protected static uint txLockTime;
+    protected static uint txExpiryHeight = 0u;
+    protected static long txBalance = 0;
+    protected static uint txVShieldedSpend = 0u;
+    protected static uint txVShieldedOutput = 0u;
+    protected static uint txJoinSplits = 0u;
 
     ///////////////////////////////////////////
     // GetJobParams related properties
@@ -69,12 +75,6 @@ public class EquihashJob
 
         // set versions
         tx.Version = txVersion;
-
-        if(isOverwinterActive)
-        {
-            overwinterField.SetValue(tx, true);
-            versionGroupField.SetValue(tx, txVersionGroupId);
-        }
 
         // calculate outputs
         if(networkParams.PayFundingStream)
@@ -147,7 +147,7 @@ public class EquihashJob
         return tx;
     }
 
-    private string GetTreasuryRewardAddress()
+    protected virtual string GetTreasuryRewardAddress()
     {
         var index = (int) Math.Floor((BlockTemplate.Height - networkParams.TreasuryRewardStartBlockHeight) /
             networkParams.TreasuryRewardAddressChangeInterval % networkParams.TreasuryRewardAddresses.Length);
@@ -158,13 +158,66 @@ public class EquihashJob
 
     protected virtual void BuildCoinbase()
     {
+        var script = TxIn.CreateCoinbase((int) BlockTemplate.Height).ScriptSig;
+
         // output transaction
         txOut = CreateOutputTransaction();
 
         using(var stream = new MemoryStream())
-        {
-            var bs = new ZcashStream(stream, true);
-            bs.ReadWrite(ref txOut);
+        {   
+            var bs = new BitcoinStream(stream, true);
+
+            if(isOverwinterActive)
+            {
+                uint mask = (isOverwinterActive ? 1u : 0u );
+                uint shiftedMask = mask << 31;
+                uint versionWithOverwinter = txVersion | shiftedMask;
+
+                // version
+                bs.ReadWrite(ref versionWithOverwinter);
+            }
+            else
+            {
+                // version
+                bs.ReadWrite(ref txVersion);
+            }
+
+            if(isOverwinterActive || isSaplingActive)
+            {
+                bs.ReadWrite(ref txVersionGroupId);
+            }
+
+            // serialize (simulated) input transaction
+            bs.ReadWriteAsVarInt(ref txInputCount);
+            bs.ReadWrite(sha256Empty);
+            bs.ReadWrite(ref coinbaseIndex);
+            bs.ReadWrite(ref script);
+            bs.ReadWrite(ref coinbaseSequence);
+
+            // serialize output transaction
+            var txOutBytes = SerializeOutputTransaction(txOut);
+            bs.ReadWrite(txOutBytes);
+
+            // misc
+            bs.ReadWrite(ref txLockTime);
+
+            if(isOverwinterActive || isSaplingActive)
+            {
+                txExpiryHeight = (uint) BlockTemplate.Height;
+                bs.ReadWrite(ref txExpiryHeight);
+            }
+
+            if(isSaplingActive)
+            {
+                bs.ReadWrite(ref txBalance);
+                bs.ReadWriteAsVarInt(ref txVShieldedSpend);
+                bs.ReadWriteAsVarInt(ref txVShieldedOutput);
+            }
+
+            if(isOverwinterActive || isSaplingActive)
+            {
+                bs.ReadWriteAsVarInt(ref txJoinSplits);
+            }
 
             // done
             coinbaseInitial = stream.ToArray();
@@ -174,6 +227,53 @@ public class EquihashJob
         }
     }
 
+    protected virtual byte[] SerializeOutputTransaction(Transaction tx)
+    {
+        var withDefaultWitnessCommitment = !string.IsNullOrEmpty(BlockTemplate.DefaultWitnessCommitment);
+
+        var outputCount = (uint) tx.Outputs.Count;
+        if(withDefaultWitnessCommitment)
+            outputCount++;
+
+        using(var stream = new MemoryStream())
+        {
+            var bs = new BitcoinStream(stream, true);
+
+            // write output count
+            bs.ReadWriteAsVarInt(ref outputCount);
+
+            long amount;
+            byte[] raw;
+            uint rawLength;
+            
+            // serialize outputs
+            foreach(var output in tx.Outputs)
+            {
+                amount = output.Value.Satoshi;
+                var outScript = output.ScriptPubKey;
+                raw = outScript.ToBytes(true);
+                rawLength = (uint) raw.Length;
+
+                bs.ReadWrite(ref amount);
+                bs.ReadWriteAsVarInt(ref rawLength);
+                bs.ReadWrite(raw);
+            }
+
+            // serialize witness (segwit)
+            if(withDefaultWitnessCommitment)
+            {
+                amount = 0;
+                raw = BlockTemplate.DefaultWitnessCommitment.HexToByteArray();
+                rawLength = (uint) raw.Length;
+
+                bs.ReadWrite(ref amount);
+                bs.ReadWriteAsVarInt(ref rawLength);
+                bs.ReadWrite(raw);
+            }
+
+            return stream.ToArray();
+        }
+    }
 
     protected virtual byte[] SerializeHeader(uint nTime, string nonce)
     {
@@ -193,7 +293,7 @@ public class EquihashJob
         return blockHeader.ToBytes();
     }
 
-    private byte[] BuildRawTransactionBuffer()
+    protected virtual byte[] BuildRawTransactionBuffer()
     {
         using(var stream = new MemoryStream())
         {
@@ -207,7 +307,7 @@ public class EquihashJob
         }
     }
 
-    private byte[] SerializeBlock(Span<byte> header, Span<byte> coinbase, Span<byte> solution)
+    protected virtual byte[] SerializeBlock(Span<byte> header, Span<byte> coinbase, Span<byte> solution)
     {
         var transactionCount = (uint) BlockTemplate.Transactions.Length + 1; // +1 for prepended coinbase tx
         var rawTransactionBuffer = BuildRawTransactionBuffer();
@@ -218,7 +318,33 @@ public class EquihashJob
 
             bs.ReadWrite(header);
             bs.ReadWrite(solution);
-            bs.ReadWriteAsVarInt(ref transactionCount);
+
+            var txCount = transactionCount.ToString();
+            if (Math.Abs(txCount.Length % 2) == 1)
+                txCount = "0" + txCount;
+
+            if (transactionCount <= 0xfc)
+            {
+                var simpleVarIntBytes = (Span<byte>) txCount.HexToByteArray();
+
+                bs.ReadWrite(simpleVarIntBytes);
+            }
+            else if (transactionCount <= 0x7fff)
+            {
+                if (txCount.Length == 2)
+                    txCount = "00" + txCount;
+
+                var complexHeader = (Span<byte>) new byte[] { 0xFD };
+                var complexVarIntBytes = (Span<byte>) txCount.HexToReverseByteArray();
+
+                // concat header and varInt
+                Span<byte> complexHeaderVarIntBytes = stackalloc byte[complexHeader.Length + complexVarIntBytes.Length];
+                complexHeader.CopyTo(complexHeaderVarIntBytes);
+                complexVarIntBytes.CopyTo(complexHeaderVarIntBytes[complexHeader.Length..]);
+
+                bs.ReadWrite(complexHeaderVarIntBytes);
+            }
+
             bs.ReadWrite(coinbase);
             bs.ReadWrite(rawTransactionBuffer);
 
@@ -226,7 +352,7 @@ public class EquihashJob
         }
     }
 
-    private (Share Share, string BlockHex) ProcessShareInternal(StratumConnection worker, string nonce,
+    protected virtual (Share Share, string BlockHex) ProcessShareInternal(StratumConnection worker, string nonce,
         uint nTime, string solution)
     {
         var context = worker.ContextAs<BitcoinWorkerContext>();

@@ -262,6 +262,7 @@ public class EthereumPayoutHandler : PayoutHandlerBase,
                                 else
                                 {
                                     block.Status = BlockStatus.Orphaned;
+                                    block.Reward = 0;
                                 }
 
                                 block.Type = EthereumConstants.BlockTypeUncle;
@@ -500,8 +501,7 @@ public class EthereumPayoutHandler : PayoutHandlerBase,
                 
                 break;
             case GethChainType.Ubiq:
-                reward *= uheight + 2 - height;
-                reward /= 2m;
+                reward = (uheight == height) ? reward / 2 : (uheight + 2 - height) * reward / 2;
                 // blocks older than the previous block are not rewarded
                 if (reward < 0)
                     reward = 0;

@@ -45,6 +45,32 @@ public class AlephiumPool : PoolBase
     private AlephiumPoolConfigExtra extraPoolConfig;
     private AlephiumCoinTemplate coin;
 
+    protected virtual async Task OnHelloAsync(StratumConnection connection, Timestamped<JsonRpcRequest> tsRequest)
+    {
+        var request = tsRequest.Value;
+
+        if(request.Id == null)
+            throw new StratumException(StratumError.MinusOne, "missing request id");
+
+        var context = connection.ContextAs<AlephiumWorkerContext>();
+        var requestParams = request.ParamsAs<string[]>();
+
+        var data = new object[]
+        {
+            "AlephiumStratum/1.0.0",
+            false, // we do not currently support resuming connections
+            poolConfig.ClientConnectionTimeout.ToString("X"),
+            "0x5", // 5
+            blockchainStats.NodeVersion
+        };
+
+        await connection.RespondAsync(data, request.Id);
+
+        context.UserAgent = requestParams.FirstOrDefault()?.Trim();
+
+        logger.Info(() => $"[{connection.ConnectionId}] Hello {context.UserAgent}");
+    }
+
     protected virtual async Task OnSubscribeAsync(StratumConnection connection, Timestamped<JsonRpcRequest> tsRequest)
     {
         var request = tsRequest.Value;
@@ -59,7 +85,11 @@ public class AlephiumPool : PoolBase
 
         // setup worker context
         context.IsSubscribed = true;
-        context.UserAgent = requestParams.FirstOrDefault()?.Trim();
+        // If the user agent was set by a mining.hello, we don't want to overwrite that (to match actual protocol)
+        if (string.IsNullOrEmpty(context.UserAgent))
+        {
+            context.UserAgent = requestParams.FirstOrDefault()?.Trim();
+        }
     }
 
     protected virtual async Task OnAuthorizeAsync(StratumConnection connection, Timestamped<JsonRpcRequest> tsRequest, CancellationToken ct)
@@ -333,6 +363,16 @@ public class AlephiumPool : PoolBase
         {
             switch(request.Method)
             {
+                case AlephiumStratumMethods.Hello:
+                    await OnHelloAsync(connection, tsRequest);
+                    break;
+
+                case AlephiumStratumMethods.Noop:
+                    var context = connection.ContextAs<AlephiumWorkerContext>();
+                    context.LastActivity = clock.Now;
+                    await connection.RespondAsync("1", request.Id);
+                    break;
+
                 case AlephiumStratumMethods.Subscribe:
                     await OnSubscribeAsync(connection, tsRequest);
                     break;
@@ -344,10 +384,14 @@ public class AlephiumPool : PoolBase
                 case AlephiumStratumMethods.SubmitShare:
                     await OnSubmitAsync(connection, tsRequest, ct);
                     break;
-                
+
+                case AlephiumStratumMethods.SetGzip:
+                    await connection.RespondAsync(false, request.Id);
+                    break;
+
                 case AlephiumStratumMethods.SubmitHashrate:
                     break;
-                
+
                 default:
                     logger.Debug(() => $"[{connection.ConnectionId}] Unsupported RPC request: {JsonConvert.SerializeObject(request, serializerSettings)}");
 

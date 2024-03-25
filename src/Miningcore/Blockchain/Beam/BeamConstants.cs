@@ -38,24 +38,12 @@ public class BeamConstants
     public const short SolutionSize = 208;
     
     public const int PayoutMinBlockConfirmations = 240;
-    
-    public const ulong EmisssionFirstEpochHeight = 525600;
-    public const decimal EmisssionFirstEpochBlockReward = 40.0m;
-    public const ulong EmisssionSecondEpochHeight = 2102400;
-    public const decimal EmisssionSecondEpochBlockReward = 25m;
-    
-    public const ulong EmisssionThirdEpochHeight = 3153600;
-    public const ulong EraLength = 2102401;
-    public const double DisinflationRateQuotient = 5.0;
-    public const double DisinflationRateDivisor = 10.0;
-    
-    public const decimal BaseRewardInitial = 80.0m;
 }
 
 public static class BeamExplorerCommands
 {
     public const string GetStatus = "status";
-    public const string GetBlock = "block";
+    public const string GetBlock = "block?height=";
 }
 
 public static class BeamWalletCommands

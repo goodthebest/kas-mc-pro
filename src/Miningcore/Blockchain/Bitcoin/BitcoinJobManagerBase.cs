@@ -292,7 +292,7 @@ public abstract class BitcoinJobManagerBase<TJob> : JobManagerBase<TJob>
         if(!accepted)
         {
             logger.Warn(() => $"Block {share.BlockHeight} submission failed for pool {poolConfig.Id} because block was not found after submission");
-            messageBus.SendMessage(new AdminNotification($"[{share.PoolId.ToUpper()}]-[{share.Source}] Block submission failed", $"[{share.PoolId.ToUpper()}]-[{share.Source}] Block {share.BlockHeight} submission failed for pool {poolConfig.Id} because block was not found after submission"));
+            messageBus.SendMessage(new AdminNotification($"[{poolConfig.Id}]-[{(!string.IsNullOrEmpty(share.Source) ? $"[{share.Source.ToUpper()}] " : string.Empty)}] Block submission failed", $"[{poolConfig.Id}]-[{(!string.IsNullOrEmpty(share.Source) ? $"[{share.Source.ToUpper()}] " : string.Empty)}] Block {share.BlockHeight} submission failed for pool {poolConfig.Id} because block was not found after submission"));
         }
 
         return new SubmitResult(accepted, block?.Transactions.FirstOrDefault());
@@ -308,6 +308,10 @@ public abstract class BitcoinJobManagerBase<TJob> : JobManagerBase<TJob>
     protected async Task<bool> AreDaemonsConnectedLegacyAsync(CancellationToken ct)
     {
         var response = await rpc.ExecuteAsync<DaemonInfo>(logger, BitcoinCommands.GetInfo, ct);
+        
+        // update stats
+        if(!string.IsNullOrEmpty(response.Response.Version))
+            BlockchainStats.NodeVersion = (string) response.Response.Version;
 
         return response.Error == null && response.Response.Connections > 0;
     }
@@ -396,6 +400,10 @@ public abstract class BitcoinJobManagerBase<TJob> : JobManagerBase<TJob>
             return await AreDaemonsConnectedLegacyAsync(ct);
 
         var response = await rpc.ExecuteAsync<NetworkInfo>(logger, BitcoinCommands.GetNetworkInfo, ct);
+
+        // update stats
+        if(!string.IsNullOrEmpty(response.Response.Version))
+            BlockchainStats.NodeVersion = (string) response.Response?.Version;
 
         return response.Error == null && response.Response?.Connections > 0;
     }
@@ -510,10 +518,10 @@ public abstract class BitcoinJobManagerBase<TJob> : JobManagerBase<TJob>
         // block submission RPC method
         if(submitBlockResponse.Error?.Message?.ToLower() == "method not found")
             hasSubmitBlockMethod = false;
-        else if(submitBlockResponse.Error?.Code == -1)
+        else if(submitBlockResponse.Error?.Code == (int)BitcoinRPCErrorCode.RPC_MISC_ERROR || submitBlockResponse.Error?.Code == (int)BitcoinRPCErrorCode.RPC_INVALID_PARAMS)
             hasSubmitBlockMethod = true;
         else
-            throw new PoolStartupException("Unable detect block submission RPC method", poolConfig.Id);
+            throw new PoolStartupException($"Code [{submitBlockResponse.Error?.Code}]: Unable detect block submission RPC method", poolConfig.Id);
 
         if(!hasLegacyDaemon)
             await UpdateNetworkStatsAsync(ct);

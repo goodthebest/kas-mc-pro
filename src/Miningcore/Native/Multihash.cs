@@ -209,11 +209,30 @@ public static unsafe class Multihash
     public static extern void yespowerTIDE(byte* input, void* output, uint inputLength);
     
     [DllImport("libmultihash", EntryPoint = "fishhash_get_context", CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr fishhashGetContext(bool full_context = false);
+    public static extern IntPtr fishhashGetContext(bool fullContext = false);
+    
+    [DllImport("libmultihash", EntryPoint = "fishhash_kernel", CallingConvention = CallingConvention.Cdecl)]
+    public static extern Fishhash_hash256 fishhashKernel(IntPtr context, ref Fishhash_hash512 seed);
     
     [DllImport("libmultihash", EntryPoint = "fishhash_prebuild_dataset", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void fishhashPrebuildDataset(IntPtr context, int number_threads = 1);
+    public static extern void fishhashPrebuildDataset(IntPtr context, uint number_threads = 1);
 
     [DllImport("libmultihash", EntryPoint = "fishhash_hash", CallingConvention = CallingConvention.Cdecl)]
     public static extern void fishhash(void* output, IntPtr context, byte* input, uint inputLength);
+
+    [StructLayout(LayoutKind.Explicit)]
+    public struct Fishhash_hash256
+    {
+        [FieldOffset(0)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+        public byte[] bytes;//x32
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
+    public struct Fishhash_hash512
+    {
+        [FieldOffset(0)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
+        public byte[] bytes;//x64
+    }
 }

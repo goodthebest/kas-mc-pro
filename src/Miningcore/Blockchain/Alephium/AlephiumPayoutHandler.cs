@@ -344,6 +344,9 @@ public class AlephiumPayoutHandler : PayoutHandlerBase,
 
                 logger.Debug(() => $"[{LogCategory}] Pool wallet address {wealthyPoolAddress[1].Address} has currently {inputWealthyUtxos.Length} (unlocked) UTXO(s)");
 
+                Sweep destinationSweep;
+                TransferResults txSweep;
+
                 // calculate gas amount for transaction
                 // ALPH Gas computation - https://wiki.alephium.org/integration/exchange#gas-computation
                 var inputWealthyGas = AlephiumConstants.GasPerInput * inputWealthyUtxos.Length;
@@ -352,29 +355,47 @@ public class AlephiumPayoutHandler : PayoutHandlerBase,
                 var wealthyEstimatedGasAmount = Math.Max(AlephiumConstants.MinGasPerTx, wealthyTxGas);
                 if(wealthyEstimatedGasAmount > AlephiumConstants.MaxGasPerTx)
                 {
-                    logger.Warn(() => $"[{LogCategory}] Estimated necessary gas amount [{wealthyEstimatedGasAmount}] exceeds the maximum possible per transaction [{AlephiumConstants.MaxGasPerTx}]. We are in a serious pickle here");
-                    return;
+                    // Rare case-scenario when we actually need to let Swagger do its magic with address(es) holding huge amount of UTXOs (probably lot of "dust" amounts)
+                    logger.Warn(() => $"[{LogCategory}] Estimated necessary gas amount [{wealthyEstimatedGasAmount}] exceeds the maximum possible per transaction [{AlephiumConstants.MaxGasPerTx}]. We need to let Swagger operate its magic, we will only provide the destination address");
+                    
+                    destinationSweep = new Sweep
+                    {
+                        ToAddress = wealthyPoolAddress[0].Address,
+                    };
+                    
+                    txSweep = await Guard(() => alephiumClient.NameSweepAllAddressesAsync(extraPoolPaymentProcessingConfig.WalletName, destinationSweep, ct), ex =>
+                    {
+                        ReportAndRethrowApiError("Failed to Sweep all wealthy active addresses", ex, false);
+                    });
+                }
+                else
+                {
+                    logger.Debug(() => $"[{LogCategory}] Estimated necessary gas amount: {wealthyEstimatedGasAmount}");
+
+                    destinationSweep = new Sweep
+                    {
+                        ToAddress = wealthyPoolAddress[0].Address,
+                        GasAmount = wealthyEstimatedGasAmount,
+                    };
+
+                    txSweep = await Guard(() => alephiumClient.NameSweepActiveAddressAsync(extraPoolPaymentProcessingConfig.WalletName, destinationSweep, ct), ex =>
+                    {
+                        ReportAndRethrowApiError("Failed to Sweep wealthy active address", ex, false);
+                    });
                 }
 
-                logger.Debug(() => $"[{LogCategory}] Estimated necessary gas amount: {wealthyEstimatedGasAmount}");
-
-                var destinationSweep = new Sweep
-                {
-                    ToAddress = wealthyPoolAddress[0].Address,
-                    GasAmount = wealthyEstimatedGasAmount,
-                };
-
-                var txSweep = await Guard(() => alephiumClient.NameSweepActiveAddressAsync(extraPoolPaymentProcessingConfig.WalletName, destinationSweep, ct), ex =>
-                {
-                    logger.Warn(() => $"[{LogCategory}] Sweep active address failed");
-                });
                 if(txSweep?.Results == null)
                     return;
 
                 if(txSweep.Results.Count < 1)
                     logger.Warn(() => $"[{LogCategory}] Sweep transaction failed to return a transaction id");
                 else
-                    logger.Info(() => $"[{LogCategory}] Sweep transaction id: {txSweep.Results.First().TxId}");
+                {
+                    foreach (var result in txSweep.Results)
+                    {
+                        logger.Info(() => $"[{LogCategory}] Sweep transaction id: {result.TxId}, FromGroup: {result.FromGroup}, ToGroup: {result.ToGroup}");
+                    }
+                }
 
                 goto retry;
             }

@@ -4,6 +4,7 @@ using Miningcore.Blockchain.Bitcoin;
 using Miningcore.Blockchain.Bitcoin.DaemonResponses;
 using Miningcore.Blockchain.Equihash.Custom.BitcoinGold;
 using Miningcore.Blockchain.Equihash.Custom.Minexcoin;
+using Miningcore.Blockchain.Equihash.Custom.Piratechain;
 using Miningcore.Blockchain.Equihash.Custom.Veruscoin;
 using Miningcore.Blockchain.Equihash.DaemonResponses;
 using Miningcore.Configuration;
@@ -83,6 +84,9 @@ public class EquihashJobManager : BitcoinJobManagerBase<EquihashJob>
     {
         switch(coin.Symbol)
         {
+            case "ARRR":
+                return new PiratechainJob();
+
             case "BTG":
                 return new BitcoinGoldJob();
 

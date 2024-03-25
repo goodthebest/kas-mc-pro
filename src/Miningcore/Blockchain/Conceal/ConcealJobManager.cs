@@ -146,12 +146,9 @@ public class ConcealJobManager : JobManagerBase<ConcealJob>
     {
         var info = await restClient.Get<GetInfoResponse>(ConcealConstants.DaemonRpcGetInfoLocation, ct);
         
-        if(info.Status != "OK")
+        if(info.Status == "OK")
         {
-            var lowestHeight = info.Height;
-
-            var totalBlocks = info.TargetHeight;
-            var percent = (double) lowestHeight / totalBlocks * 100;
+            var percent = (double) info.TargetHeight / info.Height * 100;
 
             logger.Info(() => $"Daemon has downloaded {percent:0.00}% of blockchain from {info.OutgoingConnectionsCount} peers");
         }
@@ -254,7 +251,7 @@ public class ConcealJobManager : JobManagerBase<ConcealJob>
                 .ToArray();
 
             if(walletDaemonEndpoints.Length == 0)
-                throw new PoolStartupException("Wallet-RPC daemon is not configured (Daemon configuration for conceal-pools require an additional entry of category \'wallet' pointing to the wallet daemon)", pc.Id);
+                throw new PoolStartupException("Wallet-RPC daemon is not configured (Daemon configuration for conceal-pools require an additional entry of category 'wallet' pointing to the wallet daemon)", pc.Id);
         }
 
         ConfigureDaemons();
@@ -445,6 +442,10 @@ public class ConcealJobManager : JobManagerBase<ConcealJob>
             if(response?.Status == "OK")
                 logger.Debug(() => $"Peers connected - Incoming: {response?.IncomingConnectionsCount} - Outgoing: {response?.OutgoingConnectionsCount}");
 
+            // update stats
+            if(!string.IsNullOrEmpty(response?.Version))
+                BlockchainStats.NodeVersion = response?.Version;
+
             return response?.Status == "OK" &&
                 (response?.OutgoingConnectionsCount + response?.IncomingConnectionsCount) > 0;
         }
@@ -478,7 +479,13 @@ public class ConcealJobManager : JobManagerBase<ConcealJob>
             if(response.Error != null)
                 logger.Debug(() => $"conceald daemon response: {response.Error.Message} (Code {response.Error.Code})");
 
-            var isSynched = response.Error is not {Code: -9};
+            var info = await walletRpc.ExecuteAsync<GetStatusResponse>(logger,
+                ConcealWalletCommands.GetStatus, ct, new {});
+
+            if(info.Error != null)
+                logger.Debug(() => $"walletd daemon response: {info.Error.Message} (Code {info.Error.Code})");
+
+            var isSynched = ((response.Error is not {Code: -9}) && (info.Response?.BlockCount >= info.Response?.KnownBlockCount));
 
             if(isSynched)
             {

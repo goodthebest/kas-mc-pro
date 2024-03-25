@@ -9,11 +9,13 @@ public unsafe class FishHash : IHashAlgorithm
     private IntPtr handle = IntPtr.Zero;
     private readonly object genLock = new();
 
-    public FishHash()
+    public FishHash(bool fullContext = false, uint threads = 4)
     {
         lock(genLock)
         {
-            this.handle = Multihash.fishhashGetContext();
+            this.handle = Multihash.fishhashGetContext(fullContext);
+            if(fullContext)
+                Multihash.fishhashPrebuildDataset(this.handle, threads);
         }
     }
 

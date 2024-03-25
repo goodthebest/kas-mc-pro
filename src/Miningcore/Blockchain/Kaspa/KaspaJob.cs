@@ -280,14 +280,19 @@ public class KaspaJob
         var prePowHashBytes = SerializeHeader(BlockTemplate.Header, true);
         var coinbaseBytes = SerializeCoinbase(prePowHashBytes, BlockTemplate.Header.Timestamp, BlockTemplate.Header.Nonce);
         Span<byte> hashCoinbaseBytes = stackalloc byte[32];
-        shareHasher.Digest(ComputeCoinbase(prePowHashBytes, coinbaseBytes), hashCoinbaseBytes);
+
+        if(shareHasher is not FishHashKarlsen)
+            shareHasher.Digest(ComputeCoinbase(prePowHashBytes, coinbaseBytes), hashCoinbaseBytes);
+        else
+            shareHasher.Digest(coinbaseBytes, hashCoinbaseBytes);
         
         var targetHashCoinbaseBytes = new Target(new BigInteger(hashCoinbaseBytes.ToNewReverseArray(), true, true));
         var hashCoinbaseBytesValue = targetHashCoinbaseBytes.ToUInt256();
-        //throw new StratumException(StratumError.LowDifficultyShare, $"nonce: {nonce} ||| BigInteger: {targetHashCoinbaseBytes.ToBigInteger()} ||| Target: {hashCoinbaseBytesValue} - [stratum: {KaspaUtils.DifficultyToTarget(context.Difficulty)} - blockTemplate: {blockTargetValue}] ||| BigToCompact: {KaspaUtils.BigToCompact(targetHashCoinbaseBytes.ToBigInteger())} - [stratum: {KaspaUtils.BigToCompact(KaspaUtils.DifficultyToTarget(context.Difficulty))} - blockTemplate: {BlockTemplate.Header.Bits}] ||| shareDiff: {(double) new BigRational(KaspaConstants.Diff1b, targetHashCoinbaseBytes.ToBigInteger()) / KaspaConstants.ShareMultiplier} - [stratum: {context.Difficulty} - blockTemplate: {KaspaUtils.TargetToDifficulty(KaspaUtils.CompactToBig(BlockTemplate.Header.Bits)) / KaspaConstants.ShareMultiplier}] ||| AdjustShareDifficulty: {context.Difficulty * KaspaConstants.Pow2xDiff1TargetNumZero * (double) KaspaConstants.MinHash}");
+        //throw new StratumException(StratumError.LowDifficultyShare, $"nonce: {nonce} ||| BigInteger: {targetHashCoinbaseBytes.ToBigInteger()} ||| Target: {hashCoinbaseBytesValue} - [stratum: {KaspaUtils.DifficultyToTarget(context.Difficulty)} - blockTemplate: {blockTargetValue}] ||| BigToCompact: {KaspaUtils.BigToCompact(targetHashCoinbaseBytes.ToBigInteger())} - [stratum: {KaspaUtils.BigToCompact(KaspaUtils.DifficultyToTarget(context.Difficulty))} - blockTemplate: {BlockTemplate.Header.Bits}] ||| shareDiff: {(double) new BigRational(KaspaConstants.Diff1b, targetHashCoinbaseBytes.ToBigInteger()) * (double) KaspaConstants.MinHash / KaspaConstants.ShareMultiplier} - [stratum: {context.Difficulty} - blockTemplate: {KaspaUtils.TargetToDifficulty(KaspaUtils.CompactToBig(BlockTemplate.Header.Bits)) * (double) KaspaConstants.MinHash / KaspaConstants.ShareMultiplier}] ||| AdjustShareDifficulty: {(double) new BigRational(KaspaConstants.Diff1b, targetHashCoinbaseBytes.ToBigInteger()) * KaspaConstants.Pow2xDiff1TargetNumZero * (double) KaspaConstants.MinHash / KaspaConstants.ShareMultiplier} - [stratum: {context.Difficulty * KaspaConstants.Pow2xDiff1TargetNumZero * (double) KaspaConstants.MinHash / KaspaConstants.ShareMultiplier}]");
         
         // calc share-diff
-        var shareDiff = (double) new BigRational(KaspaConstants.Diff1b, targetHashCoinbaseBytes.ToBigInteger()) / KaspaConstants.ShareMultiplier;
+        var shareDiff = (double) new BigRational(KaspaConstants.Diff1b, targetHashCoinbaseBytes.ToBigInteger()) * KaspaConstants.Pow2xDiff1TargetNumZero * (double) KaspaConstants.MinHash / KaspaConstants.ShareMultiplier;
+
         // diff check
         var stratumDifficulty = context.Difficulty;
         var ratio = shareDiff / stratumDifficulty;

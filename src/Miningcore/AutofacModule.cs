@@ -10,6 +10,7 @@ using Miningcore.Blockchain.Cryptonote;
 using Miningcore.Blockchain.Equihash;
 using Miningcore.Blockchain.Ergo;
 using Miningcore.Blockchain.Ethereum;
+using Miningcore.Blockchain.Handshake;
 using Miningcore.Blockchain.Kaspa;
 using Miningcore.Blockchain.Nexa;
 using Miningcore.Blockchain.Progpow;
@@ -205,6 +206,10 @@ public class AutofacModule : Module
         // Ethereum
 
         builder.RegisterType<EthereumJobManager>();
+
+        //////////////////////
+        // Handshake
+        builder.RegisterType<HandshakeJobManager>();
         
         //////////////////////
         // Kaspa

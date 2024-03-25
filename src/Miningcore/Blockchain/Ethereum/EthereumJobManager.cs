@@ -491,6 +491,15 @@ public class EthereumJobManager : JobManagerBase<EthereumJob>
         if(response.Error != null)
             logger.Error(() => $"Daemon reports: {response.Error.Message}");
 
+        var clientVersion = await rpc.ExecuteAsync<string>(logger, EC.GetClientVersion, ct);
+        
+        if(clientVersion.Error != null)
+            logger.Error(() => $"Daemon reports: {clientVersion.Error.Message}");
+
+        // update stats
+        if(!string.IsNullOrEmpty(clientVersion.Response))
+            BlockchainStats.NodeVersion = clientVersion.Response;
+
         return response.Error == null && response.Response.IntegralFromHex<uint>() > 0;
     }
 

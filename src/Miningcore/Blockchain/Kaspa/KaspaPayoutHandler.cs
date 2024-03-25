@@ -425,12 +425,12 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
     
     public override double AdjustShareDifficulty(double difficulty)
     {
-        return difficulty * KaspaConstants.Pow2xDiff1TargetNumZero;
+        return difficulty * KaspaConstants.Pow2xDiff1TargetNumZero * (double) KaspaConstants.MinHash;
     }
 
     public double AdjustBlockEffort(double effort)
     {
-        return effort * KaspaConstants.Pow2xDiff1TargetNumZero;
+        return effort * KaspaConstants.Pow2xDiff1TargetNumZero * (double) KaspaConstants.MinHash;
     }
     
     #endregion // IPayoutHandler

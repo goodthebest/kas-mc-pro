@@ -20,111 +20,6 @@ public class VeruscoinJob : EquihashJob
     // PBaaS
     public bool isPBaaSActive;
     
-    protected uint coinbaseIndex = 4294967295u;
-    protected uint coinbaseSequence = 4294967295u;
-    // protected string poolHex = "56525343";
-    private static uint txInputCount = 1u;
-    private static uint txLockTime;
-    private static uint txExpiryHeight = 0u;
-    private static long txBalance = 0;
-    private static uint txVShieldedSpend = 0u;
-    private static uint txVShieldedOutput = 0u;
-    private static uint txJoinSplits = 0u;
-    
-    protected override Transaction CreateOutputTransaction()
-    {
-        var txNetwork = Network.GetNetwork(networkParams.CoinbaseTxNetwork);
-        var tx = Transaction.Create(txNetwork);
-
-        // set versions
-        tx.Version = txVersion;
-
-        /* if(isOverwinterActive)
-        {
-            overwinterField.SetValue(tx, true);
-            versionGroupField.SetValue(tx, txVersionGroupId);
-        } */
-
-        // calculate outputs
-        if(networkParams.PayFundingStream)
-        {
-            rewardToPool = new Money(Math.Round(blockReward * (1m - (networkParams.PercentFoundersReward) / 100m)) + rewardFees, MoneyUnit.Satoshi);
-            tx.Outputs.Add(rewardToPool, poolAddressDestination);
-
-            foreach(FundingStream fundingstream in BlockTemplate.Subsidy.FundingStreams)
-            {
-                var amount = new Money(Math.Round(fundingstream.ValueZat / 1m), MoneyUnit.Satoshi);
-                var destination = FoundersAddressToScriptDestination(fundingstream.Address);
-                tx.Outputs.Add(amount, destination);
-            }
-        }
-        else if(networkParams.vOuts)
-        {
-            rewardToPool = new Money(Math.Round(blockReward * (1m - (networkParams.vPercentFoundersReward) / 100m)) + rewardFees, MoneyUnit.Satoshi);
-            tx.Outputs.Add(rewardToPool, poolAddressDestination);
-            var destination = FoundersAddressToScriptDestination(networkParams.vTreasuryRewardAddress);
-            var amount = new Money(Math.Round(blockReward * (networkParams.vPercentTreasuryReward / 100m)), MoneyUnit.Satoshi);
-            tx.Outputs.Add(amount, destination);
-            destination = FoundersAddressToScriptDestination(networkParams.vSecureNodesRewardAddress);
-            amount = new Money(Math.Round(blockReward * (networkParams.percentSecureNodesReward / 100m)), MoneyUnit.Satoshi);
-            tx.Outputs.Add(amount, destination);
-            destination = FoundersAddressToScriptDestination(networkParams.vSuperNodesRewardAddress);
-            amount = new Money(Math.Round(blockReward * (networkParams.percentSuperNodesReward / 100m)), MoneyUnit.Satoshi);
-            tx.Outputs.Add(amount, destination);
-        }
-        else if(networkParams.PayFoundersReward &&
-                (networkParams.LastFoundersRewardBlockHeight >= BlockTemplate.Height ||
-                    networkParams.TreasuryRewardStartBlockHeight > 0))
-        {
-            // founders or treasury reward?
-            if(networkParams.TreasuryRewardStartBlockHeight > 0 &&
-               BlockTemplate.Height >= networkParams.TreasuryRewardStartBlockHeight)
-            {
-                // pool reward (t-addr)
-                rewardToPool = new Money(Math.Round(blockReward * (1m - (networkParams.PercentTreasuryReward) / 100m)) + rewardFees, MoneyUnit.Satoshi);
-                tx.Outputs.Add(rewardToPool, poolAddressDestination);
-
-                // treasury reward (t-addr)
-                var destination = FoundersAddressToScriptDestination(GetVeruscoinTreasuryRewardAddress());
-                var amount = new Money(Math.Round(blockReward * (networkParams.PercentTreasuryReward / 100m)), MoneyUnit.Satoshi);
-                tx.Outputs.Add(amount, destination);
-            }
-
-            else
-            {
-                // pool reward (t-addr)
-                rewardToPool = new Money(Math.Round(blockReward * (1m - (networkParams.PercentFoundersReward) / 100m)) + rewardFees, MoneyUnit.Satoshi);
-                tx.Outputs.Add(rewardToPool, poolAddressDestination);
-
-                // founders reward (t-addr)
-                var destination = FoundersAddressToScriptDestination(GetFoundersRewardAddress());
-                var amount = new Money(Math.Round(blockReward * (networkParams.PercentFoundersReward / 100m)), MoneyUnit.Satoshi);
-                tx.Outputs.Add(amount, destination);
-            }
-        }
-
-        else
-        {
-            // no founders reward
-            // pool reward (t-addr)
-            rewardToPool = new Money(blockReward + rewardFees, MoneyUnit.Satoshi);
-            tx.Outputs.Add(rewardToPool, poolAddressDestination);
-        }
-
-        tx.Inputs.Add(TxIn.CreateCoinbase((int) BlockTemplate.Height));
-
-        return tx;
-    }
-    
-    private string GetVeruscoinTreasuryRewardAddress()
-    {
-        var index = (int) Math.Floor((BlockTemplate.Height - networkParams.TreasuryRewardStartBlockHeight) /
-            networkParams.TreasuryRewardAddressChangeInterval % networkParams.TreasuryRewardAddresses.Length);
-
-        var address = networkParams.TreasuryRewardAddresses[index];
-        return address;
-    }
-    
     protected override void BuildCoinbase()
     {
         // output transaction
@@ -165,7 +60,7 @@ public class VeruscoinJob : EquihashJob
             blockHeightSerialBytes.CopyTo(serializedBlockHeightBytes[offset..]);
             offset += blockHeightSerialBytes.Length;
             opBytes.CopyTo(serializedBlockHeightBytes[offset..]);
-            offset += poolHexBytes.Length;
+            offset += opBytes.Length;
             poolHexBytes.CopyTo(serializedBlockHeightBytes[offset..]); */
             
             using(var stream = new MemoryStream())
@@ -199,7 +94,7 @@ public class VeruscoinJob : EquihashJob
                 bs.ReadWriteAsVarInt(ref txInputCount);
                 bs.ReadWrite(sha256Empty);
                 bs.ReadWrite(ref coinbaseIndex);
-                // bs.ReadWrite(ref serializedBlockHeightBytes);
+                // bs.ReadWrite(serializedBlockHeightBytes);
                 bs.ReadWrite(ref script);
                 bs.ReadWrite(ref coinbaseSequence);
 
@@ -240,7 +135,7 @@ public class VeruscoinJob : EquihashJob
         }
     }
     
-    private byte[] SerializeOutputTransaction(Transaction tx)
+    protected override byte[] SerializeOutputTransaction(Transaction tx)
     {
         var withDefaultWitnessCommitment = !string.IsNullOrEmpty(BlockTemplate.DefaultWitnessCommitment);
 
@@ -287,25 +182,11 @@ public class VeruscoinJob : EquihashJob
             return stream.ToArray();
         }
     }
-    
-    private byte[] BuildVeruscoinRawTransactionBuffer()
-    {
-        using(var stream = new MemoryStream())
-        {
-            foreach(var tx in BlockTemplate.Transactions)
-            {
-                var txRaw = tx.Data.HexToByteArray();
-                stream.Write(txRaw);
-            }
 
-            return stream.ToArray();
-        }
-    }
-
-    private byte[] SerializeVeruscoinBlock(Span<byte> header, Span<byte> coinbase, Span<byte> solution)
+    protected override byte[] SerializeBlock(Span<byte> header, Span<byte> coinbase, Span<byte> solution)
     {
         var transactionCount = (uint) BlockTemplate.Transactions.Length + 1; // +1 for prepended coinbase tx
-        var rawTransactionBuffer = BuildVeruscoinRawTransactionBuffer();
+        var rawTransactionBuffer = BuildRawTransactionBuffer();
 
         using(var stream = new MemoryStream())
         {
@@ -322,7 +203,7 @@ public class VeruscoinJob : EquihashJob
             {
                 var simpleVarIntBytes = (Span<byte>) txCount.HexToByteArray();
                 
-                bs.ReadWrite(ref simpleVarIntBytes);
+                bs.ReadWrite(simpleVarIntBytes);
             }
             else if (transactionCount <= 0x7fff)
             {
@@ -337,7 +218,7 @@ public class VeruscoinJob : EquihashJob
                 complexHeader.CopyTo(complexHeaderVarIntBytes);
                 complexVarIntBytes.CopyTo(complexHeaderVarIntBytes[complexHeader.Length..]);
                 
-                bs.ReadWrite(ref complexHeaderVarIntBytes);
+                bs.ReadWrite(complexHeaderVarIntBytes);
             } */
             
             bs.ReadWriteAsVarInt(ref transactionCount);
@@ -348,7 +229,7 @@ public class VeruscoinJob : EquihashJob
         }
     }
     
-    private (Share Share, string BlockHex) ProcessVersucoinShareInternal(StratumConnection worker, string nonce,
+    protected override (Share Share, string BlockHex) ProcessShareInternal(StratumConnection worker, string nonce,
         uint nTime, string solution)
     {
         var context = worker.ContextAs<BitcoinWorkerContext>();
@@ -427,7 +308,7 @@ public class VeruscoinJob : EquihashJob
             result.IsBlockCandidate = true;
             result.BlockReward = rewardToPool.ToDecimal(MoneyUnit.BTC);
             result.BlockHash = headerHashReversed.ToHexString();
-            var blockBytes = SerializeVeruscoinBlock(headerBytes, coinbaseInitial, solutionBytes);
+            var blockBytes = SerializeBlock(headerBytes, coinbaseInitial, solutionBytes);
             var blockHex = blockBytes.ToHexString();
 
             return (result, blockHex);
@@ -637,7 +518,7 @@ public class VeruscoinJob : EquihashJob
                 throw new StratumException(StratumError.Other, "invalid solution, pool nonce missing");
         }
             
-        return ProcessVersucoinShareInternal(worker, nonce, nTimeInt, solution);
+        return ProcessShareInternal(worker, nonce, nTimeInt, solution);
     }
     
     public override object GetJobParams(bool isNew)

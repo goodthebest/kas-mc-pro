@@ -51,6 +51,7 @@ public static class ConcealCommands
 
 public static class ConcealWalletCommands
 {
+    public const string GetStatus = "getStatus";
     public const string GetBalance = "getBalance";
     public const string GetAddress = "getAddresses";
     public const string SendTransaction = "sendTransaction";

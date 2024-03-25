@@ -39,6 +39,9 @@ public enum CoinFamily
 
     [EnumMember(Value = "ethereum")]
     Ethereum,
+    
+    [EnumMember(Value = "handshake")]
+    Handshake,
         
     [EnumMember(Value = "kaspa")]
     Kaspa,
@@ -153,6 +156,7 @@ public abstract partial class CoinTemplate
         {CoinFamily.Equihash, typeof(EquihashCoinTemplate)},
         {CoinFamily.Ergo, typeof(ErgoCoinTemplate)},
         {CoinFamily.Ethereum, typeof(EthereumCoinTemplate)},
+        {CoinFamily.Handshake, typeof(BitcoinTemplate)},
         {CoinFamily.Kaspa, typeof(KaspaCoinTemplate)},
         {CoinFamily.Nexa, typeof(BitcoinTemplate)},
         {CoinFamily.Progpow, typeof(ProgpowCoinTemplate)},
@@ -225,6 +229,9 @@ public partial class BitcoinTemplate : CoinTemplate
 
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public bool HasMinerFund { get; set; }
+
+    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+    public bool HasCommunityAddress { get; set; }
 
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
     [DefaultValue(1.0d)]

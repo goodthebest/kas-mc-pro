@@ -1328,6 +1328,30 @@
         "explorerTxLink": "https://groestlsight.groestlcoin.org/tx/{0}",
         "explorerAccountLink": "https://groestlsight.groestlcoin.org/address/{0}"
     },
+    "handshake": {
+        "name": "Handshake",
+        "canonicalName": "Handshake",
+        "symbol": "HNS",
+        "family": "handshake",
+        "website": "https://handshake.org/",
+        "markets": "https://coinmarketcap.com/currencies/handshake",
+        "twitter": "https://twitter.com/hns",
+        "telegram": "https://t.me/handshake_hns",
+        "discord": "https://handshake.org/discord",
+        "coinbaseHasher": {
+            "hash": "sha3-256"
+        },
+        "headerHasher": {
+            "hash": "blake2b"
+        },
+        "blockHasher": {
+            "hash": "blake2b"
+        },
+        "forcePoolAddressDestinationWithPubKey": true,
+        "explorerBlockLink": "https://e.hnsfans.com/block/$height$",
+        "explorerTxLink": "https://e.hnsfans.com/tx/{0}",
+        "explorerAccountLink": "https://e.hnsfans.com/address/{0}"
+    },
     "help-the-homeless": {
         "name": "Help The Homeless",
         "symbol": "HTH",
@@ -2395,7 +2419,7 @@
         },
         "hasCommunityAddress": true,
         "shareMultiplier": 1,
-        "progpower": "kawpow",
+        "progpower": "meowpow",
         "explorerBlockLink": "https://explorer.mewccrypto.com/block/$hash$",
         "explorerTxLink": "https://explorer.mewccrypto.com/tx/{0}",
         "explorerAccountLink": "https://explorer.mewccrypto.com/address/{0}"
@@ -4043,8 +4067,8 @@
                 "solver": {
                     "hash": "equihash",
                     "args": [
-                        48,
-                        5,
+                        200,
+                        9,
                         "Verushash"
                     ]
                 },
@@ -4062,11 +4086,11 @@
         "name": "ZCash",
         "symbol": "ZEC",
         "family": "equihash",
-        "website": "",
-        "market": "",
-        "twitter": "",
-        "telegram": "",
-        "discord": "",
+        "website": "https://z.cash/",
+        "market": "https://www.coingecko.com/en/coins/zcash",
+        "twitter": "https://twitter.com/zcash",
+        "telegram": "https://t.me/zcash_community",
+        "discord": "https://t.co/8W9ebU9FHM",
         "networks": {
             "main": {
                 "diff1": "0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
@@ -4144,7 +4168,7 @@
                 "saplingTxVersionGroupId": 2301567109
             },
             "test": {
-                "diff1": "0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                "diff1": "07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
                 "solutionSize": 1344,
                 "solutionPreambleSize": 3,
                 "solver": {
@@ -4241,9 +4265,9 @@
         },
         "usesZCashAddressFormat": true,
         "useBitcoinPayoutHandler": false,
-        "explorerBlockLink": "https://explorer.zcha.in/blocks/$hash$",
-        "explorerTxLink": "https://explorer.zcha.in/transactions/{0}",
-        "explorerAccountLink": "https://explorer.zcha.in/accounts/{0}"
+        "explorerBlockLink": "https://zcashblockexplorer.com/blocks/$hash$",
+        "explorerTxLink": "https://zcashblockexplorer.com/transactions/{0}",
+        "explorerAccountLink": "https://zcashblockexplorer.com/address/{0}"
     },
     "zclassic": {
         "name": "ZClassic",
@@ -4503,6 +4527,81 @@
         "explorerBlockLink": "http://explorer.zensystem.io/block/$hash$",
         "explorerTxLink": "http://explorer.zensystem.io/transactions/{0}",
         "explorerAccountLink": "http://explorer.zensystem.io/accounts/{0}"
+    },
+    "piratechain": {
+        "name": "Pirate Chain",
+        "canonicalName": "Pirate Chain",
+        "symbol": "ARRR",
+        "family": "equihash",
+        "website": "https://pirate.black/",
+        "market": "https://www.coingecko.com/en/coins/pirate-chain",
+        "twitter": "https://twitter.com/piratechain",
+        "telegram": "https://t.me/piratechain/",
+        "discord": "https://discordapp.com/invite/s2Mq3Wc",
+        "networks": {
+            "main": {
+                "diff1": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+                "solutionSize": 1344,
+                "solutionPreambleSize": 3,
+                "solver": {
+                    "hash": "equihash",
+                    "args": [
+                        200,
+                        9,
+                        "ZcashPoW"
+                    ]
+                },
+                "coinbaseTxNetwork": "main",
+                "payFoundersReward": false,
+                "overwinterActivationHeight": 152855,
+                "overwinterTxVersion": 3,
+                "overwinterTxVersionGroupId": 63210096,
+                "saplingActivationHeight": 152855,
+                "saplingTxVersion": 4,
+                "saplingTxVersionGroupId": 2301567109
+            },
+            "test": {
+                "diff1": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+                "solutionSize": 1344,
+                "solutionPreambleSize": 3,
+                "solver": {
+                    "hash": "equihash",
+                    "args": [
+                        200,
+                        9,
+                        "ZcashPoW"
+                    ]
+                },
+                "coinbaseTxNetwork": "test",
+                "payFoundersReward": false,
+                "overwinterActivationHeight": 207500,
+                "overwinterTxVersion": 3,
+                "overwinterTxVersionGroupId": 63210096,
+                "saplingActivationHeight": 280000,
+                "saplingTxVersion": 4,
+                "saplingTxVersionGroupId": 2301567109
+            },
+            "regtest": {
+                "diff1": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+                "solutionSize": 1344,
+                "solutionPreambleSize": 3,
+                "solver": {
+                    "hash": "equihash",
+                    "args": [
+                        200,
+                        9,
+                        "ZcashPoW"
+                    ]
+                },
+                "coinbaseTxNetwork": "regtest",
+                "payFoundersReward": false
+            }
+        },
+        "usesZCashAddressFormat": true,
+        "useBitcoinPayoutHandler": false,
+        "explorerBlockLink": "https://explorer.pirate.black/block/$hash$",
+        "explorerTxLink": "https://explorer.pirate.black/tx/{0}",
+        "explorerAccountLink": "https://explorer.pirate.black/address/{0}"
     },
     "beam": {
         "name": "Beam",

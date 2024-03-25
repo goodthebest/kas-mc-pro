@@ -40,11 +40,13 @@ public class EquihashPayoutHandler : BitcoinPayoutHandler
     protected EquihashPoolConfigExtra poolExtraConfig;
     protected bool supportsNativeShielding;
     protected bool supportsSendCurrency;
+    protected bool supportsZSendManyPrivacyPolicy;
     protected Network network;
     protected EquihashCoinTemplate.EquihashNetworkParams chainConfig;
     protected override string LogCategory => "Equihash Payout Handler";
     protected const decimal TransferFee = 0.0001m;
     protected const int ZMinConfirmations = 8;
+    protected const string PrivacyPolicy = "AllowRevealedRecipients";
 
     #region IPayoutHandler
 
@@ -68,6 +70,12 @@ public class EquihashPayoutHandler : BitcoinPayoutHandler
         // detect sendcurrency support
         var responseSendCurrency = await rpcClient.ExecuteAsync<JObject>(logger, EquihashCommands.SendCurrency, ct);
         supportsSendCurrency = responseSendCurrency.Error.Code != (int) BitcoinRPCErrorCode.RPC_METHOD_NOT_FOUND;
+        
+        // detect z_sendmany PrivacyPolicy support
+        var responseZSendMany = await rpcClient.ExecuteAsync<string>(logger, EquihashCommands.ZSendMany, ct, new object[] { poolExtraConfig.ZAddress, new [] { new ZSendManyRecipient { Address = poolExtraConfig.ZAddress, Amount = 0.0m } }, ZMinConfirmations, TransferFee, "WrongPrivacyPolicy" }); // we willingly provide the wrong parameter for "PrivacyPolicy" in order to detect its support and more importantly not accidently altering the pool wallet
+        supportsZSendManyPrivacyPolicy = responseZSendMany.Error?.Code == (int) BitcoinRPCErrorCode.RPC_INVALID_PARAMETER;
+        if(responseZSendMany.Error?.Code != null)
+            logger.Debug(() => $"[{LogCategory}] {EquihashCommands.ZSendMany} 'PrivacyPolicy' support returned error: {responseZSendMany.Error?.Message} code {responseZSendMany.Error?.Code}");
     }
 
     public override async Task PayoutAsync(IMiningPool pool, Balance[] balances, CancellationToken ct)
@@ -90,6 +98,8 @@ public class EquihashPayoutHandler : BitcoinPayoutHandler
     private async Task PayoutZSendManyAsync(IMiningPool pool, Balance[] balances, CancellationToken ct)
     {
         Contract.RequiresNonNull(balances);
+
+        var coin = poolConfig.Template.As<CoinTemplate>();
 
         // Shield first
         if(supportsNativeShielding)
@@ -131,19 +141,42 @@ public class EquihashPayoutHandler : BitcoinPayoutHandler
 
             if(balanceResponse.Error != null || (decimal) (double) balanceResponse.Response - TransferFee < pageAmount)
             {
-                logger.Info(() => $"[{LogCategory}] Insufficient shielded balance for payment of {FormatAmount(pageAmount)}");
+                if(balanceResponse.Error != null)
+                    logger.Warn(() => $"[{LogCategory}] {EquihashCommands.ZGetBalance} returned error: {balanceResponse.Error.Message} code {balanceResponse.Error.Code}");
+                else
+                    logger.Info(() => $"[{LogCategory}] Insufficient shielded balance for payment of {FormatAmount(pageAmount)}");
+
                 return;
             }
 
             logger.Info(() => $"[{LogCategory}] Paying {FormatAmount(pageAmount)} to {page.Length} addresses");
 
-            var args = new object[]
+            object[] args;
+            
+            // Mainly supported by latest releases of Zcash (ZEC)
+            if(supportsZSendManyPrivacyPolicy)
             {
-                poolExtraConfig.ZAddress, // default account
-                amounts, // addresses and associated amounts
-                ZMinConfirmations, // only spend funds covered by this many confirmations
-                TransferFee
-            };
+                logger.Debug(() => $"[{LogCategory}] {EquihashCommands.ZSendMany} 'PrivacyPolicy' is supported...");
+
+                args = new object[]
+                {
+                    poolExtraConfig.ZAddress, // default account
+                    amounts, // addresses and associated amounts
+                    ZMinConfirmations, // only spend funds covered by this many confirmations
+                    TransferFee,
+                    PrivacyPolicy // allow transactions with transparent recipients to be processed, which is not enabled by default for that coin because of severe privacy reinforcements
+                };
+            }
+            else
+            {
+                args = new object[]
+                {
+                    poolExtraConfig.ZAddress, // default account
+                    amounts, // addresses and associated amounts
+                    ZMinConfirmations, // only spend funds covered by this many confirmations
+                    TransferFee
+                };
+            }
 
             // send command
             tryTransfer:
@@ -423,10 +456,10 @@ public class EquihashPayoutHandler : BitcoinPayoutHandler
 
         if(response.Error != null)
         {
-            if(response.Error.Code == -6)
-                logger.Info(() => $"[{LogCategory}] No funds to shield");
+            if(response.Error.Code == (int)BitcoinRPCErrorCode.RPC_WALLET_INSUFFICIENT_FUNDS || response.Error.Code == (int)BitcoinRPCErrorCode.RPC_INVALID_PARAMS || response.Error.Code == (int)BitcoinRPCErrorCode.RPC_INVALID_PARAMETER)
+                logger.Info(() => $"[{LogCategory}] No funds to shield: {response.Error.Message} code {response.Error.Code}");
             else
-                logger.Error(() => $"[{LogCategory}] {EquihashCommands.ZShieldCoinbase} returned error: {response.Error.Message} code {response.Error.Code}");
+                logger.Error(() => $"[{LogCategory}] {EquihashCommands.ZShieldCoinbase} returned an unexpected error: {response.Error.Message} code {response.Error.Code}");
 
             return;
         }

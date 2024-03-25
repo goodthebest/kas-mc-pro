@@ -165,13 +165,6 @@ public class BeamPayoutHandler : PayoutHandlerBase,
         // configure explorer daemon
         var daemonEndpoints = pc.Daemons
             .Where(x => x.Category?.ToLower() == BeamConstants.ExplorerDaemonCategory)
-            .Select(x =>
-            {
-                if(string.IsNullOrEmpty(x.HttpPath))
-                    x.HttpPath = BeamConstants.ExplorerDaemonRpcStatusLocation;
-
-                return x;
-            })
             .ToArray();
             
         restClient = new SimpleRestClient(httpClientFactory, "http://" + daemonEndpoints.First().Host.ToString() + ":" + daemonEndpoints.First().Port.ToString() + "/");
@@ -213,7 +206,7 @@ public class BeamPayoutHandler : PayoutHandlerBase,
         var pageSize = 100;
         var pageCount = (int) Math.Ceiling(blocks.Length / (double) pageSize);
         var result = new List<Block>();
-        var lastBlock = await restClient.Get<GetStatusResponse>(BeamConstants.ExplorerDaemonRpcStatusLocation, ct);
+        var lastBlock = await restClient.Get<GetStatusResponse>(BeamExplorerCommands.GetStatus, ct);
 
         for(var i = 0; i < pageCount; i++)
         {
@@ -267,7 +260,11 @@ public class BeamPayoutHandler : PayoutHandlerBase,
                     block.Hash = (!string.IsNullOrEmpty(block.Hash)) ? rpcResult.Response?.BlockHash : null;
                     block.Status = BlockStatus.Confirmed;
                     block.ConfirmationProgress = 1;
-                    block.Reward = GetBaseBlockReward(block.BlockHeight); // base reward
+                    
+                    // Better way of calculating blockReward
+                    var maturedBlock = await restClient.Get<GetBlockResponse>(BeamExplorerCommands.GetBlock + block.BlockHeight, ct);
+                    
+                    block.Reward = (decimal) maturedBlock.Subsidy / BeamConstants.SmallestUnit;
 
                     logger.Info(() => $"[{LogCategory}] Unlocked block {block.BlockHeight} worth {FormatAmount(block.Reward)}");
 
@@ -284,7 +281,7 @@ public class BeamPayoutHandler : PayoutHandlerBase,
         Contract.RequiresNonNull(balances);
 
         var coin = poolConfig.Template.As<BeamCoinTemplate>();
-        var infoResponse = await restClient.Get<GetStatusResponse>(BeamConstants.ExplorerDaemonRpcStatusLocation, ct);
+        var infoResponse = await restClient.Get<GetStatusResponse>(BeamExplorerCommands.GetStatus, ct);
 
         if (infoResponse.PeersCount < 3)
         {
@@ -324,27 +321,4 @@ public class BeamPayoutHandler : PayoutHandlerBase,
     }
 
     #endregion // IPayoutHandler
-    
-    internal static decimal GetBaseBlockReward(ulong height)
-    {
-        // BEAM block reward distribution - https://github.com/BeamMW/beam/wiki/BEAM-Mining
-        if (height > BeamConstants.EmisssionThirdEpochHeight)
-        {
-            double heightEraLength = (height - BeamConstants.EmisssionThirdEpochHeight) / BeamConstants.EraLength;
-            double era = Math.Truncate(heightEraLength);
-            decimal quotient = Convert.ToDecimal(Math.Pow(BeamConstants.DisinflationRateQuotient, era));
-            decimal divisor = Convert.ToDecimal(Math.Pow(BeamConstants.DisinflationRateDivisor, era));
-            return ((BeamConstants.EmisssionSecondEpochBlockReward * quotient) / divisor);
-        }
-        
-        else if (height > BeamConstants.EmisssionFirstEpochHeight)
-        {
-            return BeamConstants.EmisssionFirstEpochBlockReward;
-        }
-        
-        else
-        {
-            return BeamConstants.BaseRewardInitial;
-        }
-    }
 }

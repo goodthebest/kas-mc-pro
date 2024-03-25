@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Miningcore.Blockchain.Conceal.DaemonResponses;
 
-public record GetInfoResponse
+public class GetInfoResponse
 {
     /// <summary>
     /// Number of alternative blocks to main chain.
@@ -53,10 +53,10 @@ public record GetInfoResponse
     public int GreyPeerlistSize { get; set; }
     
     /// <summary>
-    /// The height of the next block in the chain.
+    /// Current length of longest chain known to daemon.
     /// </summary>
     [JsonPropertyName("height")]
-    public uint TargetHeight { get; set; }
+    public ulong TargetHeight { get; set; }
     
     /// <summary>
     /// Number of peers connected to and pulling from your node.
@@ -83,10 +83,10 @@ public record GetInfoResponse
     public ulong LastBlockTimestamp { get; set; }
     
     /// <summary>
-    /// Current length of longest chain known to daemon.
+    /// The height of the next block in the chain.
     /// </summary>
     [JsonPropertyName("last_known_block_index")]
-    public uint Height { get; set; }
+    public ulong Height { get; set; }
     
     /// <summary>
     /// Number of peers that you are connected to and getting information from.
@@ -109,13 +109,13 @@ public record GetInfoResponse
     /// Total number of non-coinbase transaction in the chain.
     /// </summary>
     [JsonPropertyName("tx_count")]
-    public uint TransactionCount { get; set; }
+    public ulong TransactionCount { get; set; }
 
     /// <summary>
     /// Number of transactions that have been broadcast but not included in a block.
     /// </summary>
     [JsonPropertyName("tx_pool_size")]
-    public uint TransactionPoolSize { get; set; }
+    public ulong TransactionPoolSize { get; set; }
     
     /// <summary>
     /// Version

@@ -24,7 +24,7 @@ namespace FishHash {
 	
 	const int light_cache_num_items = 1179641;
 	const int full_dataset_num_items = 37748717;
-	hash256 seed = {.bytes={0xeb,0x01,0x63,0xae,0xf2,0xab,0x1c,0x5a,
+	fishhash_hash256 seed = {.bytes={0xeb,0x01,0x63,0xae,0xf2,0xab,0x1c,0x5a,
 				0x66,0x31,0x0c,0x1c,0x14,0xd6,0x0f,0x42,
 				0x55,0xa9,0xb3,0x9b,0x0e,0xdf,0x26,0x53,
 				0x98,0x44,0xf1,0x17,0xad,0x67,0x21,0x19}};
@@ -45,8 +45,8 @@ namespace FishHash {
 		return (u * fnv_prime) ^ v;
 	}
 	
-	inline hash512 fnv1(const hash512& u, const hash512& v) noexcept {
-		hash512 r;
+	inline fishhash_hash512 fnv1(const fishhash_hash512& u, const fishhash_hash512& v) noexcept {
+		fishhash_hash512 r;
 		for (size_t i = 0; i < sizeof(r) / sizeof(r.word32s[0]); ++i)
 			r.word32s[i] = fnv1(u.word32s[i], v.word32s[i]);
 		return r;
@@ -63,11 +63,11 @@ namespace FishHash {
 	
 	struct item_state
 	{
-	    const hash512* const cache;
+	    const fishhash_hash512* const cache;
 	    const int64_t num_cache_items;
 	    const uint32_t seed;
 
-	    hash512 mix;
+	    fishhash_hash512 mix;
 
 	    inline item_state(const fishhash_context& ctx, int64_t index) noexcept
 	      : cache{ctx.light_cache},
@@ -89,14 +89,14 @@ namespace FishHash {
 		mix = fnv1(mix, cache[parent_index]);
 	    }
 
-	    inline hash512 final() noexcept { 
+	    inline fishhash_hash512 final() noexcept { 
 	    	keccak(mix.word64s, 512, mix.bytes, 64);
 	    	return mix; 
 	    }
 	};
 
 
-	hash1024 calculate_dataset_item_1024(const fishhash_context& ctx, uint32_t index) noexcept
+	fishhash_hash1024 calculate_dataset_item_1024(const fishhash_context& ctx, uint32_t index) noexcept
 	{
 	    item_state item0{ctx, int64_t(index) * 2};
 	    item_state item1{ctx, int64_t(index) * 2 + 1};
@@ -107,7 +107,7 @@ namespace FishHash {
 		item1.update(j);
 	    }
 
-	    return hash1024{{item0.final(), item1.final()}};
+	    return fishhash_hash1024{{item0.final(), item1.final()}};
 	}
 
 
@@ -117,9 +117,9 @@ namespace FishHash {
 		
 	******************************/
 	
-	inline hash1024 lookup(const fishhash_context& ctx, uint32_t index) {
+	inline fishhash_hash1024 lookup(const fishhash_context& ctx, uint32_t index) {
 		if (ctx.full_dataset != NULL) {
-			hash1024 * item = &ctx.full_dataset[index];
+			fishhash_hash1024 * item = &ctx.full_dataset[index];
 			
 			// Ability to handle lazy lookup
 			if (item->word64s[0] == 0) {
@@ -132,23 +132,29 @@ namespace FishHash {
 		}
 	}
 
-	inline hash256 fishhash_kernel( const fishhash_context& ctx, const hash512& seed) noexcept {
-		const uint32_t index_limit = static_cast<uint32_t>(ctx.full_dataset_num_items);
+	fishhash_hash256 fishhash_kernel( const fishhash_context * ctx, const fishhash_hash512 seed) noexcept {
+		const uint32_t index_limit = static_cast<uint32_t>(ctx->full_dataset_num_items);
 		const uint32_t seed_init = seed.word32s[0];
 	    
-		hash1024 mix{seed, seed};
+		fishhash_hash1024 mix{seed, seed};
 
 		for (uint32_t i = 0; i < num_dataset_accesses; ++i) {
-					
+
 			// Calculate new fetching indexes
-			const uint32_t p0 = mix.word32s[0] % index_limit;
-			const uint32_t p1 = mix.word32s[4] % index_limit;
-			const uint32_t p2 = mix.word32s[8] % index_limit;
+			uint32_t mixGroup[8]; 
+			for (uint32_t c=0; c<8; c++) {
+				mixGroup[c] = (mix.word32s[4*c + 0] ^ mix.word32s[4*c + 1] ^ mix.word32s[4*c + 2] ^ mix.word32s[4*c + 3]);
+			}
+
+
+			uint32_t p0 = (mixGroup[0] ^ mixGroup[3] ^ mixGroup[6]) % index_limit;
+			uint32_t p1 = (mixGroup[1] ^ mixGroup[4] ^ mixGroup[7]) % index_limit;
+			uint32_t p2 = (mixGroup[2] ^ mixGroup[5] ^           i) % index_limit;
 					       
-			hash1024 fetch0 = lookup(ctx, p0);
-			hash1024 fetch1 = lookup(ctx, p1);
-			hash1024 fetch2 = lookup(ctx, p2);
-						
+			fishhash_hash1024 fetch0 = lookup(*ctx, p0);
+			fishhash_hash1024 fetch1 = lookup(*ctx, p1);
+			fishhash_hash1024 fetch2 = lookup(*ctx, p2);
+
 			// Modify fetch1 and fetch2
 			for (size_t j = 0; j < 32; ++j) {
 				fetch1.word32s[j] = fnv1(mix.word32s[j], fetch1.word32s[j]);
@@ -161,7 +167,7 @@ namespace FishHash {
 		}
 
 		// Collapse the result into 32 bytes
-		hash256 mix_hash;
+		fishhash_hash256 mix_hash;
 		static constexpr size_t num_words = sizeof(mix) / sizeof(uint32_t);
 		for (size_t i = 0; i < num_words; i += 4) {
 			const uint32_t h1 = fnv1(mix.word32s[i], mix.word32s[i + 1]);
@@ -174,20 +180,20 @@ namespace FishHash {
 	}
 
 	void fishhash_hash(uint8_t * output, const fishhash_context * ctx, const uint8_t * header, uint64_t header_size) noexcept {
-		hash512 seed; 
+		fishhash_hash512 seed; 
 	   
 		blake3_hasher hasher;
 		blake3_hasher_init(&hasher);
 		blake3_hasher_update(&hasher, header, header_size);
 		blake3_hasher_finalize(&hasher, seed.bytes, 64);
 				
-		const hash256 mix_hash = fishhash_kernel(*ctx, seed);
+		const fishhash_hash256 mix_hash = fishhash_kernel(ctx, seed);
 	    
 		uint8_t final_data[sizeof(seed) + sizeof(mix_hash)];
 		std::memcpy(&final_data[0], seed.bytes, sizeof(seed));
 		std::memcpy(&final_data[sizeof(seed)], mix_hash.bytes, sizeof(mix_hash));
 	    
-		hash256 finValue;
+		fishhash_hash256 finValue;
 	    
 		if (!output) output = static_cast<uint8_t*>(std::calloc(1, 32));
 		
@@ -198,15 +204,15 @@ namespace FishHash {
 		blake3_hasher_finalize(&hasher, output, 32);
 	}
 	
-	inline hash512 bitwise_xor(const hash512& x, const hash512& y) noexcept {
-		hash512 z;
+	inline fishhash_hash512 bitwise_xor(const fishhash_hash512& x, const fishhash_hash512& y) noexcept {
+		fishhash_hash512 z;
 		for (size_t i = 0; i < sizeof(z) / sizeof(z.word64s[0]); ++i)
 			z.word64s[i] = x.word64s[i] ^ y.word64s[i];
 		return z;
 	}
 	
-	void build_light_cache( hash512 cache[], int num_items, const hash256& seed) noexcept {
-		hash512 item;
+	void build_light_cache( fishhash_hash512 cache[], int num_items, const fishhash_hash256& seed) noexcept {
+		fishhash_hash512 item;
 		keccak(item.word64s, 512, seed.bytes, sizeof(seed));
 		cache[0] = item;
 		
@@ -226,7 +232,7 @@ namespace FishHash {
 			    // Second index.
 			    const uint32_t w = static_cast<uint32_t>(num_items + (i - 1)) % index_limit;
 
-			    const hash512 x = bitwise_xor(cache[v], cache[w]);			    
+			    const fishhash_hash512 x = bitwise_xor(cache[v], cache[w]);			    
 			    keccak(cache[i].word64s, 512, x.bytes, sizeof(x));
 			    
 			}
@@ -255,19 +261,19 @@ namespace FishHash {
 	
 		shared_context.reset();
 					
-		size_t context_alloc_size = sizeof(hash512);
-		size_t light_cache_size = light_cache_num_items * sizeof(hash512);
-		size_t full_dataset_size = full ? full_dataset_num_items * sizeof(hash1024) : 0;
+		size_t context_alloc_size = sizeof(fishhash_hash512);
+		size_t light_cache_size = light_cache_num_items * sizeof(fishhash_hash512);
+		size_t full_dataset_size = full ? full_dataset_num_items * sizeof(fishhash_hash1024) : 0;
 		
 		size_t alloc_size = context_alloc_size + light_cache_size + full_dataset_size;
 
 		char* const alloc_data = static_cast<char*>(std::calloc(1, alloc_size));
 		if (!alloc_data) return nullptr;  // Signal out-of-memory by returning null
 		
-		hash512* const light_cache = reinterpret_cast<hash512*>(alloc_data + context_alloc_size);
+		fishhash_hash512* const light_cache = reinterpret_cast<fishhash_hash512*>(alloc_data + context_alloc_size);
 		build_light_cache(light_cache, light_cache_num_items, seed);
 		
-		hash1024* full_dataset = full ? reinterpret_cast<hash1024*>(alloc_data + context_alloc_size + light_cache_size): nullptr;
+		fishhash_hash1024* full_dataset = full ? reinterpret_cast<fishhash_hash1024*>(alloc_data + context_alloc_size + light_cache_size): nullptr;
 				
 		shared_context.reset( new (alloc_data) fishhash_context{
      			light_cache_num_items,

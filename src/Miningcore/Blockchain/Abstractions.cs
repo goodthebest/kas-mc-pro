@@ -10,6 +10,7 @@ public class BlockchainStats
     public DateTime? LastNetworkBlockTime { get; set; }
     public ulong BlockHeight { get; set; }
     public int ConnectedPeers { get; set; }
+    public string NodeVersion { get; set; } = "Unknown";
     public string RewardType { get; set; }
 }
 
