@@ -79,11 +79,6 @@ public class EthereumPayoutHandler : PayoutHandlerBase,
         Contract.RequiresNonNull(poolConfig);
         Contract.RequiresNonNull(blocks);
 
-        // ensure we have enough peers
-        var enoughPeers = await EnsureDaemonsSynchedAsync(ct);
-        if(!enoughPeers)
-            return blocks;
-
         var coin = poolConfig.Template.As<EthereumCoinTemplate>();
         var pageSize = 100;
         var pageCount = (int) Math.Ceiling(blocks.Length / (double) pageSize);
@@ -171,7 +166,7 @@ public class EthereumPayoutHandler : PayoutHandlerBase,
                                 var gasUsed = blockHashResponse.Response.GasUsed;
 
                                 var burnedFee = (decimal) 0;
-                                if(extraPoolConfig?.ChainTypeOverride == "Ethereum" || extraPoolConfig?.ChainTypeOverride == "Main" || extraPoolConfig?.ChainTypeOverride == "MainPow" || extraPoolConfig?.ChainTypeOverride == "Ubiq" || extraPoolConfig?.ChainTypeOverride == "EtherOne" || extraPoolConfig?.ChainTypeOverride == "Pink" || extraPoolConfig?.ChainTypeOverride == "Hypra")
+                                if(extraPoolConfig?.ChainTypeOverride == "Ethereum" || extraPoolConfig?.ChainTypeOverride == "Main" || extraPoolConfig?.ChainTypeOverride == "MainPow" || extraPoolConfig?.ChainTypeOverride == "Ubiq" || extraPoolConfig?.ChainTypeOverride == "EtherOne" || extraPoolConfig?.ChainTypeOverride == "Pink" || extraPoolConfig?.ChainTypeOverride == "Egem" || extraPoolConfig?.ChainTypeOverride == "Aves" || extraPoolConfig?.ChainTypeOverride == "Flora" || extraPoolConfig?.ChainTypeOverride == "Octa" || extraPoolConfig?.ChainTypeOverride == "Bitnet" || extraPoolConfig?.ChainTypeOverride == "Altcoin" || extraPoolConfig?.ChainTypeOverride == "Canxium" || extraPoolConfig?.ChainTypeOverride == "Hypra")
                                     burnedFee = (baseGas * gasUsed / EthereumConstants.Wei);
 
                                 block.Hash = blockHash;
@@ -255,7 +250,6 @@ public class EthereumPayoutHandler : PayoutHandlerBase,
                                 
                                 block.Hash = uncle.Hash;
                                 block.Reward = GetUncleReward(chainType, uncle.Height.Value, blockInfo2.Height.Value);
-                                block.BlockHeight = uncle.Height.Value;
 
                                 // There is a rare case-scenario where an Uncle has a block reward of zero
                                 // We must handle it carefully otherwise payout will be stuck forever
@@ -263,11 +257,11 @@ public class EthereumPayoutHandler : PayoutHandlerBase,
                                 {
                                     block.Status = BlockStatus.Confirmed;
                                     block.ConfirmationProgress = 1;
+                                    block.BlockHeight = uncle.Height.Value;
                                 }
                                 else
                                 {
                                     block.Status = BlockStatus.Orphaned;
-                                    block.Reward = 0;
                                 }
 
                                 block.Type = EthereumConstants.BlockTypeUncle;
@@ -312,10 +306,16 @@ public class EthereumPayoutHandler : PayoutHandlerBase,
 
     public async Task PayoutAsync(IMiningPool pool, Balance[] balances, CancellationToken ct)
     {
-        // ensure we have enough peers
-        var enoughPeers = await EnsureDaemonsSynchedAsync(ct);
-        if(!enoughPeers)
+        // ensure we have peers
+        var infoResponse = await rpcClient.ExecuteAsync<string>(logger, EC.GetPeerCount, ct);
+
+        if((networkType == EthereumNetworkType.Main || extraPoolConfig?.ChainTypeOverride == "Classic" || extraPoolConfig?.ChainTypeOverride == "Mordor" || networkType == EthereumNetworkType.MainPow || extraPoolConfig?.ChainTypeOverride == "Ubiq" || extraPoolConfig?.ChainTypeOverride == "EtherOne" || extraPoolConfig?.ChainTypeOverride == "Pink" || extraPoolConfig?.ChainTypeOverride == "Egem" || extraPoolConfig?.ChainTypeOverride == "Aves" || extraPoolConfig?.ChainTypeOverride == "Flora" || extraPoolConfig?.ChainTypeOverride == "Octa" || extraPoolConfig?.ChainTypeOverride == "Bitnet" || extraPoolConfig?.ChainTypeOverride == "Altcoin" || extraPoolConfig?.ChainTypeOverride == "Canxium"|| extraPoolConfig?.ChainTypeOverride == "OctaSpace" || extraPoolConfig?.ChainTypeOverride == "OctaSpaceTestnet" || extraPoolConfig?.ChainTypeOverride == "Hypra") &&
+           (infoResponse.Error != null || string.IsNullOrEmpty(infoResponse.Response) ||
+               infoResponse.Response.IntegralFromHex<int>() < EthereumConstants.MinPayoutPeerCount))
+        {
+            logger.Warn(() => $"[{LogCategory}] Payout aborted. Not enough peers (4 required)");
             return;
+        }
 
         var txHashes = new List<string>();
 
@@ -345,22 +345,6 @@ public class EthereumPayoutHandler : PayoutHandlerBase,
     }
 
     #endregion // IPayoutHandler
-
-    private async Task<bool> EnsureDaemonsSynchedAsync(CancellationToken ct)
-    {
-        // ensure we have enough peers
-        var infoResponse = await rpcClient.ExecuteAsync<string>(logger, EC.GetPeerCount, ct);
-
-        if((networkType == EthereumNetworkType.Main || extraPoolConfig?.ChainTypeOverride == "Classic" || extraPoolConfig?.ChainTypeOverride == "Mordor" || networkType == EthereumNetworkType.MainPow || extraPoolConfig?.ChainTypeOverride == "Ubiq" || extraPoolConfig?.ChainTypeOverride == "EtherOne" || extraPoolConfig?.ChainTypeOverride == "Pink" || extraPoolConfig?.ChainTypeOverride == "OctaSpace" || extraPoolConfig?.ChainTypeOverride == "OctaSpaceTestnet" || extraPoolConfig?.ChainTypeOverride == "Hypra") &&
-           (infoResponse.Error != null || string.IsNullOrEmpty(infoResponse.Response) ||
-               infoResponse.Response.IntegralFromHex<int>() < EthereumConstants.MinPayoutPeerCount))
-        {
-            logger.Warn(() => $"[{LogCategory}] Payout aborted. Not enough peer(s) ({EthereumConstants.MinPayoutPeerCount} required)");
-            return false;
-        }
-
-        return true;
-    }
 
     private async Task<DaemonResponses.Block[]> FetchBlocks(Dictionary<long, DaemonResponses.Block> blockCache, CancellationToken ct, params long[] blockHeights)
     {
@@ -417,6 +401,24 @@ public class EthereumPayoutHandler : PayoutHandlerBase,
             
             case GethChainType.Pink:
                return PinkConstants.BaseRewardInitial;
+               
+            case GethChainType.Flora:
+               return FloraConstants.BaseRewardInitial;
+               
+           case GethChainType.Egem:
+               return EgemConstants.BaseRewardInitial;
+               
+           case GethChainType.Aves:
+               return AvesConstants.BaseRewardInitial;
+               
+           case GethChainType.Canxium:
+               return CanxiumConstants.BaseRewardInitial;
+               
+           case GethChainType.Altcoin:
+               return AltcoinConstants.BaseRewardInitial;
+           
+           case GethChainType.Bitnet:
+               return BitnetConstants.BaseRewardInitial;  
 
             case GethChainType.Callisto:
                 return CallistoConstants.BaseRewardInitial * (CallistoConstants.TreasuryPercent / 100);
@@ -506,37 +508,31 @@ public class EthereumPayoutHandler : PayoutHandlerBase,
             case GethChainType.Mordor:
                 double heightEraLength = height / EthereumClassicConstants.EraLength;
                 double era = Math.Floor(heightEraLength);
-
-                if(era == 0)
-                {
-                    if(uheight != height)
-                        reward *= uheight + 8 - height;
-
+                if (era == 0) {
+                    reward *= uheight + 8 - height;
                     reward /= 8m;
                 }
-                else
-                {
+                else {
                     reward /= 32m;
                 }
-
+                
                 break;
             case GethChainType.Ubiq:
-                if(uheight != height)
-                    reward *= uheight + 2 - height;
-
+                reward *= uheight + 2 - height;
                 reward /= 2m;
-
+                // blocks older than the previous block are not rewarded
+                if (reward < 0)
+                    reward = 0;
+                
                 break;
             case GethChainType.Hypra:
                 reward = 0.1m;
-
+                
                 break;
             default:
-                if(uheight != height)
-                    reward *= uheight + 8 - height;
-
+                reward *= uheight + 8 - height;
                 reward /= 8m;
-
+                
                 break;
         }
         
@@ -582,7 +578,7 @@ public class EthereumPayoutHandler : PayoutHandlerBase,
             Value = amount.ToString("x").TrimStart('0'),
         };
         
-        if(extraPoolConfig?.ChainTypeOverride == "Ethereum" || extraPoolConfig?.ChainTypeOverride == "Main" || (extraPoolConfig?.ChainTypeOverride == "Ubiq") || extraPoolConfig?.ChainTypeOverride == "MainPow" || extraPoolConfig?.ChainTypeOverride == "EtherOne" )
+        if(extraPoolConfig?.ChainTypeOverride == "Ethereum" || extraPoolConfig?.ChainTypeOverride == "Main" || (extraPoolConfig?.ChainTypeOverride == "Ubiq") || extraPoolConfig?.ChainTypeOverride == "MainPow" || extraPoolConfig?.ChainTypeOverride == "EtherOne" || extraPoolConfig?.ChainTypeOverride == "Aves" || extraPoolConfig?.ChainTypeOverride == "Flora" || extraPoolConfig?.ChainTypeOverride == "Octa")
         {
             var maxPriorityFeePerGas = await rpcClient.ExecuteAsync<string>(logger, EC.MaxPriorityFeePerGas, ct);
             
@@ -629,7 +625,47 @@ public class EthereumPayoutHandler : PayoutHandlerBase,
             };
             response = await rpcClient.ExecuteAsync<string>(logger, EC.SendTx, ct, new[] { requestPink });
         }  
-        else {
+        else if(extraPoolConfig?.ChainTypeOverride == "Egem")
+        {
+            var requestEgem = new SendTransactionRequestEgem
+            {
+                From = poolConfig.Address,
+                To = balance.Address,
+                Value = amount.ToString("x").TrimStart('0'),
+                Gas = extraConfig.Gas
+            };
+            response = await rpcClient.ExecuteAsync<string>(logger, EC.SendTx, ct, new[] { requestEgem });
+        } else if(extraPoolConfig?.ChainTypeOverride == "Aves")
+        {
+            var requestAves = new SendTransactionRequestAves
+            {
+                From = poolConfig.Address,
+                To = balance.Address,
+                Value = amount.ToString("x").TrimStart('0'),
+                Gas = extraConfig.Gas
+            };
+            response = await rpcClient.ExecuteAsync<string>(logger, EC.SendTx, ct, new[] { requestAves });
+        } else if(extraPoolConfig?.ChainTypeOverride == "Flora")
+        {
+            var requestFlora = new SendTransactionRequestFlora
+            {
+                From = poolConfig.Address,
+                To = balance.Address,
+                Value = amount.ToString("x").TrimStart('0'),
+                Gas = extraConfig.Gas
+            };
+            response = await rpcClient.ExecuteAsync<string>(logger, EC.SendTx, ct, new[] { requestFlora });
+        } else if(extraPoolConfig?.ChainTypeOverride == "Octa")
+        {
+            var requestOcta = new SendTransactionRequestOcta
+            {
+                From = poolConfig.Address,
+                To = balance.Address,
+                Value = amount.ToString("x").TrimStart('0'),
+                Gas = extraConfig.Gas
+            };
+            response = await rpcClient.ExecuteAsync<string>(logger, EC.SendTx, ct, new[] { requestOcta });
+        } else {
             response = await rpcClient.ExecuteAsync<string>(logger, EC.SendTx, ct, new[] { request });
         }
 
