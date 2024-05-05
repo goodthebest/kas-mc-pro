@@ -90,9 +90,39 @@ public class OctaSpaceConstants
     public const decimal BaseRewardInitial = 6.5m;
 }
 
+public class FloraConstants
+{
+    public const decimal BaseRewardInitial = 5.0m;
+}
+
+public class AvesConstants
+{
+    public const decimal BaseRewardInitial = 2.85m;
+}
+
+public class EgemConstants
+{
+    public const decimal BaseRewardInitial = 3.0m;
+}
+
 public class PinkConstants
 {
     public const decimal BaseRewardInitial = 1.0m;
+}
+
+public class CanxiumConstants
+{
+    public const decimal BaseRewardInitial = 0.1875m;
+}
+
+public class BitnetConstants
+{
+    public const decimal BaseRewardInitial = 1.0m;
+}
+
+public class AltcoinConstants
+{
+    public const decimal BaseRewardInitial = 2.0m;
 }
 
 // Hypra
@@ -136,7 +166,13 @@ public enum EthereumNetworkType
     Callisto = 820,
     MainPow = 10001,
     EtherOne = 4949,
+    Egem = 1987,
+    Aves = 33333,
+    Flora = 10500,
     Pink = 10100,
+    Bitnet = 210,
+    Canxium = 3003,
+    Altcoin = 2330,
     OctaSpace = 800001,
     OctaSpaceTestnet = 800002,
     Hypra = 622277,
@@ -154,7 +190,13 @@ public enum GethChainType
     Callisto,
     MainPow = 10001,
     EtherOne = 4949,
+    Egem = 1987,
+    Aves = 33333,
+    Flora = 10500,
     Pink = 10100,
+    Bitnet = 210,
+    Canxium = 3003,
+    Altcoin = 2330,
     OctaSpace,
     OctaSpaceTestnet,
     Hypra,
