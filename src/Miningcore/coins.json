@@ -5256,5 +5256,61 @@
         "explorerBlockLink": "https://explorer.nautilus-network.net/blocks/$hash$",
         "explorerTxLink": "https://explorer.nautilus-network.net/txs/{0}",
         "explorerAccountLink": "https://explorer.nautilus-network.net/addresses/{0}"
+        },
+    "bugna": {
+        "name": "Bugna",
+        "canonicalName": "Bugna",
+        "symbol": "BGA",
+        "family": "kaspa",
+        "website": "https://bugna.org/",
+        "market": "",
+        "twitter": "https://twitter.com/bugnanetwork",
+        "telegram": "",
+        "discord": "https://discord.com/invite/YxDF2EMKTq",
+        "explorerBlockLink": "https://explorer.bugna.org/blocks/$hash$",
+        "explorerTxLink": "https://explorer.bugna.org/txs/{0}",
+        "explorerAccountLink": "https://explorer.bugna.org/addresses/{0}"
+        },
+    "consensus": {
+        "name": "Consensus",
+        "canonicalName": "Consensus",
+        "symbol": "CSS",
+        "family": "kaspa",
+        "website": "",
+        "market": "",
+        "twitter": "",
+        "telegram": "",
+        "discord": "https://discord.com/invite/MHn4wStC4h",
+        "explorerBlockLink": "https://explorer.consensus-network.com/blocks/$hash$",
+        "explorerTxLink": "https://explorer.consensus-network.com/txs/{0}",
+        "explorerAccountLink": "https://explorer.consensus-network.com/addresses/{0}"
+        },
+    "sedra": {
+        "name": "Sedra",
+        "canonicalName": "Sedra",
+        "symbol": "SDR",
+        "family": "kaspa",
+        "website": "https://sedracoin.com/",
+        "market": "https://www.coingecko.com/en/coins/sedra-coin",
+        "twitter": "https://twitter.com/SedraCoin",
+        "telegram": "https://t.me/OfficialSedraCoin",
+        "discord": "https://discord.gg/jWHrkKMSEr",
+        "explorerBlockLink": "https://explorer.sedracoin.com/blocks/$hash$",
+        "explorerTxLink": "https://explorer.sedracoin.com/txs/{0}",
+        "explorerAccountLink": "https://explorer.sedracoin.com/addresses/{0}"
+              },
+    "pugdag": {
+        "name": "Pugdag",
+        "canonicalName": "Pugdag",
+        "symbol": "PUG",
+        "family": "kaspa",
+        "website": "",
+        "market": "",
+        "twitter": "",
+        "telegram": "",
+        "discord": "",
+        "explorerBlockLink": "https://explorer.pugdag.com/blocks/$hash$",
+        "explorerTxLink": "https://explorer.pugdag.com/txs/{0}",
+        "explorerAccountLink": "https://explorer.pugdag.com/addresses/{0}"
      }
 }
