@@ -105,6 +105,28 @@ public static class NautilusConstants
     public const string ChainPrefixMainnet = "nautilus";
 }
 
+public static class ConsensusNetworkConstants
+{
+    // List of CSS prefixes: https://github.com/consensus-network/consensusd/blob/main/util/address.go
+    public const string ChainPrefixDevnet = "consensusdev";
+    public const string ChainPrefixSimnet = "consensussim";
+    public const string ChainPrefixTestnet = "consensustest";
+    public const string ChainPrefixMainnet = "consensus";
+
+    public const long FishHashForkHeightTestnet = 0;
+}
+
+public static class PugdagConstants
+{
+    // List of PUG prefixes: https://github.com/Pugdag/pugdagd/blob/main/util/address.go
+    public const string ChainPrefixDevnet = "pugdagdev";
+    public const string ChainPrefixSimnet = "pugdagsim";
+    public const string ChainPrefixTestnet = "pugdagtest";
+    public const string ChainPrefixMainnet = "pugdag";
+
+    public const long FishHashForkHeightTestnet = 0;
+}
+
 public static class NexelliaConstants
 {
     // List of NXL prefixes: https://github.com/Nexellia-Network/nexelliad/blob/master/util/address.go
