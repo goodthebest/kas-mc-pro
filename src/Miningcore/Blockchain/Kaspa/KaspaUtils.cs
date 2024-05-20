@@ -404,6 +404,16 @@ public class KaspaAddressUtility
                 };
 
                 break;
+            case "CSS":
+                this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
+                {
+                    { ConsensusNetworkConstants.ChainPrefixMainnet, KaspaBech32Prefix.KaspaMain },
+                    { ConsensusNetworkConstants.ChainPrefixDevnet, KaspaBech32Prefix.KaspaDev },
+                    { ConsensusNetworkConstants.ChainPrefixTestnet, KaspaBech32Prefix.KaspaTest },
+                    { ConsensusNetworkConstants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
+                };
+                
+                break;           
             case "NXL":
                 this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
                 {
@@ -431,6 +441,16 @@ public class KaspaAddressUtility
                     { SedraCoinConstants.ChainPrefixDevnet, KaspaBech32Prefix.KaspaDev },
                     { SedraCoinConstants.ChainPrefixTestnet, KaspaBech32Prefix.KaspaTest },
                     { SedraCoinConstants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
+                };
+
+                break;
+            case "PUG":
+                this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
+                {
+                    { PugdagConstants.ChainPrefixMainnet, KaspaBech32Prefix.KaspaMain },
+                    { PugdagConstants.ChainPrefixDevnet, KaspaBech32Prefix.KaspaDev },
+                    { PugdagConstants.ChainPrefixTestnet, KaspaBech32Prefix.KaspaTest },
+                    { PugdagConstants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
                 };
 
                 break;
