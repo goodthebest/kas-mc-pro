@@ -156,6 +156,15 @@ public static class SedraCoinConstants
     public const string ChainPrefixMainnet = "sedra";
 }
 
+public static class BitmemeCoinConstants
+{
+    // List of BTM prefixes: https://github.com/bitmeme/bitmemed/blob/main/util/address.go
+    public const string ChainPrefixDevnet = "bitmemedev";
+    public const string ChainPrefixSimnet = "bitmemesim";
+    public const string ChainPrefixTestnet = "bitmemetest";
+    public const string ChainPrefixMainnet = "bitmeme";
+}
+
 public enum KaspaBech32Prefix
 {
     Unknown = 0,
