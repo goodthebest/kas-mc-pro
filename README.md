@@ -32,8 +32,8 @@ Code contributions are very welcome and should be submitted as standard [pull re
 ## Building on Debian/Ubuntu
 
 ```console
-git clone https://github.com/blackmennewstyle/miningcore
-cd miningcore
+git clone https://github.com/MiningCryptoLive/miningcore-asic
+cd miningcore-asic
 ```
 
 Depending on your OS Version run either of these scripts:
@@ -63,8 +63,8 @@ or
 Download and install the [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0)
 
 ```dosbatch
-git clone https://github.com/blackmennewstyle/miningcore
-cd miningcore
+git clone https://github.com/MiningCryptoLive/miningcore-asic
+cd miningcore-asic
 build-windows.bat
 ```
 
@@ -77,8 +77,8 @@ build-windows.bat
 In case you don't want to install any dependencies then you can build the app using the official Microsoft .NET SDK Docker image.
 
 ```console
-git clone https://github.com/blackmennewstyle/miningcore
-cd miningcore
+git clone https://github.com/MiningCryptoLive/miningcore-asic
+cd miningcore-asic
 ```
 Then build using Docker:
 
@@ -133,7 +133,7 @@ docker system prune -af
 
 ### Production OS
 
-Windows is **not** a supported production environment. Only Linux is. Please do not file issues related to running a pool on Windows. Windows topics should be posted under [discussions](https://github.com/blackmennewstyle/miningcore/discussions).
+Windows is **not** a supported production environment. Only Linux is. Please do not file issues related to running a pool on Windows. Windows topics should be posted under [discussions](https://github.com/MiningCryptoLive/miningcore-asic/discussions).
 
 Running and developing Miningcore on Windows is of course supported.
 
