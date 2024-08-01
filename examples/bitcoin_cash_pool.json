@@ -1,0 +1,127 @@
+{
+    "logging": {
+        "level": "info",
+        "enableConsoleLog": true,
+        "enableConsoleColors": true,
+        "logFile": "",
+        "apiLogFile": "",
+        "logBaseDirectory": "",
+        "perPoolLogFile": false
+    },
+    "banning": {
+        "manager": "Integrated",
+        "banOnJunkReceive": true,
+        "banOnInvalidShares": false
+    },
+    "notifications": {
+        "enabled": false,
+        "email": {
+            "host": "smtp.example.com",
+            "port": 587,
+            "user": "user",
+            "password": "password",
+            "fromAddress": "info@yourpool.org",
+            "fromName": "support"
+        },
+        "admin": {
+            "enabled": false,
+            "emailAddress": "user@example.com",
+            "notifyBlockFound": true
+        }
+    },
+    "persistence": {
+        "postgres": {
+            "host": "127.0.0.1",
+            "port": 5432,
+            "user": "miningcore",
+            "password": "password",
+            "database": "miningcore"
+        }
+    },
+    "paymentProcessing": {
+        "enabled": true,
+        "interval": 600,
+        "shareRecoveryFile": "recovered-shares.txt"
+    },
+    "api": {
+        "enabled": true,
+        "listenAddress": "*",
+        "port": 4000,
+        "metricsIpWhitelist": [],
+        "rateLimiting": {
+            "disabled": true,
+            "rules": [
+                {
+                    "Endpoint": "*",
+                    "Period": "1s",
+                    "Limit": 5
+                }
+            ],
+            "ipWhitelist": [
+                ""
+            ]
+        }
+    },
+  "statistics": {
+    "updateInterval": 15,
+    "hashrateCalculationWindow": 10,
+    "gcInterval": 1,
+    "cleanupDays": 720
+  },
+  
+    "nicehashClusterConfig": {
+      "enableAutoDiff": true
+    },
+  
+    "pools": [{
+      "id": "bch1",
+      "enabled": true,
+      "coin": "Bitcoin-Cash",
+      "address": "your bch adddress",
+      "rewardRecipients": [
+        {
+          "address": "your bch address",
+          //"type": "op",
+          "percentage": 1.0
+        }
+      ],
+      "blockRefreshInterval": 100,
+      "jobRebroadcastTimeout": 60,
+      "clientConnectionTimeout": 6000,
+      "banning": {
+        "enabled": true,
+        "time": 3600,
+        "invalidPercent": 50,
+        "checkThreshold": 50
+      },
+      "ports": {
+        "3042": {
+          "listenAddress": "0.0.0.0",
+          "difficulty": 1024,
+          "name": "ASIC Mining",
+          "varDiff": {
+            "minDiff": 512,
+            "targetTime": 15,
+            "retargetTime": 90,
+            "variancePercent": 30
+          }
+        }
+      },
+      "daemons": [
+        {
+          "host": "127.0.0.1",
+          "port": 8332,
+          "user": "user",
+          "password": "password"
+    }
+      ],
+      "paymentProcessing": {
+        "enabled": true,
+        "minimumPayment": 0.5,
+        "payoutScheme": "PPLNS",
+        "payoutSchemeConfig": {
+          "factor": 2.0
+        }
+      }
+    }]
+}
