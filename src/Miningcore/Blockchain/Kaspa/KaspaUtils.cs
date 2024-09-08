@@ -447,20 +447,20 @@ public class KaspaAddressUtility
             case "BTM":
                 this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
                 {
-                    { BitmemesCoinConstants.ChainPrefixMainnet, KaspaBech32Prefix.KaspaMain },
-                    { BitmemesCoinConstants.ChainPrefixDevnet, KaspaBech32Prefix.KaspaDev },
-                    { BitmemesCoinConstants.ChainPrefixTestnet, KaspaBech32Prefix.KaspaTest },
-                    { BitmemesCoinConstants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
+                    { BitmemeCoinConstants.ChainPrefixMainnet, KaspaBech32Prefix.KaspaMain },
+                    { BitmemeCoinConstants.ChainPrefixDevnet, KaspaBech32Prefix.KaspaDev },
+                    { BitmemeCoinConstants.ChainPrefixTestnet, KaspaBech32Prefix.KaspaTest },
+                    { BitmemeCoinConstants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
                 };
 
                break;
             case "BRICS":
                 this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
                 {
-                    { BricsConstants.ChainPrefixMainnet, KaspaBech32Prefix.KaspaMain },
-                    { BricsConstants.ChainPrefixDevnet, KaspaBech32Prefix.KaspaDev },
-                    { BricsConstants.ChainPrefixTestnet, KaspaBech32Prefix.KaspaTest },
-                    { BricsConstants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
+                    { BricConstants.ChainPrefixMainnet, KaspaBech32Prefix.KaspaMain },
+                    { BricConstants.ChainPrefixDevnet, KaspaBech32Prefix.KaspaDev },
+                    { BricConstants.ChainPrefixTestnet, KaspaBech32Prefix.KaspaTest },
+                    { BricConstants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
                 };
                 
                 break;
