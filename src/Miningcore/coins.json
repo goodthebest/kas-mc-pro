@@ -5326,5 +5326,19 @@
         "explorerBlockLink": "https://explorer.bitmeme.world/blocks/$hash$",
         "explorerTxLink": "https://explorer.bitmeme.world/txs/{0}",
         "explorerAccountLink": "https://explorer.bitmeme.world/addresses/{0}"
+        },
+    "brics": {
+        "name": "Brics",
+        "canonicalName": "Brics",
+        "symbol": "BRICS",
+        "family": "kaspa",
+        "website": "",
+        "market": "",
+        "twitter": "",
+        "telegram": "",
+        "discord": "",
+        "explorerBlockLink": "https://explorer.bricspro.site/blocks/$hash$",
+        "explorerTxLink": "https://explorer.bricspro.site/txs/{0}",
+        "explorerAccountLink": "https://explorer.bricspro.site/addresses/{0}"   
      }
 }
