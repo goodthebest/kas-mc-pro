@@ -165,7 +165,7 @@ public static class BitmemeCoinConstants
     public const string ChainPrefixMainnet = "btm";
 }
 
-public static class BricsCoinConstants
+public static class BricCoinConstants
 {
     // List of BRICS prefixes: https://github.com/brics18/bricsd/blob/main/util/address.go
     public const string ChainPrefixDevnet = "bricsdev";
