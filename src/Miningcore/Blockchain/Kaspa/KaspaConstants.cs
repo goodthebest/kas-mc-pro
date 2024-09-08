@@ -165,6 +165,15 @@ public static class BitmemeCoinConstants
     public const string ChainPrefixMainnet = "btm";
 }
 
+public static class BricsCoinConstants
+{
+    // List of BRICS prefixes: https://github.com/brics18/bricsd/blob/main/util/address.go
+    public const string ChainPrefixDevnet = "bricsdev";
+    public const string ChainPrefixSimnet = "bricssim";
+    public const string ChainPrefixTestnet = "bricstest";
+    public const string ChainPrefixMainnet = "brics";
+}
+
 public enum KaspaBech32Prefix
 {
     Unknown = 0,
