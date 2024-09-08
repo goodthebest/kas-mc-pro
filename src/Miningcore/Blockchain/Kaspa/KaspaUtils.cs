@@ -453,6 +453,16 @@ public class KaspaAddressUtility
                     { BitmemeCoinConstants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
                 };
 
+               break;
+            case "BRICS":
+                this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
+                {
+                    { BricsConstants.ChainPrefixMainnet, KaspaBech32Prefix.KaspaMain },
+                    { BricsConstants.ChainPrefixDevnet, KaspaBech32Prefix.KaspaDev },
+                    { BricsConstants.ChainPrefixTestnet, KaspaBech32Prefix.KaspaTest },
+                    { BricsConstants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
+                };
+                
                 break;
             case "PUG":
                 this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
