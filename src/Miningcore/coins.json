@@ -254,5 +254,33 @@
         "explorerBlockLink": "https://exploreblockchain.clore.ai/block/$hash$",
         "explorerTxLink": "https://exploreblockchain.clore.ai/tx/{0}",
         "explorerAccountLink": "https://exploreblockchain.clore.ai/address/{0}"
+    },
+    "salvium": {
+        "name": "Salvium",
+        "canonicalName": "Salvium",
+        "symbol": "SAL",
+        "family": "cryptonote",
+        "website": "https://salvium.io/",
+        "github": "https://github.com/salvium/salvium",
+        "market": "https://www.coingecko.com/en/coins/salvium",
+        "twitter": "https://x.com/salvium_io",
+        "telegram": "https://t.me/salviumprotocol",
+        "discord": "https://discord.com/invite/P3rrAjkyYs",
+        "hash": "randomx",
+        "hashVariant": 0,
+        "blobType": 15,
+        "smallestUnit": 100000000,
+        "addressPrefix": 4125464,
+        "addressPrefixTestnet": 364819224,
+        "addressPrefixStagenet": 345944856,
+        "addressPrefixIntegrated": 90108696,
+        "addressPrefixIntegratedTestnet": 55924667160,
+        "addressPrefixIntegratedStagenet": 65301033752,
+        "subAddressPrefix": 257880856,
+        "subAddressPrefixTestnet": 2778641176,
+        "subAddressPrefixStagenet": 12155007768,
+        "explorerBlockLink": "https://explorer.salvium.io/block/$height$",
+        "explorerTxLink": "https://explorer.salvium.io/tx/{0}"
     }
+
 }
