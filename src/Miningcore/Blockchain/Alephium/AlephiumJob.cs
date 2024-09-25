@@ -63,11 +63,12 @@ public class AlephiumJob
         var txsBlobBytes = (Span<byte>) BlockTemplate.TxsBlob.HexToByteArray();
         
         uint blockSize = (uint)nonceBytes.Length + (uint)headerBlobBytes.Length + (uint)txsBlobBytes.Length;
-        uint messageSize = 4 + 1 + blockSize; // encodedBlockSize(4 bytes) + messageType(1 byte)
+        uint msgPrefixSize = 1 + 1 + 4; // version(1 byte) + messageType(1 byte) + encodedBlockSize(4 bytes)
+        uint msgSize = msgPrefixSize + blockSize;
         
         using(var stream = new MemoryStream())
         {
-            stream.Write(GetBigEndianUInt32(messageSize));
+            stream.Write(GetBigEndianUInt32(msgSize));
             stream.WriteByte(AlephiumConstants.SubmitBlockMessageType);
             stream.Write(GetBigEndianUInt32(blockSize));
             stream.Write(nonceBytes);
