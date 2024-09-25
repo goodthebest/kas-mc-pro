@@ -92,6 +92,7 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
                             int receivedBytes;
 
                             // Message
+                            byte version;
                             byte messageType;
                             uint messageLength;
 
@@ -112,6 +113,7 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
                             byte[] txsBlob;
                             uint targetLength;
                             byte[] targetBlob;
+                            ulong height;
 
                             ChainInfo chainInfo;
 
@@ -141,62 +143,74 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
 
                                             if (bufferArray.Length >= messageLength + AlephiumConstants.MessageHeaderSize)
                                             {
-                                                messageType = reader.ReadByte();
-                                                if (messageType == AlephiumConstants.JobsMessageType)
+                                                version = reader.ReadByte();
+                                                if(version == AlephiumConstants.MiningProtocolVersion)
                                                 {
-                                                    jobSize = ReadBigEndianUInt32(reader);
-                                                    logger.Debug(() => $"Parsing {jobSize} job(s) :D");
-
-                                                    alephiumBlockTemplate = new AlephiumBlockTemplate[jobSize];
-
-                                                    for (int index = 0; index < jobSize; index++)
+                                                    messageType = reader.ReadByte();
+                                                    if (messageType == AlephiumConstants.JobsMessageType)
                                                     {
-                                                        logger.Debug(() => $"Job ({index + 1})");
-                                                        fromGroup = (int)ReadBigEndianUInt32(reader);
-                                                        toGroup = (int)ReadBigEndianUInt32(reader);
-                                                        logger.Debug(() => $"fromGroup: {fromGroup} - toGroup: {toGroup}");
 
-                                                        chainInfo = await rpc.GetBlockflowChainInfoAsync(fromGroup, toGroup, cts.Token);
-                                                        logger.Debug(() => $"Height: {chainInfo?.CurrentHeight + 1}");
+                                                        jobSize = ReadBigEndianUInt32(reader);
+                                                        logger.Trace(() => $"Parsing {jobSize} job(s)");
 
-                                                        headerBlobLength = ReadBigEndianUInt32(reader);
-                                                        logger.Debug(() => $"headerBlobLength: {headerBlobLength}");
-                                                        headerBlob = reader.ReadBytes((int)headerBlobLength);
-                                                        logger.Debug(() => $"headerBlob: {headerBlob.ToHexString()}");
+                                                        alephiumBlockTemplate = new AlephiumBlockTemplate[jobSize];
 
-                                                        txsBlobLength = ReadBigEndianUInt32(reader);
-                                                        logger.Debug(() => $"txsBlobLength: {txsBlobLength}");
-                                                        txsBlob = reader.ReadBytes((int)txsBlobLength);
-                                                        logger.Debug(() => $"txsBlob: {txsBlob.ToHexString()}");
-
-                                                        targetLength = ReadBigEndianUInt32(reader);
-                                                        logger.Debug(() => $"targetLength: {targetLength}");
-                                                        targetBlob = reader.ReadBytes((int)targetLength);
-                                                        logger.Debug(() => $"targetBlob: {targetBlob.ToHexString()}");
-
-                                                        alephiumBlockTemplate[index] = new AlephiumBlockTemplate
+                                                        for (int index = 0; index < jobSize; index++)
                                                         {
-                                                            JobId = NextJobId("X"),
-                                                            Height = (ulong) chainInfo?.CurrentHeight + 1,
-                                                            Timestamp = clock.Now,
-                                                            FromGroup = fromGroup,
-                                                            ToGroup = toGroup,
-                                                            HeaderBlob = headerBlob.ToHexString(),
-                                                            TxsBlob = txsBlob.ToHexString(),
-                                                            TargetBlob = targetBlob.ToHexString(),
-                                                            ChainIndex = fromGroup * AlephiumConstants.GroupSize + toGroup,
-                                                        };
+                                                            logger.Trace(() => $"Job ({index + 1})");
+                                                            fromGroup = (int)ReadBigEndianUInt32(reader);
+                                                            toGroup = (int)ReadBigEndianUInt32(reader);
+                                                            logger.Trace(() => $"fromGroup: {fromGroup} - toGroup: {toGroup}");
+
+                                                            chainInfo = await rpc.GetBlockflowChainInfoAsync(fromGroup, toGroup, cts.Token);
+                                                            logger.Trace(() => $"Height: {chainInfo?.CurrentHeight + 1}");
+
+                                                            headerBlobLength = ReadBigEndianUInt32(reader);
+                                                            logger.Trace(() => $"headerBlobLength: {headerBlobLength}");
+                                                            headerBlob = reader.ReadBytes((int)headerBlobLength);
+                                                            logger.Trace(() => $"headerBlob: {headerBlob.ToHexString()}");
+
+                                                            txsBlobLength = ReadBigEndianUInt32(reader);
+                                                            logger.Trace(() => $"txsBlobLength: {txsBlobLength}");
+                                                            txsBlob = reader.ReadBytes((int)txsBlobLength);
+                                                            logger.Trace(() => $"txsBlob: {txsBlob.ToHexString()}");
+
+                                                            targetLength = ReadBigEndianUInt32(reader);
+                                                            logger.Trace(() => $"targetLength: {targetLength}");
+                                                            targetBlob = reader.ReadBytes((int)targetLength);
+                                                            logger.Trace(() => $"targetBlob: {targetBlob.ToHexString()}");
+
+                                                            height = ReadBigEndianUInt32(reader);
+
+                                                            alephiumBlockTemplate[index] = new AlephiumBlockTemplate
+                                                            {
+                                                                JobId = NextJobId("X"),
+                                                                Height = height,
+                                                                Timestamp = clock.Now,
+                                                                FromGroup = fromGroup,
+                                                                ToGroup = toGroup,
+                                                                HeaderBlob = headerBlob.ToHexString(),
+                                                                TxsBlob = txsBlob.ToHexString(),
+                                                                TargetBlob = targetBlob.ToHexString(),
+                                                                ChainIndex = fromGroup * AlephiumConstants.GroupSize + toGroup,
+                                                            };
+                                                        }
+
+                                                        // publish
+                                                        logger.Debug(() => $"Publishing {jobSize} {coin.Symbol} Block Template(s)...");
+                                                        obs.OnNext(alephiumBlockTemplate);
+
+                                                        dynamicBuffer = dynamicBuffer.Skip((int)(messageLength + AlephiumConstants.MessageHeaderSize)).ToList();
                                                     }
-
-                                                    // publish
-                                                    logger.Debug(() => $"Publishing {jobSize} {coin.Symbol} Block Template(s)...");
-                                                    obs.OnNext(alephiumBlockTemplate);
-
-                                                    dynamicBuffer = dynamicBuffer.Skip((int)(messageLength + AlephiumConstants.MessageHeaderSize)).ToList();
+                                                    else
+                                                    {
+                                                        logger.Debug(() => $"Unknown message type, wait for more data...");
+                                                        break;
+                                                    }
                                                 }
                                                 else
                                                 {
-                                                    logger.Debug(() => $"Unknown message type, wait for more data...");
+                                                    logger.Debug(() => $"Unknown version protocol, wait for more data...");
                                                     break;
                                                 }
                                             }
@@ -431,6 +445,7 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
             int receivedBytes;
 
             // Message
+            byte version;
             byte messageType;
             int startOffset;
             byte[] message;
@@ -444,15 +459,16 @@ public class AlephiumJobManager : JobManagerBase<AlephiumJob>
             {
                 logger.Debug(() => $"{receivedBytes} byte(s) of data have been received");
 
-                messageType = receiveBuffer[AlephiumConstants.MessageHeaderSize];
-                if (messageType == AlephiumConstants.SubmitResultMessageType)
+                version = receiveBuffer[AlephiumConstants.MessageHeaderSize];
+                messageType = receiveBuffer[AlephiumConstants.MessageHeaderSize + 1];
+                 if (version == AlephiumConstants.MiningProtocolVersion && messageType == AlephiumConstants.SubmitResultMessageType)
                 {
-                    logger.Debug(() => $"[Submit Block] - Response received :D");
-                    startOffset = AlephiumConstants.MessageHeaderSize + 1; // 1 byte message type
+                    logger.Debug(() => $"[Submit Block] - Response received");
+                    startOffset = AlephiumConstants.MessageHeaderSize + 2;
                     message = new byte[receivedBytes - startOffset];
                     Buffer.BlockCopy(receiveBuffer, startOffset, message, 0, receivedBytes - startOffset);
 
-                    succeed = (message[8] == 1);
+                    succeed = message[40] == 1;
                     break;
                 }
             }
