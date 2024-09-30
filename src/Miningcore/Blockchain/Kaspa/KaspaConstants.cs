@@ -174,6 +174,15 @@ public static class BricsCoinConstants
     public const string ChainPrefixMainnet = "brics";
 }
 
+public static class Kasv2CoinConstants
+{
+    // List of KASV2 prefixes: https://github.com/kasv2/kasv2d/blob/main/util/address.go
+    public const string ChainPrefixDevnet = "kasv2dev";
+    public const string ChainPrefixSimnet = "kasv2sim";
+    public const string ChainPrefixTestnet = "kasv2test";
+    public const string ChainPrefixMainnet = "kasv2";
+}
+
 public enum KaspaBech32Prefix
 {
     Unknown = 0,
