@@ -474,6 +474,16 @@ public class KaspaAddressUtility
                 };
 
                 break;
+            case "KASV2":
+                this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
+                {
+                    { Kasv2Constants.ChainPrefixMainnet, KaspaBech32Prefix.KaspaMain },
+                    { Kasv2Constants.ChainPrefixDevnet, KaspaBech32Prefix.KaspaDev },
+                    { Kasv2Constants.ChainPrefixTestnet, KaspaBech32Prefix.KaspaTest },
+                    { Kasv2Constants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
+                };
+
+                break;
             default:
                 this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
                 {
