@@ -5340,19 +5340,5 @@
         "explorerBlockLink": "https://explorer.bricspro.site/blocks/$hash$",
         "explorerTxLink": "https://explorer.bricspro.site/txs/{0}",
         "explorerAccountLink": "https://explorer.bricspro.site/addresses/{0}"   
-                },
-    "kasv2": {
-        "name": "Kasv2",
-        "canonicalName": "Kasv2",
-        "symbol": "KASV2",
-        "family": "kaspa",
-        "website": "",
-        "market": "",
-        "twitter": "",
-        "telegram": "",
-        "discord": "",
-        "explorerBlockLink": "https://explorer.kaspa-v2.services/blocks/$hash$",
-        "explorerTxLink": "https://explorer.kaspa-v2.services/txs/{0}",
-        "explorerAccountLink": "https://explorer.kaspa-v2.services/addresses/{0}
      }
 }
