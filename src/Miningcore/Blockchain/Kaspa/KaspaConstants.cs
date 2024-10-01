@@ -165,6 +165,15 @@ public static class BitmemeCoinConstants
     public const string ChainPrefixMainnet = "btm";
 }
 
+public static class Kasv2CoinConstants
+{
+    // List of BTM prefixes: https://github.com/kasv2/kasv2d/blob/main/util/address.go
+    public const string ChainPrefixDevnet = "kasv2dev";
+    public const string ChainPrefixSimnet = "kasv2sim";
+    public const string ChainPrefixTestnet = "kasv2test";
+    public const string ChainPrefixMainnet = "kasv2";
+}
+
 public static class BricsCoinConstants
 {
     // List of BRICS prefixes: https://github.com/brics18/bricsd/blob/main/util/address.go
