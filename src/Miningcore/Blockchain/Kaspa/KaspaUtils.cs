@@ -462,6 +462,16 @@ public class KaspaAddressUtility
                     { BricsCoinConstants.ChainPrefixTestnet, KaspaBech32Prefix.KaspaTest },
                     { BricsCoinConstants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
                 };
+
+                break;
+            case "KASV2":
+                this.stringsToBech32Prefixes = new Dictionary<string, KaspaBech32Prefix>
+                {
+                    { Kasv2CoinConstants.ChainPrefixMainnet, KaspaBech32Prefix.KaspaMain },
+                    { Kasv2CoinConstants.ChainPrefixDevnet, KaspaBech32Prefix.KaspaDev },
+                    { Kasv2CoinConstants.ChainPrefixTestnet, KaspaBech32Prefix.KaspaTest },
+                    { Kasv2CoinConstants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
+                };
                 
                 break;
             case "PUG":
