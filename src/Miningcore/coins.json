@@ -5341,9 +5341,9 @@
         "explorerTxLink": "https://explorer.bricspro.site/txs/{0}",
         "explorerAccountLink": "https://explorer.bricspro.site/addresses/{0}"   
                 },
-    "kasv2": {
-        "name": "Kasv2",
-        "canonicalName": "Kasv2",
+    "kaspaV2": {
+        "name": "KaspaV2",
+        "canonicalName": "Kaspa V2",
         "symbol": "KASV2",
         "family": "kaspa",
         "website": "",
