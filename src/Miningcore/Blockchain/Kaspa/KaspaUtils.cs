@@ -470,7 +470,7 @@ public class KaspaAddressUtility
                     { Kaspav2CoinConstants.ChainPrefixMainnet, KaspaBech32Prefix.KaspaMain },
                     { Kaspav2CoinConstants.ChainPrefixDevnet, KaspaBech32Prefix.KaspaDev },
                     { Kaspav2CoinConstants.ChainPrefixTestnet, KaspaBech32Prefix.KaspaTest },
-                    { Kasvpa2CoinConstants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
+                    { Kaspav2CoinConstants.ChainPrefixSimnet, KaspaBech32Prefix.KaspaSim },
                 };
                 
                 break;
