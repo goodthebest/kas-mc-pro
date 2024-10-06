@@ -5342,9 +5342,9 @@
         "explorerAccountLink": "https://explorer.bricspro.site/addresses/{0}"   
                 },
     "kaspav2": {
-        "name": "Kaspav2",
-        "canonicalName": "Kaspav2",
-        "symbol": "KASV2",
+        "name": "KaspaV2",
+        "canonicalName": "KaspaV2",
+        "symbol": "KASv2",
         "family": "kaspa",
         "website": "http://kaspa-v2.com/",
         "market": "https://coinmarketcap.com/currencies/kaspa/",
