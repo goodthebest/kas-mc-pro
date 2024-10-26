@@ -51,15 +51,15 @@ public static class KaspaConstants
 
 public static class KarlsencoinConstants
 {   
-    public const long FishHashForkHeightTestnet = 0;
-    public const long FishHashPlusForkHeightTestnet = 43200;
-    public const long FishHashPlusForkHeightMainnet = 26962009;
+    public const ulong FishHashForkHeightTestnet = 0;
+    public const ulong FishHashPlusForkHeightTestnet = 43200;
+    public const ulong FishHashPlusForkHeightMainnet = 26962009;
 }
 
 // Pyrin is definitely a scam, use at your own risk
 public static class PyrinConstants
 {   
-    public const long Blake3ForkHeight = 1484741;
+    public const ulong Blake3ForkHeight = 1484741;
 }
 
 public static class SpectreConstants

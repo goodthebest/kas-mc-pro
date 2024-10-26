@@ -57,7 +57,6 @@ public class KaspaJobManager : JobManagerBase<KaspaJob>
     private kaspad.KaspadRPC.KaspadRPCClient rpc;
     private kaspaWalletd.KaspaWalletdRPC.KaspaWalletdRPCClient walletRpc;
     private string network;
-    private readonly List<KaspaJob> validJobs = new();
     private readonly IExtraNonceProvider extraNonceProvider;
     private readonly IMasterClock clock;
     private KaspaPoolConfigExtra extraPoolConfig;
@@ -142,7 +141,7 @@ public class KaspaJobManager : JobManagerBase<KaspaJob>
                                 catch(NullReferenceException)
                                 {
                                     // The following is weird but correct, when all data has been received `streamNotifyNewBlockTemplate.ResponseStream.ReadAllAsync()` will return a `NullReferenceException`
-                                    logger.Debug(() => $"Waiting for data...");
+                                    logger.Info(() => $"Waiting for `NewBlockTemplate` data...");
                                     goto retry_blocktemplate;
                                 }
 
@@ -213,7 +212,7 @@ public class KaspaJobManager : JobManagerBase<KaspaJob>
             .RefCount();
     }
     
-    private KaspaJob CreateJob(long blockHeight)
+    private KaspaJob CreateJob(ulong blockHeight)
     {
         switch(coin.Symbol)
         {
@@ -370,18 +369,9 @@ public class KaspaJobManager : JobManagerBase<KaspaJob>
 
                     if(isNew)
                     {
-                        job = CreateJob((long) blockTemplate.Header.DaaScore);
+                        job = CreateJob(blockTemplate.Header.DaaScore);
 
-                        job.Init(blockTemplate, NextJobId(), ShareMultiplier);
-
-                        lock(jobLock)
-                        {
-                            validJobs.Insert(0, job);
-
-                            // trim active jobs
-                            while(validJobs.Count > maxActiveJobs)
-                                validJobs.RemoveAt(validJobs.Count - 1);
-                        }
+                        job.Init(blockTemplate, NextJobId("D"), ShareMultiplier);
                         
                         logger.Debug(() => $"blockTargetValue: {job.blockTargetValue}");
                         logger.Debug(() => $"Difficulty: {job.Difficulty}");
@@ -584,9 +574,21 @@ public class KaspaJobManager : JobManagerBase<KaspaJob>
 
         KaspaJob job;
 
-        lock(jobLock)
+        lock(context)
         {
-            job = validJobs.FirstOrDefault(x => x.JobId == jobId);
+            job = context.validJobs.FirstOrDefault(x => x.JobId == jobId);
+
+            if(job == null)
+            {
+                // stupid hack for busted ass IceRiver/Bitmain ASICs.  Need to loop
+                // through job history because they submit jobs with incorrect IDs
+                // https://github.com/rdugan/kaspa-stratum-bridge/blob/main/src/kaspastratum/share_handler.go#L216
+                if(ValidateIsGodMiner(context.UserAgent) || ValidateIsIceRiverMiner(context.UserAgent))
+                    job = context.validJobs.FirstOrDefault(x => Int64.Parse(x.JobId) < Int64.Parse(jobId));
+            }
+
+            if(job == null)
+                logger.Warn(() => $"[{context.Miner}] => jobId: {jobId} - Last known job: {context.validJobs.FirstOrDefault()?.JobId}");
         }
 
         if(job == null)
@@ -965,6 +967,12 @@ public class KaspaJobManager : JobManagerBase<KaspaJob>
     {
         var job = currentJob;
         return job?.GetJobParams();
+    }
+
+    public KaspaJob GetJobForStratum()
+    {
+        var job = currentJob;
+        return job;
     }
 
     #endregion // Overrides

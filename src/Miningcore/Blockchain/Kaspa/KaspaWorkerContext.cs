@@ -24,4 +24,14 @@ public class KaspaWorkerContext : WorkerContextBase
     /// Default: false
     /// </summary>
     public bool IsLargeJob { get; set; } = false;
+
+    public List<KaspaJob> validJobs { get; set; } = new();
+
+    public void AddJob(KaspaJob job, int maxActiveJobs)
+    {
+        validJobs.Insert(0, job);
+
+        while(validJobs.Count > maxActiveJobs)
+            validJobs.RemoveAt(validJobs.Count - 1);
+    }
 }
