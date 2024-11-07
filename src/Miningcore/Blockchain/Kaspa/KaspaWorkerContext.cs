@@ -7,12 +7,12 @@ public class KaspaWorkerContext : WorkerContextBase
     /// <summary>
     /// Usually a wallet address
     /// </summary>
-    public string Miner { get; set; }
+    public override string Miner { get; set; }
 
     /// <summary>
     /// Arbitrary worker identififer for miners using multiple rigs
     /// </summary>
-    public string Worker { get; set; }
+    public override string Worker { get; set; }
 
     /// <summary>
     /// Unique value assigned per worker
@@ -24,4 +24,14 @@ public class KaspaWorkerContext : WorkerContextBase
     /// Default: false
     /// </summary>
     public bool IsLargeJob { get; set; } = false;
+
+    public List<KaspaJob> validJobs { get; set; } = new();
+
+    public void AddJob(KaspaJob job, int maxActiveJobs)
+    {
+        validJobs.Insert(0, job);
+
+        while(validJobs.Count > maxActiveJobs)
+            validJobs.RemoveAt(validJobs.Count - 1);
+    }
 }
