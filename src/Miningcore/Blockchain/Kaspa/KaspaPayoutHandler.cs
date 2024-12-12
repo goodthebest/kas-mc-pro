@@ -154,15 +154,27 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
                 .Skip(i * pageSize)
                 .Take(pageSize)
                 .ToArray();
-            
+    
             for(var j = 0; j < page.Length; j++)
             {
                 var block = page[j];
-                
+
+                // There is a case scenario:
+                // https://github.com/blackmennewstyle/miningcore/issues/191
+                // Sadly miners can submit different solutions which will produce the exact same blockHash for the same block
+                // We must handle that case carefully here, otherwise we will overpay our miners.
+                // Only one of these blocks must will be confirmed, the others will all become Orphans
+                uint totalDuplicateBlockBefore = await cf.Run(con => blockRepo.GetPoolDuplicateBlockBeforeCountByPoolHeightAndHashNoTypeAndStatusAsync(con, poolConfig.Id, Convert.ToInt64(block.BlockHeight), block.Hash, new[]
+                {
+                    BlockStatus.Confirmed,
+                    BlockStatus.Orphaned,
+                    BlockStatus.Pending
+                }, block.Created));
+
                 var request = new kaspad.KaspadMessage();
                 request.GetBlockRequest = new kaspad.GetBlockRequestMessage
                 {
-                    Hash = (string) block.Hash,
+                    Hash = block.Hash,
                     IncludeTransactions = true,
                 };
                 await Guard(() => stream.RequestStream.WriteAsync(request),
@@ -178,6 +190,18 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
                         block.Reward = 0;
 
                         logger.Info(() => $"[{LogCategory}] Block {block.BlockHeight} classified as orphaned because it's not the chain");
+
+                        messageBus.NotifyBlockUnlocked(poolConfig.Id, block, coin);
+                    }
+                    // multiple blocks with the exact same height & hash recorded in the database
+                    else if(totalDuplicateBlockBefore > 0)
+                    {
+                        result.Add(block);
+
+                        block.Status = BlockStatus.Orphaned;
+                        block.Reward = 0;
+
+                        logger.Info(() => $"[{LogCategory}] Block {block.BlockHeight} [{block.Hash}] classified as orphaned because we already have in the database {totalDuplicateBlockBefore} block(s) with the same height and hash");
 
                         messageBus.NotifyBlockUnlocked(poolConfig.Id, block, coin);
                     }
