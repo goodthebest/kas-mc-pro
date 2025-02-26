@@ -5338,5 +5338,23 @@
         "explorerBlockLink": "https://explorer.xelis.io/blocks/$height$",
         "explorerTxLink": "https://explorer.xelis.io/txs/{0}",
         "explorerAccountLink": "https://explorer.xelis.io/accounts/{0}"
+    },
+    "waglayla": {
+        "name": "WagLayla",
+        "canonicalName": "WagLayla",
+        "symbol": "WALA",
+        "family": "kaspa",
+        "website": "https://waglayla.com/",
+        "market": "https://www.coingecko.com/en/coins/waglayla",
+        "twitter": "https://x.com/WagLayla",
+        "telegram": "https://t.me/waglayla",
+        "discord": "https://discord.gg/a2wcdDYds4",
+        "addressBech32Prefix": "waglayla",
+        "addressBech32PrefixDevnet": "waglayladev",
+        "addressBech32PrefixSimnet": "waglaylasim",
+        "addressBech32PrefixTestnet": "waglaylatest",
+        "explorerBlockLink": "https://explorer.waglayla.com/blocks/$hash$",
+        "explorerTxLink": "https://explorer.waglayla.com/txs/{0}",
+        "explorerAccountLink": "https://explorer.waglayla.com/addresses/{0}"
     }
 }

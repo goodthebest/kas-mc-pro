@@ -290,7 +290,9 @@ public partial class KaspaCoinTemplate
             case "PYI":
                 return "Pyrinhash";
             case "SPR":
-                return " SpectreX";
+                return "SpectreX";
+            case "WALA":
+                return "Walahash";
             default:
                 // TODO: return variant
                 return "kHeavyHash";
