@@ -387,9 +387,10 @@ public class KaspaJob
             blockTemplate.Header.Timestamp,
         };
     }
+}
 
-    public class KaspaJobAltKHeavy : KaspaJob
-    {
+public class KaspaJobAltKHeavy : KaspaJob
+{
     public KaspaJobAltKHeavy(IHashAlgorithm customBlockHeaderHasher, IHashAlgorithm customCoinbaseHasher, IHashAlgorithm customShareHasher)
       : base(customBlockHeaderHasher, customCoinbaseHasher, customShareHasher)
     {
@@ -399,7 +400,7 @@ public class KaspaJob
     {
         ushort[][] matrix = GenerateMatrix(prePowHash);
         byte[] scratch = data.ToArray(); // Create a copy to work with
-
+        
         // Convert bytes to nibbles
         ushort[] v = new ushort[64];
         for (int i = 0; i < 16; i++)
@@ -422,7 +423,7 @@ public class KaspaJob
                 sum3 += (ushort)(matrix[4 * i + 2][j] * v[j]);
                 sum4 += (ushort)(matrix[4 * i + 3][j] * v[j]);
             }
-
+            
             // XOR folding of sums
             sum1 = (ushort)((sum1 & 0xF) ^ ((sum1 >> 4) & 0xF) ^ ((sum1 >> 8) & 0xF));
             sum2 = (ushort)((sum2 & 0xF) ^ ((sum2 >> 4) & 0xF) ^ ((sum2 >> 8) & 0xF));
@@ -433,7 +434,7 @@ public class KaspaJob
             scratch[i * 2] ^= (byte)(((byte)sum1 << 4) | (byte)sum2);
             scratch[i * 2 + 1] ^= (byte)(((byte)sum3 << 4) | (byte)sum4);
         }
-
+        
         return scratch;
     }
 }
