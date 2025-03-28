@@ -18,7 +18,7 @@ public enum CoinFamily
 {
     [EnumMember(Value = "alephium")]
     Alephium,
-    
+
     [EnumMember(Value = "beam")]
     Beam,
 
@@ -27,22 +27,22 @@ public enum CoinFamily
 
     [EnumMember(Value = "conceal")]
     Conceal,
-    
+
     [EnumMember(Value = "cryptonote")]
     Cryptonote,
-    
+
     [EnumMember(Value = "equihash")]
     Equihash,
-    
+
     [EnumMember(Value = "ergo")]
     Ergo,
 
     [EnumMember(Value = "ethereum")]
     Ethereum,
-    
+
     [EnumMember(Value = "handshake")]
     Handshake,
-        
+
     [EnumMember(Value = "kaspa")]
     Kaspa,
 
@@ -140,6 +140,18 @@ public abstract partial class CoinTemplate
     public string Discord { get; set; }
 
     /// <summary>
+    /// Github Link
+    /// </summary>
+    [JsonProperty(Order = -9)]
+    public string Github { get; set; }
+
+    /// <summary>
+    /// DiscordColor Link
+    /// </summary>
+    [JsonProperty(Order = -9)]
+    public string DiscordColor { get; set; }
+
+    /// <summary>
     /// Telegram Group Link
     /// </summary>
     [JsonProperty(Order = -9)]
@@ -231,7 +243,7 @@ public partial class BitcoinTemplate : CoinTemplate
 
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public bool HasMasterNodes { get; set; }
-    
+
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public bool HasSmartNodes { get; set; }
 
@@ -322,19 +334,19 @@ public partial class ConcealCoinTemplate : CoinTemplate
     /// </summary>
     [JsonProperty(Order = -4, DefaultValueHandling = DefaultValueHandling.Include)]
     public int HashVariant { get; set; }
-    
+
     /// <summary>
     /// Blob type in order to build the correct blob from blobtemplate
     /// </summary>
     [JsonProperty(Order = -4, DefaultValueHandling = DefaultValueHandling.Include)]
     public int BlobType { get; set; }
-    
+
     /// <summary>
     /// Conceal network hashrate = `Difficulty / DifficultyTarget`
     /// See: parameter -> DIFFICULTY_TARGET in src/CryptoNoteConfig.h
     /// </summary>
     public ulong DifficultyTarget { get; set; }
-    
+
     /// <summary>
     /// Smallest unit for Blockreward formatting
     /// </summary>
@@ -481,7 +493,7 @@ public partial class CryptonoteCoinTemplate : CoinTemplate
     /// </summary>
     [JsonProperty(Order = -4, DefaultValueHandling = DefaultValueHandling.Include)]
     public int HashVariant { get; set; }
-    
+
     /// <summary>
     /// Blob type in order to build the correct blob from blobtemplate
     /// </summary>
@@ -684,7 +696,7 @@ public partial class EthereumCoinTemplate : CoinTemplate
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
     [DefaultValue(2)]
     public int MaxUncles { get; set; } = 2;
-    
+
     /// <summary>
     /// Which hashing algorithm to use. (ethash, etchash, ubqhash or ethashb3)
     /// </summary>
@@ -770,19 +782,19 @@ public partial class ZanoCoinTemplate : CoinTemplate
     /// </summary>
     [JsonProperty(Order = -4, DefaultValueHandling = DefaultValueHandling.Include)]
     public int HashVariant { get; set; }
-    
+
     /// <summary>
     /// Blob type in order to build the correct blob from blobtemplate
     /// </summary>
     [JsonProperty(Order = -4, DefaultValueHandling = DefaultValueHandling.Include)]
     public int BlobType { get; set; }
-    
+
     /// <summary>
     /// Conceal network hashrate = `Difficulty / DifficultyTarget`
     /// See: parameter -> DIFFICULTY_TARGET in src/currency_core/currency_config.h
     /// </summary>
     public ulong DifficultyTarget { get; set; }
-    
+
     /// <summary>
     /// Smallest unit for Blockreward formatting
     /// </summary>
@@ -823,7 +835,7 @@ public partial class ZanoCoinTemplate : CoinTemplate
     /// See: parameter -> CURRENCY_PUBLIC_INTEG_ADDRESS_V2_BASE58_PREFIX in src/currency_core/currency_config.h
     /// </summary>
     public ulong AddressV2PrefixIntegratedTestnet { get; set; }
-    
+
     /// <summary>
     /// Sub Prefix of a valid auditable-address
     /// See: namespace config -> CURRENCY_PUBLIC_AUDITABLE_ADDRESS_BASE58_PREFIX in src/cryptonote_config.h
@@ -1110,7 +1122,7 @@ public partial class ClusterPaymentProcessingConfig
     /// <summary>
     /// Indentifier used in coinbase transactions to identify the pool
     /// </summary>
-    public string CoinbaseString  { get; set; }
+    public string CoinbaseString { get; set; }
 }
 
 public partial class PersistenceConfig
