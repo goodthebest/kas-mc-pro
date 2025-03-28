@@ -4444,38 +4444,6 @@
         "explorerTxLink": "https://be.rosebird.org/tx/{0}",
         "explorerAccountLink": "https://be.rosebird.org/address/{0}"
     },
-    "russellcoin": {
-        "name": "RussellCoin",
-        "canonicalName": "RussellCoin",
-        "symbol": "RC",
-        "family": "bitcoin",
-        "website": "https://www.russellcoin.net/",
-        "github": "https://github.com/russellcoinpay/russellcoin",
-        "market": "https://coinpaprika.com/coin/rc-russiacoin",
-        "twitter": "https://twitter.com/russellcoin",
-        "telegram": "",
-        "discord": "",
-        "coinbaseHasher": {
-            "hash": "sha256d"
-        },
-        "headerHasher": {
-            "hash": "x20r"
-        },
-        "blockHasher": {
-            "hash": "reverse",
-            "args": [
-                {
-                    "hash": "x20r"
-                }
-            ]
-        },
-        "shareMultiplier": 256,
-        "hasMasterNodes": true,
-        "hasPayee": true,
-        "explorerBlockLink": "https://block.russellcoin.net/block/$height$",
-        "explorerTxLink": "https://block.russellcoin.net/tx/{0}",
-        "explorerAccountLink": "https://block.russellcoin.net/address/{0}"
-    },
     "salvium": {
         "name": "Salvium",
         "canonicalName": "Salvium",
@@ -4627,35 +4595,6 @@
         "explorerBlockLink": "https://explorer.shroudx.eu/block/$hash$",
         "explorerTxLink": "https://explorer.shroudx.eu/tx/{0}",
         "explorerAccountLink": "https://explorer.shroudx.eu/address/{0}"
-    },
-    "skydoge": {
-        "name": "Skydoge",
-        "canonicalName": "Skydoge",
-        "symbol": "SKYDOGE",
-        "family": "bitcoin",
-        "website": "https://skydoge.net/",
-        "market": "",
-        "twitter": "",
-        "telegram": "",
-        "discord": "https://discord.com/invite/GKHGDGbt8S",
-        "coinbaseHasher": {
-            "hash": "sha256d"
-        },
-        "headerHasher": {
-            "hash": "skydoge"
-        },
-        "blockHasher": {
-            "hash": "reverse",
-            "args": [
-                {
-                    "hash": "skydoge"
-                }
-            ]
-        },
-        "coinbaseTxVersion": 9,
-        "explorerBlockLink": "https://explorer.skydogepool.xyz/block/$hash$",
-        "explorerTxLink": "https://explorer.skydogepool.xyz/tx/{0}",
-        "explorerAccountLink": "https://explorer.skydogepool.xyz/address/{0}"
     },
     "slayerx": {
         "name": "SlayerX",
