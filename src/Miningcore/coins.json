@@ -5880,6 +5880,36 @@
         "explorerTxLink": "https://explorer.xazab.xyz/insight/tx/{0}",
         "explorerAccountLink": "https://explorer.xazab.xyz/insight/address/{0}"
     },
+    "yenten": {
+        "name": "Yenten",
+        "canonicalName": "Yenten",
+        "symbol": "YTN",
+        "family": "bitcoin",
+        "website": "http://yentencoin.info/",
+        "twitter": "https://twitter.com/yentencoin",
+        "telegram": "https://t.me/yenten",
+        "discord": "",
+        "discordcolor": 60407,
+        "github": "https://github.com/yentencoin/yenten",
+        "coinbaseHasher": {
+            "hash": "sha256d"
+        },
+        "headerHasher": {
+            "hash": "yespowerr16"
+        },
+        "blockHasher": {
+            "hash": "reverse",
+            "args": [
+                {
+                    "hash": "sha256d"
+                }
+            ]
+        },
+        "shareMultiplier": 65536,
+        "explorerBlockLink": "http://explorer.yentencoin.info/block/$height$",
+        "explorerTxLink": "http://explorer.yentencoin.info/transaction/{0}",
+        "explorerAccountLink": "http://explorer.yentencoin.info/address/{0}"
+    },
     "yerbas": {
         "name": "Yerbas",
         "canonicalName": "Yerbas",
