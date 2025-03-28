@@ -1187,33 +1187,6 @@
         "rpcMethodPrefix": "ctxc",
         "ethasher": "ethash"
     },
-    "crionic": {
-        "name": "Crionic",
-        "symbol": "CRNC",
-        "family": "bitcoin",
-        "website": "https://coin.crionic.org/",
-        "twitter": "",
-        "telegram": "",
-        "discord": "https://discord.com/invite/SKDkjcJTKM",
-        "coinbaseHasher": {
-            "hash": "sha256d"
-        },
-        "headerHasher": {
-            "hash": "yespowerltncg"
-        },
-        "blockHasher": {
-            "hash": "reverse",
-            "args": [
-                {
-                    "hash": "sha256d"
-                }
-            ]
-        },
-        "shareMultiplier": 65536,
-        "explorerBlockLink": "https://explorer.crionic.org/block/$hash$",
-        "explorerTxLink": "https://explorer.crionic.org/tx/{0}",
-        "explorerAccountLink": "https://explorer.crionic.org/address/{0}"
-    },
     "danecoin": {
         "name": "Danecoin",
         "canonicalName": "Danecoin",
@@ -2985,34 +2958,6 @@
         "explorerBlockLink": "http://blockexplorer.levocoin.io/block/$height$",
         "explorerTxLink": "http://blockexplorer.levocoin.io/tx/{0}",
         "explorerAccountLink": "http://blockexplorer.levocoin.io/address/{0}"
-    },
-    "lightningcashr": {
-        "name": "LightningCash-Reborn",
-        "symbol": "LNCR",
-        "family": "bitcoin",
-        "website": "https://lightningcashr.org/",
-        "github": "https://github.com/MerlinMagic2018/LightningCash-R",
-        "twitter": "",
-        "telegram": "",
-        "discord": "https://discord.com/invite/WrMVXcA8bt",
-        "coinbaseHasher": {
-            "hash": "sha256d"
-        },
-        "headerHasher": {
-            "hash": "yespowerltncg"
-        },
-        "blockHasher": {
-            "hash": "reverse",
-            "args": [
-                {
-                    "hash": "sha256d"
-                }
-            ]
-        },
-        "shareMultiplier": 65536,
-        "explorerBlockLink": "https://explorer.lightningcashr.org/block/$hash$",
-        "explorerTxLink": "https://explorer.lightningcashr.org/tx/{0}",
-        "explorerAccountLink": "https://explorer.lightningcashr.org/address/{0}"
     },
     "litecoin": {
         "name": "Litecoin",
