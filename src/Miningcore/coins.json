@@ -3747,35 +3747,6 @@
         "explorerTxLink": "https://chainz.cryptoid.info/ppc/tx.dws?{0}.htm",
         "explorerAccountLink": "https://chainz.cryptoid.info/ppc/address.dws?{0}.htm"
     },
-    "pepepow": {
-        "name": "PepePow",
-        "canonicalName": "PepePow",
-        "symbol": "PEPEW",
-        "family": "bitcoin",
-        "website": "https://pepecore.wordpress.com/",
-        "market": "",
-        "twitter": "https://twitter.com/PEPEWCommunity",
-        "telegram": "",
-        "discord": "https://discord.gg/wHFMdbjP",
-        "coinbaseHasher": {
-            "hash": "sha256d"
-        },
-        "headerHasher": {
-            "hash": "memehash"
-        },
-        "blockHasher": {
-            "hash": "reverse",
-            "args": [
-                {
-                    "hash": "memehash"
-                }
-            ]
-        },
-        "hasMasterNodes": true,
-        "explorerBlockLink": "https://pepew.mining4people.com/block/$hash$",
-        "explorerTxLink": "https://pepew.mining4people.com/tx/{0}",
-        "explorerAccountLink": "https://pepew.mining4people.com/address/{0}"
-    },
     "picacoin": {
         "name": "Picacoin",
         "canonicalName": "Picacoin",
