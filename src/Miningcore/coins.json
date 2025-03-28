@@ -2325,37 +2325,6 @@
         "explorerTxLink": "https://chainz.cryptoid.info/gold/tx.dws?{0}.htm",
         "explorerAccountLink": "https://chainz.cryptoid.info/gold/address.dws?{0}.htm"
     },
-    "goodmorningnetwork": {
-        "name": "GoodmorningNetwork",
-        "symbol": "GM",
-        "family": "bitcoin",
-        "website": "https://goodmorningnetwork.org/",
-        "market": "",
-        "github": "https://github.com/GoodMorningNetWork/GoodMorningNetWork",
-        "twitter": "https://twitter.com/MorningWor94299",
-        "telegram": "https://t.me/GoodMorningNetWork",
-        "discord": "https://discord.gg/yZehDDGZsp",
-        "coinbaseHasher": {
-            "hash": "sha256d"
-        },
-        "headerHasher": {
-            "hash": "rwahash"
-        },
-        "blockHasher": {
-            "hash": "reverse",
-            "args": [
-                {
-                    "hash": "rwahash"
-                }
-            ]
-        },
-        "shareMultiplier": 256,
-        "hasMasterNodes": true,
-        "hasFoundation": true,
-        "explorerBlockLink": "https://explorer.goodmorningnetwork.org/block/$hash$",
-        "explorerTxLink": "https://explorer.goodmorningnetwork.org/tx/{0}",
-        "explorerAccountLink": "https://explorer.goodmorningnetwork.org/address/{0}"
-    },
     "groestlcoin": {
         "name": "Groestlcoin",
         "canonicalName": "Groestlcoin",
@@ -5233,34 +5202,6 @@
         "explorerTxLink": "http://rtm.timyg.org:6950/tx/{0}",
         "explorerAccountLink": "http://rtm.timyg.org:6950/address/{0}"
     },
-    "tidecoin": {
-        "name": "Tidecoin",
-        "symbol": "TDC",
-        "family": "bitcoin",
-        "website": "http://tidecoin.org/",
-        "market": "https://coinpaprika.com/coin/tdc-tidecoin",
-        "twitter": "https://twitter.com/tidecoin",
-        "telegram": "",
-        "discord": "https://discord.com/invite/SnZW2ykXkH",
-        "coinbaseHasher": {
-            "hash": "sha256d"
-        },
-        "headerHasher": {
-            "hash": "yespowertide"
-        },
-        "blockHasher": {
-            "hash": "reverse",
-            "args": [
-                {
-                    "hash": "sha256d"
-                }
-            ]
-        },
-        "shareMultiplier": 65536,
-        "explorerBlockLink": "https://explorer.tidecoin.org/block/$hash$",
-        "explorerTxLink": "https://explorer.tidecoin.org/tx/{0}",
-        "explorerAccountLink": "https://explorer.tidecoin.org/address/{0}"
-    },
     "titcoin": {
         "name": "Titcoin",
         "symbol": "TIT",
@@ -6056,36 +5997,6 @@
         "explorerBlockLink": "https://explorer.xazab.xyz/insight/block/$height$",
         "explorerTxLink": "https://explorer.xazab.xyz/insight/tx/{0}",
         "explorerAccountLink": "https://explorer.xazab.xyz/insight/address/{0}"
-    },
-    "yenten": {
-        "name": "Yenten",
-        "canonicalName": "Yenten",
-        "symbol": "YTN",
-        "family": "bitcoin",
-        "website": "http://yentencoin.info/",
-        "twitter": "https://twitter.com/yentencoin",
-        "telegram": "https://t.me/yenten",
-        "discord": "",
-        "discordcolor": 60407,
-        "github": "https://github.com/yentencoin/yenten",
-        "coinbaseHasher": {
-            "hash": "sha256d"
-        },
-        "headerHasher": {
-            "hash": "yespowerr16"
-        },
-        "blockHasher": {
-            "hash": "reverse",
-            "args": [
-                {
-                    "hash": "sha256d"
-                }
-            ]
-        },
-        "shareMultiplier": 65536,
-        "explorerBlockLink": "http://explorer.yentencoin.info/block/$height$",
-        "explorerTxLink": "http://explorer.yentencoin.info/transaction/{0}",
-        "explorerAccountLink": "http://explorer.yentencoin.info/address/{0}"
     },
     "yerbas": {
         "name": "Yerbas",
