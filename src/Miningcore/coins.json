@@ -3121,8 +3121,8 @@
         "twitter": "https://twitter.com/MeowcoinProject",
         "telegram": "",
         "discord": "https://discord.com/invite/EYv5cCjQRd",
-        "discordcolor": "",
-        "github": "",
+        "discordcolor": 12485642,
+        "github": "https://github.com/JustAResearcher/Meowcoin",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
