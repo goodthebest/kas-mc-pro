@@ -41,7 +41,7 @@ public class ProgpowJob : BitcoinJob
         var blockHeader = new BlockHeader
 #pragma warning restore 618
         {
-            Version = unchecked((int) version),
+            Version = unchecked((int)version),
             Bits = new Target(Encoders.Hex.DecodeData(BlockTemplate.Bits)),
             HashPrevBlock = uint256.Parse(BlockTemplate.PreviousBlockhash),
             HashMerkleRoot = new uint256(merkleRoot),
@@ -71,13 +71,13 @@ public class ProgpowJob : BitcoinJob
 
         var headerHashHex = headerHash.ToHexString();
 
-        if(headerHashHex != inputHeaderHash)
+        if (headerHashHex != inputHeaderHash)
             throw new StratumException(StratumError.MinusOne, $"bad header-hash");
 
-        if(!progpowHasher.Compute(logger, (int) BlockTemplate.Height, headerHash.ToArray(), nonce, out var mixHashOut, out var resultBytes))
+        if (!progpowHasher.Compute(logger, (int)BlockTemplate.Height, headerHash.ToArray(), nonce, out var mixHashOut, out var resultBytes))
             throw new StratumException(StratumError.MinusOne, "bad hash");
 
-        if(mixHash != mixHashOut.ToHexString())
+        if (mixHash != mixHashOut.ToHexString())
             throw new StratumException(StratumError.MinusOne, $"bad mix-hash");
 
         resultBytes.ReverseInPlace();
@@ -86,7 +86,7 @@ public class ProgpowJob : BitcoinJob
         var resultValue = new uint256(resultBytes);
         var resultValueBig = resultBytes.AsSpan().ToBigInteger();
         // calc share-diff
-        var shareDiff = (double) new BigRational(RavencoinConstants.Diff1, resultValueBig) * shareMultiplier;
+        var shareDiff = (double)new BigRational(RavencoinConstants.Diff1, resultValueBig) * shareMultiplier;
         var stratumDifficulty = context.Difficulty;
         var ratio = shareDiff / stratumDifficulty;
 
@@ -94,14 +94,14 @@ public class ProgpowJob : BitcoinJob
         var isBlockCandidate = resultValue <= blockTargetValue;
 
         // test if share meets at least workers current difficulty
-        if(!isBlockCandidate && ratio < 0.99)
+        if (!isBlockCandidate && ratio < 0.99)
         {
             // check if share matched the previous difficulty from before a vardiff retarget
-            if(context.VarDiff?.LastUpdate != null && context.PreviousDifficulty.HasValue)
+            if (context.VarDiff?.LastUpdate != null && context.PreviousDifficulty.HasValue)
             {
                 ratio = shareDiff / context.PreviousDifficulty.Value;
 
-                if(ratio < 0.99)
+                if (ratio < 0.99)
                     throw new StratumException(StratumError.LowDifficultyShare, $"low difficulty share ({shareDiff})");
 
                 // use previous difficulty
@@ -119,7 +119,7 @@ public class ProgpowJob : BitcoinJob
             Difficulty = stratumDifficulty / shareMultiplier,
         };
 
-        if(!isBlockCandidate)
+        if (!isBlockCandidate)
         {
             return (result, null);
         }
@@ -150,7 +150,7 @@ public class ProgpowJob : BitcoinJob
     protected virtual byte[] SerializeBlock(byte[] header, byte[] coinbase, ulong nonce, byte[] mixHash)
     {
         var rawTransactionBuffer = BuildRawTransactionBuffer();
-        var transactionCount = (uint) BlockTemplate.Transactions.Length + 1; // +1 for prepended coinbase tx
+        var transactionCount = (uint)BlockTemplate.Transactions.Length + 1; // +1 for prepended coinbase tx
 
         using var stream = new MemoryStream();
         {
@@ -199,36 +199,45 @@ public class ProgpowJob : BitcoinJob
         var coinbaseString = !string.IsNullOrEmpty(cc.PaymentProcessing?.CoinbaseString) ?
             cc.PaymentProcessing?.CoinbaseString.Trim() : "Miningcore";
 
-        if(!string.IsNullOrEmpty(coinbaseString))
+        if (!string.IsNullOrEmpty(coinbaseString))
             this.scriptSigFinalBytes = new Script(Op.GetPushOp(Encoding.UTF8.GetBytes(coinbaseString))).ToBytes();
 
         this.Difficulty = new Target(System.Numerics.BigInteger.Parse(BlockTemplate.Target, NumberStyles.HexNumber)).Difficulty;
 
         this.extraNoncePlaceHolderLength = RavencoinConstants.ExtranoncePlaceHolderLength;
         this.shareMultiplier = shareMultiplier;
-        
-        if(coin.HasMasterNodes)
+
+        if (coin.HasMasterNodes)
         {
             masterNodeParameters = BlockTemplate.Extra.SafeExtensionDataAs<MasterNodeBlockTemplateExtra>();
 
-            if(coin.Symbol == "FIRO")
+            if (coin.Symbol == "FIRO")
             {
-                if(masterNodeParameters.Extra?.ContainsKey("znode") == true)
+                if (masterNodeParameters.Extra?.ContainsKey("znode") == true)
                 {
                     masterNodeParameters.Masternode = JToken.FromObject(masterNodeParameters.Extra["znode"]);
                 }
             }
 
-            if(!string.IsNullOrEmpty(masterNodeParameters.CoinbasePayload))
+            if (!string.IsNullOrEmpty(masterNodeParameters.CoinbasePayload))
             {
                 txVersion = 3;
                 const uint txType = 5;
                 txVersion += txType << 16;
             }
         }
-        
-        if(coin.HasPayee)
+
+        if (coin.HasPayee)
             payeeParameters = BlockTemplate.Extra.SafeExtensionDataAs<PayeeBlockTemplateExtra>();
+
+        if (coin.HasCommunity)
+            communityParameters = BlockTemplate.Extra.SafeExtensionDataAs<CommunityBlockTemplateExtra>();
+
+        if (coin.HasDataMining)
+            dataminingParameters = BlockTemplate.Extra.SafeExtensionDataAs<DataMiningBlockTemplateExtra>();
+
+        if (coin.HasDeveloper)
+            developerParameters = BlockTemplate.Extra.SafeExtensionDataAs<DeveloperBlockTemplateExtra>();
 
         if (coin.HasFounderFee)
             founderParameters = BlockTemplate.Extra.SafeExtensionDataAs<FounderBlockTemplateExtra>();
@@ -240,8 +249,8 @@ public class ProgpowJob : BitcoinJob
         this.headerHasher = headerHasher;
         this.blockHasher = blockHasher;
         this.progpowHasher = progpowHasher;
-        
-        if(!string.IsNullOrEmpty(BlockTemplate.Target))
+
+        if (!string.IsNullOrEmpty(BlockTemplate.Target))
             this.blockTargetValue = new uint256(BlockTemplate.Target);
         else
         {
