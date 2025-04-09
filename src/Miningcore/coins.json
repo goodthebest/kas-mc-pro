@@ -2295,6 +2295,37 @@
         "explorerTxLink": "http://explorer.geekcash.org/tx/{0}",
         "explorerAccountLink": "http://explorer.geekcash.org/address/{0}"
     },
+    "gemma": {
+        "name": "Gemma",
+        "symbol": "GEMS",
+        "family": "progpow",
+        "progpower": "kawpow",
+        "website": "https://gemmacoin.io/",
+        "market": "",
+        "twitter": "https://x.com/gemma_coin",
+        "telegram": "",
+        "discord": "https://discord.com/invite/hpbMxBTDAb",
+        "discordcolor": 11771635,
+        "github": "https://github.com/TechnoVisionDev/Gemma-Core",
+        "coinbaseHasher": {
+            "hash": "sha256d"
+        },
+        "headerHasher": {
+            "hash": "sha256d"
+        },
+        "blockHasher": {
+            "hash": "reverse",
+            "args": [
+                {
+                    "hash": "sha256d"
+                }
+            ]
+        },
+        "shareMultiplier": 1,
+        "explorerBlockLink": "https://explorer.gemmacoin.io/block/$hash$",
+        "explorerTxLink": "https://explorer.gemmacoin.io/tx/{0}",
+        "explorerAccountLink": "https://explorer.gemmacoin.io/address/{0}"
+    },
     "goldcash": {
         "name": "Gold Cash",
         "symbol": "GOLD",
