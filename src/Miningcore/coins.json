@@ -410,37 +410,6 @@
         "explorerTxLink": "https://explorer.babacoin.network/tx/{0}",
         "explorerAccountLink": "https://explorer.babacoin.network/address/{0}"
     },
-    "barrelcrudecoin": {
-        "name": "BarrelCrudeCoin",
-        "canonicalName": "BarrelCrudeCoin",
-        "symbol": "BCC",
-        "family": "bitcoin",
-        "website": "https://www.barrelcrudecoin.com/",
-        "twitter": "https://twitter.com/barrelcrudecoin",
-        "telegram": "https://t.me/barrelcrudecoinofficial",
-        "discord": "#",
-        "discordcolor": "",
-        "github": "",
-        "coinbaseHasher": {
-            "hash": "sha256d"
-        },
-        "headerHasher": {
-            "hash": "scrypt",
-            "args": [1024, 1]
-        },
-        "blockHasher": {
-            "hash": "reverse",
-            "args": [
-                {
-                    "hash": "sha256d"
-                }
-            ]
-        },
-        "shareMultiplier": 65536,
-        "explorerBlockLink": "http://explorer.kriptokyng.com:3001/block/$height$",
-        "explorerTxLink": "http://explorer.kriptokyng.com:3001/tx/{0}",
-        "explorerAccountLink": "http://explorer.kriptokyng.com:3001/address/{0}"
-    },
     "beam": {
         "name": "Beam",
         "canonicalName": "Beam",
@@ -516,36 +485,6 @@
         "explorerBlockLink": "https://bchblockexplorer.com/block/$height$",
         "explorerTxLink": "https://bchblockexplorer.com/tx/{0}",
         "explorerAccountLink": "https://bchblockexplorer.com/address/{0}"
-    },
-    "bitcoin-diamond": {
-        "name": "Bitcoin Diamond",
-        "canonicalName": "Bitcoin-Diamond",
-        "symbol": "BCD",
-        "family": "bitcoin",
-        "website": "http://btcd.io/",
-        "market": "https://coinmarketcap.com/currencies/bitcoin-diamond/",
-        "twitter": "https://twitter.com/search?q=$bcd",
-        "telegram": "https://t.me/BCDcommunity",
-        "discord": "",
-        "discordcolor": "",
-        "github": "",
-        "coinbaseHasher": {
-            "hash": "sha256d"
-        },
-        "headerHasher": {
-            "hash": "x13bcd"
-        },
-        "blockHasher": {
-            "hash": "reverse",
-            "args": [
-                {
-                    "hash": "sha256d"
-                }
-            ]
-        },
-        "explorerBlockLink": "http://explorer.btcd.io/#/blockInfo?hash=$hash$",
-        "explorerTxLink": "http://explorer.btcd.io/#/TX?TX={0}",
-        "explorerAccountLink": "http://explorer.btcd.io/#/address?address={0}"
     },
     "bitcoin-gold": {
         "name": "Bitcoin Gold",
@@ -1154,24 +1093,6 @@
         "explorerBlockLink": "https://explorer.conceal.network/index.html?hash=$hash$#blockchain_block",
         "explorerTxLink": "https://explorer.conceal.network/index.html?hash={0}#blockchain_transaction"
     },
-    "consensus": {
-        "name": "Consensus Network",
-        "canonicalName": "Consensus Network",
-        "symbol": "CSS",
-        "family": "kaspa",
-        "website": "https://consensus-network.com/",
-        "market": "",
-        "twitter": "https://twitter.com/Consensus_CSS",
-        "telegram": "https://t.me/consensus_network",
-        "discord": "",
-        "addressBech32Prefix": "consensus",
-        "addressBech32PrefixDevnet": "consensusdev",
-        "addressBech32PrefixSimnet": "consensussim",
-        "addressBech32PrefixTestnet": "consensustest",
-        "explorerBlockLink": "https://explorer.consensus-network.com/blocks/$hash$",
-        "explorerTxLink": "https://explorer.consensus-network.com/txs/{0}",
-        "explorerAccountLink": "https://explorer.consensus-network.com/addresses/{0}"
-    },
     "cortex": {
         "name": "Cortex Blockchain",
         "canonicalName": "Cortex Blockchain",
@@ -1651,24 +1572,6 @@
         "explorerTxLink": "https://blockscout.egem.io/tx/{0}",
         "explorerAccountLink": "https://blockscout.egem.io/address/{0}"
     },
-    "ethereum": {
-        "name": "Ethereum",
-        "canonicalName": "Ethereum",
-        "symbol": "ETH",
-        "family": "ethereum",
-        "website": "https://ethereum.org/",
-        "market": "",
-        "twitter": "https://twitter.com/ethdotorg",
-        "telegram": "",
-        "discord": "https://discord.com/invite/CetY6Y4",
-        "explorerBlockLinks": {
-            "block": "https://etherscan.io/block/$height$",
-            "uncle": "https://etherscan.io/uncle/$height$"
-        },
-        "explorerTxLink": "https://etherscan.io/tx/{0}",
-        "explorerAccountLink": "https://etherscan.io/address/{0}",
-        "ethasher": "ethash"
-    },
     "ethereumclassic": {
         "name": "Ethereum Classic",
         "canonicalName": "Ethereum Classic",
@@ -1705,24 +1608,6 @@
         "explorerAccountLink": "https://www.oklink.com/en/ethw/address/{0}",
         "ethasher": "ethash"
     },
-    "etherone": {
-        "name": "EtherOne",
-        "canonicalName": "EtherOne",
-        "symbol": "ETHONE",
-        "family": "ethereum",
-        "website": "https://etherone.one/",
-        "market": "",
-        "twitter": "https://twitter.com/EtherOneChain",
-        "telegram": "https://t.me/ether_one_blockchain",
-        "discord": "https://discord.com/invite/vF2SDb6Yz9",
-        "explorerBlockLinks": {
-            "block": "https://blockscout.etherone.one/block/$height$",
-            "uncle": "https://blockscout.etherone.one/uncles/$height$"
-        },
-        "explorerTxLink": "https://blockscout.etherone.one/tx/{0}",
-        "explorerAccountLink": "https://blockscout.etherone.one/address/{0}",
-        "ethasher": "ethash"
-    },
     "etitanium": {
         "name": "eTitanium ",
         "canonicalName": "eTitanium ",
@@ -1752,38 +1637,6 @@
         "explorerBlockLink": "https://explorer.etitanium.net/block/$hash$",
         "explorerTxLink": "https://explorer.etitanium.net/tx/{0}",
         "explorerAccountLink": "https://explorer.etitanium.net/address/{0}"
-    },
-    "exosis": {
-        "name": "Exosis",
-        "canonicalName": "Exosis",
-        "symbol": "EXO",
-        "family": "bitcoin",
-        "website": "",
-        "market": "",
-        "twitter": "",
-        "telegram": "",
-        "discord": "",
-        "discordcolor": "",
-        "github": "",
-        "coinbaseHasher": {
-            "hash": "sha256d"
-        },
-        "headerHasher": {
-            "hash": "x16r"
-        },
-        "blockHasher": {
-            "hash": "reverse",
-            "args": [
-                {
-                    "hash": "x16r"
-                }
-            ]
-        },
-        "shareMultiplier": 256,
-        "hasMasterNodes": true,
-        "explorerBlockLink": "https://www.blockseek.io/exo/block/$height$",
-        "explorerTxLink": "https://www.blockseek.io/exo/tx/{0}",
-        "explorerAccountLink": "https://www.blockseek.io/exo/address/{0}"
     },
     "fanaticos-cash": {
         "name": "Fanaticos Cash",
@@ -2557,36 +2410,6 @@
         "explorerTxLink": "http://hfrco.in/blockcrawler/tx/{0}",
         "explorerAccountLink": "http://hfrco.in/blockcrawler/address/{0}"
     },
-    "hivecoin": {
-        "name": "Hivecoin",
-        "symbol": "HVQ",
-        "family": "progpow",
-        "progpower": "kawpow",
-        "website": "https://www.hivecoin.org/",
-        "market": "https://coinpaprika.com/coin/hvq-hivecoin",
-        "twitter": "https://twitter.com/Hive_Coin_HVQ",
-        "telegram": "",
-        "discordcolor": 16769280,
-        "coinbaseHasher": {
-            "hash": "sha256d"
-        },
-        "headerHasher": {
-            "hash": "sha256d"
-        },
-        "blockHasher": {
-            "hash": "reverse",
-            "args": [
-                {
-                    "hash": "sha256d"
-                }
-            ]
-        },
-        "hasCommunityAddress": true,
-        "shareMultiplier": 1,
-        "explorerBlockLink": "https://hvq.althashers.com/block/$hash$",
-        "explorerTxLink": "https://hvq.althashers.com/tx/{0}",
-        "explorerAccountLink": "https://hvq.althashers.com/address/{0}"
-    },
     "hoosat": {
         "name": "Hoosat",
         "canonicalName": "Hoosat",
@@ -2728,24 +2551,6 @@
         "explorerBlockLink": "https://explorer.kaspa.org/blocks/$hash$",
         "explorerTxLink": "https://explorer.kaspa.org/txs/{0}",
         "explorerAccountLink": "https://explorer.kaspa.org/addresses/{0}"
-    },
-    "kaspav2": {
-        "name": "Kaspav2",
-        "canonicalName": "Kaspav2",
-        "symbol": "KASV2",
-        "family": "kaspa",
-        "website": "http://kaspa-v2.com/",
-        "market": "https://coinmarketcap.com/currencies/kaspa/",
-        "twitter": "https://x.com/Kaspa_v2",
-        "telegram": "https://t.me/kaspav2",
-        "discord": "https://discord.gg/kaspav2",
-        "addressBech32Prefix": "kasv2",
-        "addressBech32PrefixDevnet": "kasv2dev",
-        "addressBech32PrefixSimnet": "kasv2sim",
-        "addressBech32PrefixTestnet": "kasv2test",
-        "explorerBlockLink": "https://explorer.kaspa-v2.services/blocks/$hash$",
-        "explorerTxLink": "https://explorer.kaspa-v2.services/txs/{0}",
-        "explorerAccountLink": "https://explorer.kaspa-v2.services/addresses/{0}"
     },
     "kaspaclassic": {
         "name": "Kaspa Classic",
@@ -3209,37 +3014,6 @@
         "explorerBlockLink": "https://mewc.cryptoscope.io/block/?blockhash=$hash$",
         "explorerTxLink": "https://mewc.cryptoscope.io/tx/?txid={0}",
         "explorerAccountLink": "https://mewc.cryptoscope.io/address/?address={0}"
-    },
-    "mincoin": {
-        "name": "Mincoin",
-        "canonicalName": "Mincoin",
-        "symbol": "MNC",
-        "family": "bitcoin",
-        "website": "https://www.mincoin.us/",
-        "twitter": "https://twitter.com/mincoinus",
-        "telegram": "",
-        "discord": "",
-        "discordcolor": "",
-        "github": "",
-        "coinbaseHasher": {
-            "hash": "sha256d"
-        },
-        "headerHasher": {
-            "hash": "scrypt",
-            "args": [1024, 1]
-        },
-        "blockHasher": {
-            "hash": "reverse",
-            "args": [
-                {
-                    "hash": "sha256d"
-                }
-            ]
-        },
-        "shareMultiplier": 65536,
-        "explorerBlockLink": "https://chainz.cryptoid.info/mnc/block.dws?$height$.htm",
-        "explorerTxLink": "https://chainz.cryptoid.info/mnc/tx.dws?{0}.htm",
-        "explorerAccountLink": "https://chainz.cryptoid.info/mnc/address.dws?{0}.htm"
     },
     "microbitcoin": {
         "name": "MicroBitcoin",
@@ -4410,34 +4184,6 @@
         "explorerTxLink": "https://explorer.reaction.network/tx/{0}",
         "explorerAccountLink": "https://explorer.reaction.network/address/{0}"
     },
-    "redblock": {
-        "name": "RedBlock",
-        "symbol": "REDB",
-        "family": "bitcoin",
-        "website": "https://www.redblockcoin.com/",
-        "github": "https://github.com/redblockdev/RedBlock",
-        "market": "",
-        "twitter": "https://twitter.com/RedBlock_Sha3d",
-        "telegram": "",
-        "discordcolor": 14163229,
-        "coinbaseHasher": {
-            "hash": "sha3-256d"
-        },
-        "headerHasher": {
-            "hash": "sha3-256d"
-        },
-        "blockHasher": {
-            "hash": "reverse",
-            "args": [
-                {
-                    "hash": "sha3-256d"
-                }
-            ]
-        },
-        "explorerBlockLink": "http://explorer.redblockcoin.com/block/$height$",
-        "explorerTxLink": "http://explorer.redblockcoin.com/tx/{0}",
-        "explorerAccountLink": "http://explorer.redblockcoin.com/address/{0}"
-    },
     "redev2": {
         "name": "RedeV2",
         "canonicalName": "RedeV2",
@@ -5050,35 +4796,6 @@
         "explorerBlockLink": "http://insight.terracoin.io/block/$hash$",
         "explorerTxLink": "http://insight.terracoin.io/tx/{0}",
         "explorerAccountLink": "http://insight.terracoin.io/address/{0}"
-    },
-    "tdcoin": {
-        "name": "TDCOIN",
-        "symbol": "TDC",
-        "family": "bitcoin",
-        "website": "",
-        "market": "",
-        "twitter": "",
-        "telegram": "",
-        "discord": "",
-        "discordcolor": "",
-        "github": "",
-        "coinbaseHasher": {
-            "hash": "sha256d"
-        },
-        "headerHasher": {
-            "hash": "sha256d"
-        },
-        "blockHasher": {
-            "hash": "reverse",
-            "args": [
-                {
-                    "hash": "sha256d"
-                }
-            ]
-        },
-        "explorerBlockLink": "https://www.tdcoincore.org/bcexplorer/blockh/$height$",
-        "explorerTxLink": "https://www.tdcoincore.org/bcexplorer/tx/{0}",
-        "explorerAccountLink": "https://www.tdcoincore.org/bcexplorer/address/{0}"
     },
     "theholyroger": {
         "name": "The Holy Roger",
@@ -5781,36 +5498,6 @@
         "explorerBlockLink": "https://whiveexplorer.cointest.com/block/$hash$",
         "explorerTxLink": "https://whiveexplorer.cointest.com/tx/{0}",
         "explorerAccountLink": "https://whiveexplorer.cointest.com/address/{0}"
-    },
-    "widecoin": {
-        "name": "Widecoin",
-        "canonicalName": "Widecoin",
-        "symbol": "WCN",
-        "family": "bitcoin",
-        "website": "https://widecoin.org/",
-        "market": "",
-        "twitter": "https://twitter.com/widecoin1",
-        "telegram": "",
-        "discord": "https://discord.com/invite/bv3qe2eAg6",
-        "discordcolor": "",
-        "github": "",
-        "coinbaseHasher": {
-            "hash": "sha256d"
-        },
-        "headerHasher": {
-            "hash": "sha256d"
-        },
-        "blockHasher": {
-            "hash": "reverse",
-            "args": [
-                {
-                    "hash": "sha256d"
-                }
-            ]
-        },
-        "explorerBlockLink": "https://explorer.widecoin.org/block-height/$height$",
-        "explorerTxLink": "https://explorer.widecoin.org/tx/{0}",
-        "explorerAccountLink": "https://explorer.widecoin.org/address/{0}"
     },
     "woodcoin": {
         "name": "Woodcoin",
