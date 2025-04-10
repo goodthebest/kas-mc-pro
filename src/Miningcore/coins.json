@@ -2297,7 +2297,7 @@
     },
     "gemma": {
         "name": "Gemma",
-        "symbol": "GEMS",
+        "symbol": "GEMMA",
         "family": "progpow",
         "progpower": "kawpow",
         "website": "https://gemmacoin.io/",
