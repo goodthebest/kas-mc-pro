@@ -1105,8 +1105,8 @@
         "twitter": "https://twitter.com/clore_ai",
         "telegram": "https://t.me/clorechat",
         "discord": "https://discord.com/invite/7sAEVGza8w",
-        "discordcolor": "",
-        "github": "",
+        "discordcolor": 16135991,
+        "github": "https://gitlab.com/cloreai-public/blockchain",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
