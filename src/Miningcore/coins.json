@@ -1439,6 +1439,37 @@
         "explorerTxLink": "https://dogechain.info/tx/{0}",
         "explorerAccountLink": "https://dogechain.info/address/{0}"
     },
+    "dogegpu": {
+        "name": "DogeGPU",
+        "symbol": "DOGPU",
+        "family": "progpow",
+        "website": "https://dogegpu.org/",
+        "market": "https://coinmarketcap.com/currencies/dogegpu",
+        "twitter": "https://x.com/dogegpu",
+        "telegram": "",
+        "discord": "https://discord.com/invite/Vg8WDug6Yb",
+        "discordcolor": 16763904,
+        "github": "https://github.com/Masterscooper/DogeGPU",
+        "coinbaseHasher": {
+            "hash": "sha256d"
+        },
+        "headerHasher": {
+            "hash": "sha256d"
+        },
+        "blockHasher": {
+            "hash": "reverse",
+            "args": [
+                {
+                    "hash": "sha256d"
+                }
+            ]
+        },
+        "shareMultiplier": 1,
+        "progpower": "kawpow",
+        "explorerBlockLink": "https://dogpu.cryptoscope.io/block/$hash$",
+        "explorerTxLink": "https://dogpu.cryptoscope.io/tx/{0}",
+        "explorerAccountLink": "https://dogpu.cryptoscope.io/address/{0}"
+    },
     "ecash": {
         "name": "eCash",
         "canonicalName": "eCash",
