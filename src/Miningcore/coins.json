@@ -3440,6 +3440,8 @@
         "twitter": "https://twitter.com/NeoxaNet",
         "telegram": "https://t.me/Neoxanet",
         "discordcolor": 7870538,
+        "discord": "https://discord.com/invite/frYkQqrAwR",
+        "github": "https://github.com/NeoxaChain/Neoxa",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
@@ -3727,6 +3729,8 @@
         "twitter": "https://twitter.com/paprikaex",
         "telegram": "",
         "discordcolor": 15533831,
+        "discord": "https://discord.com/invite/jgrXwraV65",
+        "github": "https://github.com/paprika-network/paprikacoin",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
@@ -4315,8 +4319,8 @@
         "twitter": "https://twitter.com/Ravencoin",
         "telegram": "https://t.me/RavencoinDev",
         "discord": "https://discordapp.com/invite/jn6uhur",
-        "discordcolor": "",
-        "github": "",
+        "discordcolor": 8471024,
+        "github": "https://github.com/RavenProject/Ravencoin",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
@@ -4511,8 +4515,8 @@
         "twitter": "https://twitter.com/Satoverse_io",
         "telegram": "https://t.me/satoxcoin",
         "discord": "https://discord.com/invite/GFZYFuuHVq",
-        "discordcolor": "",
-        "github": "",
+        "discordcolor": 13633128,
+        "github": "https://github.com/satoverse/satoxcoin",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
