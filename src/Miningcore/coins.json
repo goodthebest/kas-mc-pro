@@ -3474,8 +3474,8 @@
         "twitter": "https://twitter.com/neuraiproject",
         "telegram": "https://t.me/neuraiproject",
         "discord": "https://discord.com/invite/dxJSrSeXjF",
-        "discordcolor": "",
-        "github": "",
+        "discordcolor": 5845398,
+        "github": "https://github.com/NeuraiProject/Neurai",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
