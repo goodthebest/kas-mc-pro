@@ -47,8 +47,8 @@
         "twitter": "https://twitter.com/AIPowerGrid",
         "telegram": "",
         "discord": "https://discord.com/invite/vZ9XrTSRYr",
-        "discordcolor": "",
-        "github": "",
+        "discordcolor": 2042167,
+        "github": "https://github.com/AIPowerGrid/AI-Power-Grid-Core",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
@@ -78,7 +78,9 @@
         "market": "https://coinmarketcap.com/currencies/alephium/",
         "twitter": "https://twitter.com/alephium",
         "telegram": "https://t.me/alephiumgroup",
-        "discord": "https://discord.gg/JErgRBfRSB",
+        "discord": "https://discord.com/invite/JErgRBfRSB",
+        "discordcolor": 0,
+        "github": "https://github.com/alephium/alephium",
         "explorerBlockLink": "https://explorer.alephium.org/blocks/$hash$",
         "explorerTxLink": "https://explorer.alephium.org/transactions/{0}",
         "explorerAccountLink": "https://explorer.alephium.org/addresses/{0}"
@@ -445,10 +447,12 @@
         "symbol": "BEAM",
         "family": "beam",
         "website": "https://beam.mw/",
-        "market": "",
+        "market": "https://coinmarketcap.com/currencies/beam",
         "twitter": "https://twitter.com/beamprivacy",
         "telegram": "https://t.me/BeamPrivacy",
         "discord": "http://discord.gg/BHZvAhg",
+        "github": "https://github.com/beam-mw/beam",
+        "discordcolor": 31487,
         "explorerBlockLink": "https://explorer.beam.mw/block/$hash$",
         "explorerTxLink": "https://explorer.beam.mw/?searched_by={0}"
     },
@@ -488,12 +492,12 @@
         "canonicalName": "Bitcoin-Cash",
         "symbol": "BCH",
         "family": "bitcoin",
-        "website": "https://bch.info/",
+        "website": "https://bitcoincash.org/",
         "market": "https://coinmarketcap.com/currencies/bitcoin-cash",
         "twitter": "https://twitter.com/bchdotinfo",
         "telegram": "",
         "discord": "",
-        "discordcolor": "",
+        "discordcolor": 704910,
         "github": "https://gitlab.com/bitcoin-cash-node/bitcoin-cash-node",
         "coinbaseHasher": {
             "hash": "sha256d"
@@ -606,7 +610,7 @@
         "twitter": "https://twitter.com/BitcoinSVNode",
         "telegram": "",
         "discord": "",
-        "discordcolor": "",
+        "discordcolor": 16233728,
         "github": "https://github.com/bitcoin-sv/bitcoin-sv",
         "coinbaseHasher": {
             "hash": "sha256d"
@@ -6216,12 +6220,12 @@
         "name": "ZClassic",
         "symbol": "ZCL",
         "family": "equihash",
-        "website": "",
-        "market": "",
-        "twitter": "",
+        "website": "http://zclassic.org/",
+        "market": "https://coinmarketcap.com/currencies/zclassic",
+        "twitter": "https://twitter.com/ZclassicCoin",
         "telegram": "",
-        "discord": "",
-        "github": "",
+        "discord": "https://discordapp.com/invite/45NNrMJ",
+        "github": "https://github.com/ZClassicCommunity/zclassic",
         "discordcolor": 9849600,
         "networks": {
             "main": {
@@ -6461,6 +6465,7 @@
         "twitter": "https://twitter.com/zephyr_org",
         "telegram": "https://t.me/zephyrprotocol",
         "discord": "https://discord.gg/y4mzbDYSqQ",
+        "discordcolor": 2630996,
         "hash": "randomx",
         "hashVariant": 0,
         "blobType": 13,
