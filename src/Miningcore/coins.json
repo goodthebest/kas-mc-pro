@@ -96,6 +96,7 @@
         "twitter": "https://twitter.com/chainAltcoin",
         "telegram": "https://t.me/AltcoinchainNews",
         "discord": "https://discord.com/invite/hcXHyQP4Je",
+        "discordcolor": "",
         "explorerBlockLinks": {
             "block": "http://expedition.altcoinchain.org/block/$hash$?network=Altcoinchain",
             "uncle": "http://expedition.altcoinchain.org/block/$hash$?network=Altcoinchain"
@@ -114,6 +115,7 @@
         "twitter": "",
         "telegram": "",
         "discord": "https://discord.gg/X2wY7gWwza",
+        "discordcolor": "",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
@@ -146,6 +148,7 @@
         "twitter": "https://x.com/astrix_network",
         "telegram": "https://t.me/astrix_network",
         "discord": "https://discord.gg/cwfDZJ9dHx",
+        "discordcolor": "",
         "addressBech32Prefix": "astrix",
         "addressBech32PrefixDevnet": "astrixdev",
         "addressBech32PrefixSimnet": "astrixsim",
@@ -580,6 +583,7 @@
         "twitter": "",
         "telegram": "https://t.me/Bitnet_Official_Group",
         "discord": "https://discord.com/invite/dtw7rKQfRs",
+        "discordcolor": "",
         "explorerBlockLinks": {
             "block": "https://btnscan.com/block/$hash$?network=Bitnet",
             "uncle": "https://btnscan.com/block/$hash$?network=Bitnet"
@@ -662,6 +666,7 @@
         "twitter": "https://x.com/BricNetwor59084",
         "telegram": "https://t.me/bricsnet",
         "discord": "https://discord.com/invite/f3ugpwfD",
+        "discordcolor": "",
         "addressBech32Prefix": "brics",
         "addressBech32PrefixDevnet": "bricsdev",
         "addressBech32PrefixSimnet": "bricssim",
@@ -680,6 +685,7 @@
         "twitter": "https://twitter.com/bugnanetwork",
         "telegram": "",
         "discord": "https://discord.com/invite/YxDF2EMKTq",
+        "discordcolor": "",
         "addressBech32Prefix": "bugna",
         "addressBech32PrefixDevnet": "bugnadev",
         "addressBech32PrefixSimnet": "bugnasim",
@@ -698,6 +704,7 @@
         "twitter": "",
         "telegram": "",
         "discord": "",
+        "discordcolor": "",
         "explorerBlockLinks": {
             "block": "https://explorer.callisto.network/blocks/$height$",
             "uncle": "https://explorer.callisto.network/blocks/$height$"
@@ -747,6 +754,7 @@
         "twitter": "https://twitter.com/canxiumchain",
         "telegram": "https://t.me/canxium",
         "discord": "https://discord.com/invite/SbxSPJ8FkD",
+        "discordcolor": "",
         "explorerBlockLinks": {
             "block": "https://explorer.canxium.org/block/$height$/transactions",
             "uncle": "https://explorer.canxium.org/block/$hash$/transactions"
@@ -796,6 +804,7 @@
         "twitter": "https://twitter.com/ConcealNetwork",
         "telegram": "https://t.me/concealnetworkusers",
         "discord": "http://discord.conceal.network/",
+        "discordcolor": "",
         "hash": "cn-gpu",
         "hashVariant": 0,
         "blobType": 0,
@@ -818,6 +827,7 @@
         "twitter": "https://twitter.com/CTXCBlockchain",
         "telegram": "http://t.me/CortexOfficialEN",
         "discord": "",
+        "discordcolor": "",
         "explorerBlockLinks": {
             "block": "https://ansible.cortexlabs.ai/block/$height$",
             "uncle": "https://ansible.cortexlabs.ai/block/$height$"
@@ -1154,6 +1164,7 @@
         "twitter": "https://twitter.com/Ergo_Platform",
         "telegram": "https://t.me/ergoplatform",
         "discord": "https://discord.gg/RC8M4Bkgsy",
+        "discordcolor": "",
         "explorerBlockLink": "https://explorer.ergoplatform.com/en/blocks/$hash$",
         "explorerTxLink": "https://explorer.ergoplatform.com/en/transactions/{0}",
         "explorerAccountLink": "https://explorer.ergoplatform.com/en/addresses/{0}"
@@ -1200,6 +1211,7 @@
         "twitter": "https://twitter.com/ethergemcoin",
         "telegram": "",
         "discord": "https://discordapp.com/invite/zav3EkW",
+        "discordcolor": "",
         "explorerBlockLinks": {
             "block": "https://blockscout.egem.io/block/$height$",
             "uncle": "https://blockscout.egem.io/block/$hash$"
@@ -1217,6 +1229,7 @@
         "twitter": "https://twitter.com/eth_classic",
         "telegram": "",
         "discord": "https://ethereumclassic.org/discord",
+        "discordcolor": "",
         "explorerBlockLinks": {
             "block": "https://blockscout.com/etc/mainnet/block/$height$",
             "uncle": "https://blockscout.com/etc/mainnet/block/$height$"
@@ -1235,6 +1248,7 @@
         "twitter": "https://twitter.com/EthereumPoW",
         "telegram": "https://t.me/ethereumpow_official",
         "discord": "https://discord.gg/apcxzJdZaU",
+        "discordcolor": "",
         "explorerBlockLinks": {
             "block": "https://www.oklink.com/en/ethw/block/$height$",
             "uncle": "https://www.oklink.com/en/ethw/uncle/$height$"
@@ -1284,6 +1298,7 @@
         "twitter": "https://twitter.com/Fennec_Crypto",
         "telegram": "https://t.me/FennecPortal",
         "discord": "https://discord.com/invite/97xvrQPchn",
+        "discordcolor": "",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
@@ -1650,6 +1665,7 @@
         "twitter": "https://twitter.com/garliccoin",
         "telegram": "https://t.me/GarlicoinOfficial",
         "discord": "https://discord.com/invite/hxR8wD6",
+        "discordcolor": "",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
@@ -1679,6 +1695,7 @@
         "twitter": "https://twitter.com/geckocoin_mn",
         "telegram": "",
         "discord": "https://discord.gg/YVkgrSkQCS",
+        "discordcolor": "",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
@@ -1804,6 +1821,7 @@
         "twitter": "https://twitter.com/hns",
         "telegram": "https://t.me/handshake_hns",
         "discord": "https://handshake.org/discord",
+        "discordcolor": "",
         "merkleTreeHasher": {
             "hash": "blake2b"
         },
@@ -1834,6 +1852,7 @@
         "twitter": "https://twitter.com/HoosatNetwork",
         "telegram": "https://t.me/HoosatNetwork",
         "discord": "https://discord.com/invite/NzENEkxEqY",
+        "discordcolor": "",
         "addressBech32Prefix": "hoosat",
         "addressBech32PrefixDevnet": "htndev",
         "addressBech32PrefixSimnet": "hoosatsim",
@@ -1852,6 +1871,7 @@
         "twitter": "",
         "telegram": "",
         "discord": "https://discord.gg/xCB4AJDEFb",
+        "discordcolor": "",
         "explorerBlockLinks": {
             "block": "https://explorer.hypra.network/block/$height$",
             "uncle": "https://explorer.hypra.network/block/$hash$"
@@ -1870,6 +1890,7 @@
         "twitter": "https://twitter.com/KaspaCurrency",
         "telegram": "https://t.me/Kaspaenglish",
         "discord": "https://discord.gg/kS3SK5F36R",
+        "discordcolor": "",
         "addressBech32Prefix": "kaspa",
         "addressBech32PrefixDevnet": "kaspadev",
         "addressBech32PrefixSimnet": "kaspasim",
@@ -1888,6 +1909,7 @@
         "twitter": "https://twitter.com/kaspaclassic",
         "telegram": "https://t.me/kaspaclassic",
         "discord": "https://discord.com/invite/kaspaclassic1",
+        "discordcolor": "",
         "addressBech32Prefix": "cas",
         "addressBech32PrefixDevnet": "caspadev",
         "addressBech32PrefixSimnet": "pyrinsim",
@@ -1936,6 +1958,7 @@
         "twitter": "https://twitter.com/kiirocoin",
         "telegram": "https://t.me/kiirocoin",
         "discord": "https://discord.com/invite/yFbbrtPscq",
+        "discordcolor": "",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
@@ -2070,6 +2093,7 @@
         "twitter": "https://twitter.com/mateable",
         "telegram": "https://t.me/mateablecoin",
         "discord": "",
+        "discordcolor": "",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
@@ -2098,6 +2122,7 @@
         "twitter": "https://twitter.com/mateable",
         "telegram": "https://t.me/mateablecoin",
         "discord": "",
+        "discordcolor": "",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
@@ -2283,6 +2308,7 @@
         "twitter": "https://twitter.com/monero",
         "telegram": "",
         "discord": "",
+        "discordcolor": "",
         "hash": "randomx",
         "hashVariant": 0,
         "blobType": 0,
@@ -2468,6 +2494,7 @@
         "twitter": "https://twitter.com/nexellia",
         "telegram": "https://t.me/NexelliaNetwork",
         "discord": "https://discord.com/invite/MHn4wStC4h",
+        "discordcolor": "",
         "addressBech32Prefix": "nexellia",
         "addressBech32PrefixDevnet": "nexelliadev",
         "addressBech32PrefixSimnet": "nexelliasim",
@@ -2497,9 +2524,9 @@
             "hash": "reverse",
             "args": [{ "hash": "sha256dt" }]
         },
-        "explorerBlockLink": "https://explorer.novochain.ovh/block/$height$",
-        "explorerTxLink": "https://explorer.novochain.ovh/tx/{0}",
-        "explorerAccountLink": "https://explorer.novochain.ovh/address/{0}"
+        "explorerBlockLink": "https://novoexplorer.com/block/$height$",
+        "explorerTxLink": "https://novoexplorer.com/tx/{0}",
+        "explorerAccountLink": "https://novoexplorer.com/address/{0}"
     },
     "octaspace": {
         "name": "OctaSpace",
@@ -2511,6 +2538,7 @@
         "twitter": "https://twitter.com/octa_space",
         "telegram": "https://t.me/octa_space",
         "discord": "https://discord.gg/octaspace",
+        "discordcolor": "",
         "explorerBlockLinks": {
             "block": "https://explorer.octa.space/block/$height$",
             "uncle": "https://explorer.octa.space/block/$height$"
@@ -2591,6 +2619,7 @@
         "twitter": "https://twitter.com/Pigeoncoin",
         "telegram": "https://t.me/Pigeoncoin",
         "discord": "https://discord.gg/SZcf63h",
+        "discordcolor": "",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
@@ -2688,6 +2717,7 @@
         "twitter": "https://twitter.com/pug_dag",
         "telegram": "https://t.me/pug_dag",
         "discord": "https://discord.com/invite/pugdag",
+        "discordcolor": "",
         "addressBech32Prefix": "pugdag",
         "addressBech32PrefixDevnet": "pugdagdev",
         "addressBech32PrefixSimnet": "pugdagsim",
@@ -2731,6 +2761,7 @@
         "twitter": "https://twitter.com/PulsarCoin",
         "telegram": "https://t.me/pulsarcoin1",
         "discord": "https://discord.com/invite/7feEVsvDj9",
+        "discordcolor": "",
         "coinbaseHasher": {
             "hash": "sha256d"
         },
@@ -2760,6 +2791,7 @@
         "twitter": "https://twitter.com/pyrin_network",
         "telegram": "https://t.me/pyrin_network",
         "discord": "https://discord.gg/QQgWRntF",
+        "discordcolor": "",
         "addressBech32Prefix": "pyrin",
         "addressBech32PrefixDevnet": "pyipadev",
         "addressBech32PrefixSimnet": "pyrinsim",
@@ -2934,6 +2966,7 @@
         "twitter": "https://mobile.twitter.com/CoinRede",
         "telegram": "",
         "discord": "https://discord.gg/MhBP2hEehU",
+        "discordcolor": "",
         "explorerBlockLinks": {
             "block": "https://explorer3.redecoin.eu/block/$height$",
             "uncle": "https://explorer3.redecoin.eu/block/$hash$"
@@ -2952,6 +2985,7 @@
         "twitter": "https://x.com/salvium_io",
         "telegram": "https://t.me/salviumprotocol",
         "discord": "https://discord.com/invite/P3rrAjkyYs",
+        "discordcolor": "",
         "hash": "randomx",
         "hashVariant": 0,
         "blobType": 15,
@@ -3010,6 +3044,7 @@
         "twitter": "https://twitter.com/SedraCoin",
         "telegram": "https://t.me/OfficialSedraCoin",
         "discord": "https://discord.gg/jWHrkKMSEr",
+        "discordcolor": "",
         "addressBech32Prefix": "sedra",
         "addressBech32PrefixDevnet": "sedradev",
         "addressBech32PrefixSimnet": "sedrasim",
@@ -3062,6 +3097,7 @@
         "twitter": "https://twitter.com/SpectreNetwrk",
         "telegram": "https://t.me/Spectre_Network",
         "discord": "https://discord.spectre-network.org/",
+        "discordcolor": "",
         "addressBech32Prefix": "spectre",
         "addressBech32PrefixDevnet": "spectredev",
         "addressBech32PrefixSimnet": "spectresim",
@@ -3205,6 +3241,7 @@
         "twitter": "https://twitter.com/ubiqsmart",
         "telegram": "",
         "discord": "https://discord.gg/ubiq",
+        "discordcolor": "",
         "explorerBlockLinks": {
             "block": "https://ubiqscan.io/block/$height$",
             "uncle": "https://ubiqscan.io/uncle/$height$"
@@ -3809,6 +3846,7 @@
         "twitter": "https://twitter.com/zcash",
         "telegram": "https://t.me/zcash_community",
         "discord": "https://t.co/8W9ebU9FHM",
+        "discordcolor": "",
         "networks": {
             "main": {
                 "diff1": "0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
