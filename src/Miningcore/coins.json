@@ -65,6 +65,7 @@
                 }
             ]
         },
+        "hasMWEB": true,
         "shareMultiplier": 65536,
         "explorerBlockLink": "https://aegisum.com/explorer/block/$height$",
         "explorerTxLink": "https://aegisum.com/explorer/tx/{0}",
