@@ -1812,6 +1812,37 @@
         "explorerTxLink": "https://chainz.cryptoid.info/gold/tx.dws?{0}.htm",
         "explorerAccountLink": "https://chainz.cryptoid.info/gold/address.dws?{0}.htm"
     },
+    "griffion": {
+        "name": "Griffion",
+        "symbol": "GRIFF",
+        "family": "progpow",
+        "progpower": "kawpow",
+        "website": "https://griffion.org/",
+        "market": "https://rabid-rabbit.org/account/trade/GRIFF-USDT",
+        "twitter": "https://x.com/GriffionProject",
+        "telegram": "https://t.me/griffioncoin",
+        "discord": "https://discord.com/invite/xr9brveQnB",
+        "discordcolor": 13369361,
+        "github": "https://github.com/GriffionProject/Griffion",
+        "coinbaseHasher": {
+            "hash": "sha256d"
+        },
+        "headerHasher": {
+            "hash": "sha256d"
+        },
+        "blockHasher": {
+            "hash": "reverse",
+            "args": [
+                {
+                    "hash": "sha256d"
+                }
+            ]
+        },
+        "shareMultiplier": 1,
+        "explorerBlockLink": "https://explorer.griffion.org/block/$hash$",
+        "explorerTxLink": "https://explorer.griffion.org/tx/{0}",
+        "explorerAccountLink": "https://explorer.griffion.org/address/{0}"
+    },
     "groestlcoin": {
         "name": "Groestlcoin",
         "canonicalName": "Groestlcoin",
