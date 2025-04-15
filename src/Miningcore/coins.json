@@ -38,6 +38,38 @@
         "explorerTxLink": "https://explorer.fiveg.cash/tx/{0}",
         "explorerAccountLink": "https://explorer.fiveg.cash/address/{0}"
     },
+    "aegisum": {
+        "name": "Aegisum",
+        "canonicalName": "Aegisum",
+        "symbol": "AEGS",
+        "family": "bitcoin",
+        "website": "https://aegisum.com/",
+        "market": "",
+        "twitter": "https://x.com/Aegisum",
+        "telegram": "",
+        "discord": "https://discord.com/invite/4E5caDKkeP",
+        "github": "https://github.com/Aegisum/aegisum-core",
+        "discordcolor": 3900150,
+        "coinbaseHasher": {
+            "hash": "sha256d"
+        },
+        "headerHasher": {
+            "hash": "scrypt",
+            "args": [1024, 1]
+        },
+        "blockHasher": {
+            "hash": "reverse",
+            "args": [
+                {
+                    "hash": "sha256d"
+                }
+            ]
+        },
+        "shareMultiplier": 65536,
+        "explorerBlockLink": "https://aegisum.com/explorer/block/$height$",
+        "explorerTxLink": "https://aegisum.com/explorer/tx/{0}",
+        "explorerAccountLink": "https://aegisum.com/explorer/address/{0}"
+    },
     "aipg": {
         "name": "AI Power Grid",
         "symbol": "AIPG",
