@@ -65,6 +65,15 @@
                 }
             ]
         },
+        "posBlockHasher": {
+            "hash": "reverse",
+            "args": [
+                {
+                    "hash": "scrypt",
+                    "args": [1024, 1]
+                }
+            ]
+        },
         "hasMWEB": true,
         "shareMultiplier": 65536,
         "explorerBlockLink": "https://aegisum.com/explorer/block/$height$",
