@@ -3919,7 +3919,8 @@
         "twitter": "https://twitter.com/zcash",
         "telegram": "https://t.me/zcash_community",
         "discord": "https://t.co/8W9ebU9FHM",
-        "discordcolor": "",
+        "github": "https://github.com/zcash/zcash",
+        "discordcolor": 15972132,
         "networks": {
             "main": {
                 "diff1": "0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
@@ -4138,9 +4139,9 @@
         "explorerTxLink": "http://explorer.zclmine.pro/transactions/{0}",
         "explorerAccountLink": "http://explorer.zclmine.pro/accounts/{0}"
     },
-    "zencash": {
-        "name": "Zencash",
-        "canonicalName": "Horizen",
+    "horizen": {
+        "name": "Horizen",
+        "canonicalName": "Zencash",
         "symbol": "ZEN",
         "family": "equihash",
         "website": "https://zensystem.io/",
