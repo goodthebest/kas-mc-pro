@@ -89,5 +89,6 @@ public enum SalviumTransactionType
     Burn = 5,
     Stake = 6,
     Return = 7,
-    Max = 7
+    Audit = 8,
+    Max = 8
 }

@@ -51,7 +51,7 @@ extern "C" {
 #include "memwipe.h"
 #include "serialization/vector.h"
 #include "serialization/binary_archive.h"
-
+#include "cryptonote_protocol/enums.h"
 
 //Define this flag when debugging to get additional info on the console
 #ifdef DBG
@@ -101,6 +101,17 @@ namespace rct {
     typedef std::vector<ctkey> ctkeyV;
     typedef std::vector<ctkeyV> ctkeyM;
 
+    struct zk_proof {
+        key R; // Commitment
+        key z1; // Response
+        key z2; // Response
+
+        BEGIN_SERIALIZE_OBJECT()
+          FIELD(R)
+          FIELD(z1)
+          FIELD(z2)
+        END_SERIALIZE()
+    };
     //used for multisig data
     struct multisig_kLRki {
         key k;
@@ -295,7 +306,9 @@ namespace rct {
       RCTTypeBulletproof2 = 4,
       RCTTypeCLSAG = 5,
       RCTTypeCLSAGN = 6,
-      RCTTypeHaven2 = 7, // Add public mask sum terms, remove extraneous fields (txnFee_usd,txnFee_xasset,txnOffshoreFee_usd,txnOffshoreFee_xasset)
+      RCTTypeFullProofs = 7,
+      RCTTypeHaven2 = 7,
+      RCTTypeSalviumOne = 8, // Add public mask sum terms, remove extraneous fields (txnFee_usd,txnFee_xasset,txnOffshoreFee_usd,txnOffshoreFee_xasset)
       RCTTypeHaven3 = 8, // Add public mask sum term for collateral
       RCTTypeBulletproofPlus = 9,
     };
@@ -308,6 +321,49 @@ namespace rct {
         VERSION_FIELD(0)
         VARINT_FIELD(range_proof_type)
         VARINT_FIELD(bp_version)
+      END_SERIALIZE()
+    };
+    enum SalviumDataType { SalviumNormal=0, SalviumAudit=1 };
+    struct salvium_input_data_t {
+      crypto::key_derivation aR;
+      xmr_amount amount;
+      size_t i;
+      uint8_t origin_tx_type;
+      crypto::key_derivation aR_stake;
+      size_t i_stake;
+      
+      BEGIN_SERIALIZE_OBJECT()
+        FIELD(aR)
+        VARINT_FIELD(amount)
+        VARINT_FIELD(i)
+        VARINT_FIELD(origin_tx_type)
+        if (origin_tx_type != cryptonote::salvium_transaction_type::UNSET) {
+          FIELD(aR_stake)
+          FIELD(i_stake)
+        }
+      END_SERIALIZE()
+    };
+    struct salvium_data_t {
+
+      uint8_t salvium_data_type; // flag to indicate what type of data is valid
+      zk_proof pr_proof; // p_r 
+      zk_proof sa_proof; // spend authority proof
+      zk_proof cz_proof; // change is zero proof
+      std::vector<salvium_input_data_t> input_verification_data;
+      crypto::public_key spend_pubkey;
+      std::string enc_view_privkey_str;
+
+      BEGIN_SERIALIZE_OBJECT()
+        VARINT_FIELD(salvium_data_type)
+        FIELD(pr_proof)
+        FIELD(sa_proof)
+        if (salvium_data_type == SalviumAudit)
+        {
+          FIELD(cz_proof)
+          FIELD(input_verification_data)
+          FIELD(spend_pubkey)
+          FIELD(enc_view_privkey_str)
+        }
       END_SERIALIZE()
     };
     struct rctSigBase {
@@ -328,6 +384,7 @@ namespace rct {
       xmr_amount txnOffshoreFee_xasset = 0;
       keyV maskSums; // contains 2 or 3 elements. 1. is the sum of masks of inputs. 2. is the sum of masks of change outputs. 3. mask of the col output.
       key p_r;
+      salvium_data_t salvium_data;
 
       template<bool W, template <bool> class Archive>
       bool serialize_rctsig_base(Archive<W> &ar, size_t inputs, size_t outputs)
@@ -395,7 +452,7 @@ namespace rct {
       template<bool W, template <bool> class Archive>
       bool serialize_rctsig_base_old(Archive<W> &ar, size_t inputs, size_t outputs)
       {
-        if (type != RCTTypeFull && type != RCTTypeSimple && type != RCTTypeBulletproof && type != RCTTypeBulletproof2 && type != RCTTypeCLSAG && type != RCTTypeCLSAGN && type != RCTTypeHaven2 && type != RCTTypeHaven3)
+        if (type != RCTTypeFull && type != RCTTypeSimple && type != RCTTypeBulletproof && type != RCTTypeBulletproof2 && type != RCTTypeCLSAG && type != RCTTypeCLSAGN && type != RCTTypeHaven2 && type != RCTTypeHaven3  && type != RCTTypeFullProofs && type != RCTTypeSalviumOne)
           return false;
         VARINT_FIELD(txnFee)
         if (type == RCTTypeHaven2 || type == RCTTypeHaven3) {
@@ -446,7 +503,7 @@ namespace rct {
           return false;
         for (size_t i = 0; i < outputs; ++i)
         {
-          if (type == RCTTypeBulletproof2 || type == RCTTypeCLSAG || type == RCTTypeCLSAGN || type == RCTTypeHaven2 || type == RCTTypeHaven3)
+          if (type == RCTTypeBulletproof2 || type == RCTTypeCLSAG || type == RCTTypeCLSAGN || type == RCTTypeHaven2 || type == RCTTypeHaven3 || type == RCTTypeFullProofs && type != RCTTypeSalviumOne)
           {
             ar.begin_object();
             if (!typename Archive<W>::is_saving())
@@ -550,6 +607,15 @@ namespace rct {
           VARINT_FIELD(txnFee)
           VARINT_FIELD(txnOffshoreFee)
           FIELD(maskSums)
+          if (type == RCTTypeSalviumOne)
+            {
+              FIELD(salvium_data)
+            }
+          else if (type == RCTTypeFullProofs)
+            {
+              FIELD(salvium_data.pr_proof)
+              FIELD(salvium_data.sa_proof)
+            }
         END_SERIALIZE()
     };
     struct rctSigPrunable {
@@ -572,9 +638,9 @@ namespace rct {
             return false;
           if (type == RCTTypeNull)
             return ar.stream().good();
-          if (type != RCTTypeFull && type != RCTTypeSimple && type != RCTTypeBulletproof && type != RCTTypeBulletproof2 && type != RCTTypeCLSAG && type != RCTTypeCLSAGN && type != RCTTypeHaven2 && type != RCTTypeHaven3 && type != RCTTypeBulletproofPlus)
+          if (type != RCTTypeFull && type != RCTTypeSimple && type != RCTTypeBulletproof && type != RCTTypeBulletproof2 && type != RCTTypeCLSAG && type != RCTTypeCLSAGN && type != RCTTypeHaven2 && type != RCTTypeHaven3 && type != RCTTypeBulletproofPlus && type != RCTTypeFullProofs && type != RCTTypeSalviumOne)
             return false;
-          if (type == RCTTypeBulletproofPlus)
+          if (type == RCTTypeBulletproofPlus || type == RCTTypeFullProofs || type == RCTTypeSalviumOne)
           {
             uint32_t nbp = bulletproofs_plus.size();
             VARINT_FIELD(nbp)
@@ -631,7 +697,7 @@ namespace rct {
             ar.end_array();
           }
 
-          if (type == RCTTypeCLSAG || type == RCTTypeCLSAGN || type == RCTTypeHaven2 || type == RCTTypeHaven3 || type == RCTTypeBulletproofPlus)
+          if (type == RCTTypeCLSAG || type == RCTTypeCLSAGN || type == RCTTypeHaven2 || type == RCTTypeHaven3 || type == RCTTypeBulletproofPlus || type == RCTTypeFullProofs || type == RCTTypeSalviumOne)
           {
             ar.tag("CLSAGs");
             ar.begin_array();
@@ -722,7 +788,7 @@ namespace rct {
             }
             ar.end_array();
           }
-          if (type == RCTTypeBulletproof || type == RCTTypeBulletproof2 || type == RCTTypeCLSAG || type == RCTTypeCLSAGN || type == RCTTypeHaven2 || type == RCTTypeHaven3 || type == RCTTypeBulletproofPlus)
+          if (type == RCTTypeBulletproof || type == RCTTypeBulletproof2 || type == RCTTypeCLSAG || type == RCTTypeCLSAGN || type == RCTTypeHaven2 || type == RCTTypeHaven3 || type == RCTTypeBulletproofPlus || type == RCTTypeFullProofs || type == RCTTypeSalviumOne)
           {
             ar.tag("pseudoOuts");
             ar.begin_array();
@@ -754,12 +820,12 @@ namespace rct {
 
         keyV& get_pseudo_outs()
         {
-          return type == RCTTypeBulletproof || type == RCTTypeBulletproof2 || type == RCTTypeCLSAG || type == RCTTypeCLSAGN || type == RCTTypeHaven2 || type == RCTTypeHaven3 || type == RCTTypeBulletproofPlus ? p.pseudoOuts : pseudoOuts;
+          return type == RCTTypeBulletproof || type == RCTTypeBulletproof2 || type == RCTTypeCLSAG || type == RCTTypeCLSAGN || type == RCTTypeHaven2 || type == RCTTypeHaven3 || type == RCTTypeBulletproofPlus || type == RCTTypeFullProofs ? p.pseudoOuts : pseudoOuts;
         }
 
         keyV const& get_pseudo_outs() const
         {
-          return type == RCTTypeBulletproof || type == RCTTypeBulletproof2 || type == RCTTypeCLSAG || type == RCTTypeCLSAGN || type == RCTTypeHaven2 || type == RCTTypeHaven3 || type == RCTTypeBulletproofPlus ? p.pseudoOuts : pseudoOuts;
+          return type == RCTTypeBulletproof || type == RCTTypeBulletproof2 || type == RCTTypeCLSAG || type == RCTTypeCLSAGN || type == RCTTypeHaven2 || type == RCTTypeHaven3 || type == RCTTypeBulletproofPlus || type == RCTTypeFullProofs ? p.pseudoOuts : pseudoOuts;
         }
 
         BEGIN_SERIALIZE_OBJECT()
@@ -930,5 +996,7 @@ VARIANT_TAG(binary_archive, rct::multisig_kLRki, 0x9d);
 VARIANT_TAG(binary_archive, rct::multisig_out, 0x9e);
 VARIANT_TAG(binary_archive, rct::clsag, 0x9f);
 VARIANT_TAG(binary_archive, rct::BulletproofPlus, 0xa0);
-
+VARIANT_TAG(binary_archive, rct::zk_proof, 0xa1);
+VARIANT_TAG(binary_archive, rct::salvium_input_data_t, 0xa2);
+VARIANT_TAG(binary_archive, rct::salvium_data_t, 0xa3);
 #endif  /* RCTTYPES_H */
