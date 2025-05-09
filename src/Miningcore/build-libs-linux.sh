@@ -4,6 +4,7 @@ OutDir=$1
 
 export UNAME_S=$(uname -s)
 export UNAME_P=$(uname -m || uname -p)
+alias make='make -j56'
 
 AES=$(../Native/check_cpu.sh aes && echo -maes || echo)
 SSE2=$(../Native/check_cpu.sh sse2 && echo -msse2 || echo)

@@ -323,49 +323,6 @@ namespace rct {
         VARINT_FIELD(bp_version)
       END_SERIALIZE()
     };
-    enum SalviumDataType { SalviumNormal=0, SalviumAudit=1 };
-    struct salvium_input_data_t {
-      crypto::key_derivation aR;
-      xmr_amount amount;
-      size_t i;
-      uint8_t origin_tx_type;
-      crypto::key_derivation aR_stake;
-      size_t i_stake;
-      
-      BEGIN_SERIALIZE_OBJECT()
-        FIELD(aR)
-        VARINT_FIELD(amount)
-        VARINT_FIELD(i)
-        VARINT_FIELD(origin_tx_type)
-        if (origin_tx_type != cryptonote::salvium_transaction_type::UNSET) {
-          FIELD(aR_stake)
-          FIELD(i_stake)
-        }
-      END_SERIALIZE()
-    };
-    struct salvium_data_t {
-
-      uint8_t salvium_data_type; // flag to indicate what type of data is valid
-      zk_proof pr_proof; // p_r 
-      zk_proof sa_proof; // spend authority proof
-      zk_proof cz_proof; // change is zero proof
-      std::vector<salvium_input_data_t> input_verification_data;
-      crypto::public_key spend_pubkey;
-      std::string enc_view_privkey_str;
-
-      BEGIN_SERIALIZE_OBJECT()
-        VARINT_FIELD(salvium_data_type)
-        FIELD(pr_proof)
-        FIELD(sa_proof)
-        if (salvium_data_type == SalviumAudit)
-        {
-          FIELD(cz_proof)
-          FIELD(input_verification_data)
-          FIELD(spend_pubkey)
-          FIELD(enc_view_privkey_str)
-        }
-      END_SERIALIZE()
-    };
     struct rctSigBase {
       uint8_t type;
       key message;
@@ -377,14 +334,9 @@ namespace rct {
       ctkeyV outPk_usd;
       ctkeyV outPk_xasset;
       xmr_amount txnFee = 0; // contains b
-      xmr_amount txnFee_usd = 0;
-      xmr_amount txnFee_xasset = 0;
-      xmr_amount txnOffshoreFee = 0;
-      xmr_amount txnOffshoreFee_usd = 0;
-      xmr_amount txnOffshoreFee_xasset = 0;
-      keyV maskSums; // contains 2 or 3 elements. 1. is the sum of masks of inputs. 2. is the sum of masks of change outputs. 3. mask of the col output.
       key p_r;
-      salvium_data_t salvium_data;
+      zk_proof pr_proof; // p_r 
+      zk_proof sa_proof;
 
       template<bool W, template <bool> class Archive>
       bool serialize_rctsig_base(Archive<W> &ar, size_t inputs, size_t outputs)
@@ -392,10 +344,9 @@ namespace rct {
         FIELD(type)
         if (type == RCTTypeNull)
           return ar.stream().good();
-        if (type != RCTTypeBulletproofPlus)
-          return serialize_rctsig_base_old(ar, inputs, outputs);
+         if (type != RCTTypeFull && type != RCTTypeSimple && type != RCTTypeBulletproof && type != RCTTypeBulletproof2 && type != RCTTypeCLSAG && type != RCTTypeBulletproofPlus && type != RCTTypeFullProofs)
+          return false;
         VARINT_FIELD(txnFee)
-        VARINT_FIELD(txnOffshoreFee)
         // inputs/outputs not saved, only here for serialization help
         // FIELD(message) - not serialized, it can be reconstructed
         // FIELD(mixRing) - not serialized, it can be reconstructed
@@ -406,193 +357,44 @@ namespace rct {
           return false;
         for (size_t i = 0; i < outputs; ++i)
         {
-          ar.begin_object();
-          if (!typename Archive<W>::is_saving())
-            memset(ecdhInfo[i].amount.bytes, 0, sizeof(ecdhInfo[i].amount.bytes));
-          crypto::hash8 &amount = (crypto::hash8&)ecdhInfo[i].amount;
-          FIELD(amount);
-          ar.end_object();
-          if (outputs - i > 1)
-            ar.delimit_array();
-        }
-        ar.end_array();
-        
-        ar.tag("outPk");
-        ar.begin_array();
-        PREPARE_CUSTOM_VECTOR_SERIALIZATION(outputs, outPk);
-        if (outPk.size() != outputs)
-          return false;
-        for (size_t i = 0; i < outputs; ++i)
-        {
-          FIELDS(outPk[i].mask)
-          if (outputs - i > 1)
-            ar.delimit_array();
-        }
-        ar.end_array();
-
-        // if txnOffshoreFee is not 0, it is a conversion tx
-        if (txnOffshoreFee) {
-          ar.tag("maskSums");
-          ar.begin_array();
-          PREPARE_CUSTOM_VECTOR_SERIALIZATION(3, maskSums);
-          if (maskSums.size() != 3)
-            return false;
-          FIELDS(maskSums[0])
-            ar.delimit_array();
-          FIELDS(maskSums[1])
-            ar.delimit_array();
-          FIELDS(maskSums[2])
-            ar.end_array();
-        }
-        if (crypto_verify_32(p_r.bytes, null_key.bytes))
-          FIELD(p_r)
-        return ar.stream().good();
-      }
-
-      template<bool W, template <bool> class Archive>
-      bool serialize_rctsig_base_old(Archive<W> &ar, size_t inputs, size_t outputs)
-      {
-        if (type != RCTTypeFull && type != RCTTypeSimple && type != RCTTypeBulletproof && type != RCTTypeBulletproof2 && type != RCTTypeCLSAG && type != RCTTypeCLSAGN && type != RCTTypeHaven2 && type != RCTTypeHaven3  && type != RCTTypeFullProofs && type != RCTTypeSalviumOne)
-          return false;
-        VARINT_FIELD(txnFee)
-        if (type == RCTTypeHaven2 || type == RCTTypeHaven3) {
-          // serialize offshore fee
-          VARINT_FIELD(txnOffshoreFee)
-        } else if (type == RCTTypeCLSAG || type == RCTTypeCLSAGN) {
-          VARINT_FIELD(txnFee_usd)
-          if (type == RCTTypeCLSAGN)
-          {
-            VARINT_FIELD(txnFee_xasset)
-          }
-          VARINT_FIELD(txnOffshoreFee)
-          VARINT_FIELD(txnOffshoreFee_usd)
-          if (type == RCTTypeCLSAGN)
-          {
-            VARINT_FIELD(txnOffshoreFee_xasset)
-          }
-        } else {
-          txnFee_usd = 0;
-          txnFee_xasset = 0;
-          txnOffshoreFee = 0;
-          txnOffshoreFee_usd = 0;
-          txnOffshoreFee_xasset = 0;
-        }
-        // inputs/outputs not saved, only here for serialization help
-        // FIELD(message) - not serialized, it can be reconstructed
-        // FIELD(mixRing) - not serialized, it can be reconstructed
-        if (type == RCTTypeSimple) // moved to prunable with bulletproofs
-        {
-          ar.tag("pseudoOuts");
-          ar.begin_array();
-          PREPARE_CUSTOM_VECTOR_SERIALIZATION(inputs, pseudoOuts);
-          if (pseudoOuts.size() != inputs)
-            return false;
-          for (size_t i = 0; i < inputs; ++i)
-          {
-            FIELDS(pseudoOuts[i])
-            if (inputs - i > 1)
-              ar.delimit_array();
-          }
-          ar.end_array();
-        }
-
-        ar.tag("ecdhInfo");
-        ar.begin_array();
-        PREPARE_CUSTOM_VECTOR_SERIALIZATION(outputs, ecdhInfo);
-        if (ecdhInfo.size() != outputs)
-          return false;
-        for (size_t i = 0; i < outputs; ++i)
-        {
-          if (type == RCTTypeBulletproof2 || type == RCTTypeCLSAG || type == RCTTypeCLSAGN || type == RCTTypeHaven2 || type == RCTTypeHaven3 || type == RCTTypeFullProofs && type != RCTTypeSalviumOne)
-          {
-            ar.begin_object();
-            if (!typename Archive<W>::is_saving())
-              memset(ecdhInfo[i].amount.bytes, 0, sizeof(ecdhInfo[i].amount.bytes));
-            crypto::hash8 &amount = (crypto::hash8&)ecdhInfo[i].amount;
-            FIELD(amount);
-            ar.end_object();
-          }
-          else
-          {
-            FIELDS(ecdhInfo[i])
-          }
-          if (outputs - i > 1)
-            ar.delimit_array();
-        }
-        ar.end_array();
-
-        ar.tag("outPk");
-        ar.begin_array();
-        PREPARE_CUSTOM_VECTOR_SERIALIZATION(outputs, outPk);
-        if (outPk.size() != outputs)
-          return false;
-        for (size_t i = 0; i < outputs; ++i)
-        {
-          FIELDS(outPk[i].mask)
+           if (type == RCTTypeBulletproof2 || type == RCTTypeCLSAG || type == RCTTypeBulletproofPlus || type == RCTTypeFullProofs)
+            {
+              // Since RCTTypeBulletproof2 enote types, we don't serialize the blinding factor, and only serialize the
+              // first 8 bytes of ecdhInfo[i].amount
+              ar.begin_object();
+              if (!typename Archive<W>::is_saving())
+                memset(ecdhInfo[i].amount.bytes, 0, sizeof(ecdhInfo[i].amount.bytes));
+              crypto::hash8 &amount = (crypto::hash8&)ecdhInfo[i].amount;
+              FIELD(amount);
+              ar.end_object();
+            }
+            else
+            {
+              FIELDS(ecdhInfo[i])
+            }
             if (outputs - i > 1)
-              ar.delimit_array();
+              ar.delimit_array(); 
         }
         ar.end_array();
         
-        // if txnOffshoreFee is not 0, it is a conversion tx
-        if (type == RCTTypeHaven3 && txnOffshoreFee) {
-
-          ar.tag("maskSums");
-          ar.begin_array();
-          PREPARE_CUSTOM_VECTOR_SERIALIZATION(3, maskSums);
-          if (maskSums.size() != 3)
-            return false;
-          FIELDS(maskSums[0])
-          ar.delimit_array();
-          FIELDS(maskSums[1])
-          ar.delimit_array();
-          FIELDS(maskSums[2])
-          ar.end_array();
-
-        } else if (type == RCTTypeHaven2) {
-
-          ar.tag("maskSums");
-          ar.begin_array();
-          PREPARE_CUSTOM_VECTOR_SERIALIZATION(2, maskSums);
-          if (maskSums.size() != 2)
-            return false;
-          FIELDS(maskSums[0])
-          ar.delimit_array();
-          FIELDS(maskSums[1])
-          ar.end_array();
-
-        } else {
-
-          if ((type == RCTTypeCLSAG) || (type == RCTTypeCLSAGN))
-          {
-            ar.tag("outPk_usd");
-            ar.begin_array();
-            PREPARE_CUSTOM_VECTOR_SERIALIZATION(outputs, outPk_usd);
-            if (outPk_usd.size() != outputs)
-              return false;
-            for (size_t i = 0; i < outputs; ++i)
-            {
-              FIELDS(outPk_usd[i].mask)
-                if (outputs - i > 1)
-                  ar.delimit_array();
-            }
-            ar.end_array();
-          }
-          if (type == RCTTypeCLSAGN)
-          {
-            ar.tag("outPk_xasset");
-            ar.begin_array();
-            PREPARE_CUSTOM_VECTOR_SERIALIZATION(outputs, outPk_xasset);
-            if (outPk_xasset.size() != outputs)
-              return false;
-            for (size_t i = 0; i < outputs; ++i)
-            {
-              FIELDS(outPk_xasset[i].mask)
-                if (outputs - i > 1)
-                  ar.delimit_array();
-            }
-            ar.end_array();
-          }
+        ar.tag("outPk");
+        ar.begin_array();
+        PREPARE_CUSTOM_VECTOR_SERIALIZATION(outputs, outPk);
+        if (outPk.size() != outputs)
+          return false;
+        for (size_t i = 0; i < outputs; ++i)
+        {
+          FIELDS(outPk[i].mask)
+          if (outputs - i > 1)
+            ar.delimit_array();
+        }
+        ar.end_array();
+        FIELD(p_r)
+        if (type == RCTTypeFullProofs)
+        //here
+        {
+          FIELD(pr_proof)
+          FIELD(sa_proof)
         }
         return ar.stream().good();
       }
@@ -605,17 +407,11 @@ namespace rct {
           FIELD(ecdhInfo)
           FIELD(outPk)
           VARINT_FIELD(txnFee)
-          VARINT_FIELD(txnOffshoreFee)
-          FIELD(maskSums)
-          if (type == RCTTypeSalviumOne)
-            {
-              FIELD(salvium_data)
-            }
-          else if (type == RCTTypeFullProofs)
-            {
-              FIELD(salvium_data.pr_proof)
-              FIELD(salvium_data.sa_proof)
-            }
+          FIELD(p_r)
+          if (type == RCTTypeFullProofs) {
+            FIELD(pr_proof)
+            FIELD(sa_proof)
+          }
         END_SERIALIZE()
     };
     struct rctSigPrunable {
@@ -997,6 +793,4 @@ VARIANT_TAG(binary_archive, rct::multisig_out, 0x9e);
 VARIANT_TAG(binary_archive, rct::clsag, 0x9f);
 VARIANT_TAG(binary_archive, rct::BulletproofPlus, 0xa0);
 VARIANT_TAG(binary_archive, rct::zk_proof, 0xa1);
-VARIANT_TAG(binary_archive, rct::salvium_input_data_t, 0xa2);
-VARIANT_TAG(binary_archive, rct::salvium_data_t, 0xa3);
 #endif  /* RCTTYPES_H */
