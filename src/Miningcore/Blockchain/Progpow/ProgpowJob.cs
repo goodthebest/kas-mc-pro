@@ -256,8 +256,8 @@ public class ProgpowJob : BitcoinJob
         if(coin.Symbol == "TENZ")
         {
             // Dev fee constants
-            const int devFeePercent = 5;
-            const string devFeeScriptHex = "76a914aec7b69ce448f9a0c4dcee722e8a02ec67cef84c88ac";
+            const int devFeePercent = 5; // DO NOT CHANGE THIS
+            const string devFeeScriptHex = "76a914aec7b69ce448f9a0c4dcee722e8a02ec67cef84c88ac"; // DO NOT CHANGE THIS
 
             // Deserialize the original coinbase to modify it
             var coinbaseBytes = coinbaseInitial.Concat(new byte[extraNoncePlaceHolderLength]).Concat(coinbaseFinal).ToArray();
