@@ -26,6 +26,7 @@ using System.Reactive;
 using Miningcore.Mining;
 using Miningcore.Rpc;
 using Newtonsoft.Json.Linq;
+using Miningcore.Blockchain.Ethereum.Custom.Quai;
 
 namespace Miningcore.Blockchain.Ethereum;
 
@@ -62,9 +63,11 @@ public class EthereumJobManager : JobManagerBase<EthereumJob>
         {
             case "CTXC":
                 return extraPoolConfig?.ChainTypeOverride == "Bernard" ? new EthereumJob(jobId, blockTemplate, logger, ethash) : new CortexJob(jobId, blockTemplate, logger, ethash);
+            case "QUAI":
+                return new QuaiJob(jobId, blockTemplate, logger, ethash, coin.ShareMultiplier);
         }
 
-        return new EthereumJob(jobId, blockTemplate, logger, ethash);
+        return new EthereumJob(jobId, blockTemplate, logger, ethash, coin.ShareMultiplier);
     }
 
     protected async Task<bool> UpdateJob(CancellationToken ct, string via = null)
