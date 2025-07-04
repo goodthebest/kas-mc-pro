@@ -36,6 +36,25 @@
         "explorerBlockLink": "https://explorer.fiveg.cash/block/$hash$",
         "explorerTxLink": "https://explorer.fiveg.cash/tx/{0}",
         "explorerAccountLink": "https://explorer.fiveg.cash/address/{0}"
+    },    
+    "quai": {
+        "name": "Quai",
+        "canonicalName": "Quai",
+        "symbol": "QUAI",
+        "family": "ethereum",
+        "website": "https://qu.ai/",
+        "market": "https://coinmarketcap.com/currencies/quai-network/",
+        "twitter": "https://x.com/QuaiNetwork",
+        "telegram": "https://t.me/QuaiNetwork",
+        "discord": "https://discord.com/invite/quai",
+        "explorerBlockLinks": {
+            "block": "https://quaiscan.io/blocks?shard=",
+            "uncle": "https://quaiscan.io/blocks?tab=reorgs&shard="
+        },
+        "shareMultiplier": 600000000,
+        "explorerTxLink": "https://quaiscan.io/tx/{0}",
+        "explorerAccountLink": "",
+        "ethasher": "ethash"
     },
     "argoneum": {
         "name": "Argoneum",
