@@ -239,8 +239,8 @@ public class AeternityPool : PoolBase
                     logger.Debug(ex, nameof(OnNewJobAsync));
                 }));
 
-            // start with initial blocktemplate
-            await OnNewJobAsync(null);
+            // Wait for first job instead of calling immediately
+            logger.Info(() => "Pool waiting for first job from job manager...");
         }
 
         else
@@ -255,29 +255,40 @@ public class AeternityPool : PoolBase
         currentJobParams = CreateWorkerJob(null, true);
 
         if (currentJobParams == null)
-            return;
-
-        currentJobParams = manager.GetJobParamsForStratum();
+        {
+            currentJobParams = manager.GetJobParamsForStratum();
+        }
 
         if (currentJobParams == null)
+        {
+            logger.Debug(() => "No job parameters available, skipping job notification");
             return;
+        }
 
         // update connected workers
         foreach(var kvp in connections.ToArray())
         {
             var connection = kvp.Value;
-            if (connection.ContextAs<AeternityWorkerContext>()?.IsSubscribed == true)
+            var context = connection.ContextAs<AeternityWorkerContext>();
+            
+            if (context?.IsSubscribed == true)
             {
                 // check if we should send a new job (clean or not)
-                var context = connection.ContextAs<AeternityWorkerContext>();
                 var cleanJob = context.IsInitialWorkSent == false;
 
                 if (!cleanJob)
                     cleanJob = true; // always send clean job for Aeternity
 
-                // send job
-                await connection.NotifyAsync(AeternityStratumMethods.MiningNotify, currentJobParams);
-                context.IsInitialWorkSent = true;
+                try
+                {
+                    // send job
+                    await connection.NotifyAsync(AeternityStratumMethods.MiningNotify, currentJobParams);
+                    context.IsInitialWorkSent = true;
+                }
+                catch (Exception ex)
+                {
+                    logger.Debug(() => $"Failed to notify connection {connection.ConnectionId}: {ex.Message}");
+                }
             }
         }
     }
