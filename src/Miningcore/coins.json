@@ -2731,6 +2731,35 @@
         "explorerTxLink": "https://ravencoin.network/rvn/transaction/{0}",
         "explorerAccountLink": "https://ravencoin.network/rvn/address/{0}"
     },
+    "tenzura": {
+        "name": "Tenzura",
+        "symbol": "TENZ",
+        "family": "progpow",
+        "website": "https://www.tenzura.io/",
+        "market": "https://coinmarketcap.com/currencies/tenzura/",
+        "twitter": "https://x.com/tenzura_io",
+        "github": "https://github.com/Tenzura/Tenzura",
+        "discord": "https://discord.gg/S9kefr94eW",
+        "coinbaseHasher": {
+            "hash": "sha256d"
+        },
+        "headerHasher": {
+            "hash": "sha256d"
+        },
+        "blockHasher": {
+            "hash": "reverse",
+            "args": [
+                {
+                    "hash": "sha256d"
+                }
+            ]
+        },
+        "shareMultiplier": 1,
+        "progpower": "kawpow",
+        "explorerBlockLink": "https://explorer.tenzura.io/block/$hash$",
+        "explorerTxLink": "https://explorer.tenzura.io/tx/{0}",
+        "explorerAccountLink": "https://explorer.tenzura.io/address/{0}"
+    },
     "firo": {
         "name": "Firo",
         "symbol": "FIRO",
