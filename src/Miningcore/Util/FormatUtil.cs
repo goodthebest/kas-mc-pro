@@ -3,7 +3,7 @@ namespace Miningcore.Util;
 public static class FormatUtil
 {
     public static readonly string[] HashrateUnits = { " H/s", " KH/s", " MH/s", " GH/s", " TH/s", " PH/s" , " EH/s" };
-    public static readonly string[] QuantityUnits = { "K", "M", "G", "T", "P", "E" };
+    public static readonly string[] QuantityUnits = { "", "K", "M", "G", "T", "P", "E", "Z", "Y" };
     public static readonly string[] CapacityUnits = { " KB", " MB", " GB", " TB", " PB" };
 
     public static string FormatHashrate(double hashrate)
@@ -39,13 +39,13 @@ public static class FormatUtil
         if (double.IsNaN(value) || double.IsInfinity(value) || value <= 0)
             return "0";
 
-        var i = -1;
+        var i = 0; // Start at 0 since we now have "" as first unit
 
-        do
+        while (value >= 1000 && i < QuantityUnits.Length - 1)
         {
             value /= 1000;
             i++;
-        } while(value > 1000 && i < QuantityUnits.Length - 1);
+        }
 
         // Ensure index is within bounds
         i = Math.Min(i, QuantityUnits.Length - 1);

@@ -357,7 +357,57 @@ public class AeternityJobManager : JobManagerBase<AeternityJob>
 
     protected override async Task EnsureDaemonsSynchedAsync(CancellationToken ct)
     {
-        // For REST API, no sync check needed
+        if (string.IsNullOrEmpty(nodeUrl))
+            throw new PoolStartupException("Node URL not configured", poolConfig.Id);
+
+        var attempts = 0;
+        const int maxAttempts = 30; // 5 minutes at 10 second intervals
+
+        while (attempts < maxAttempts)
+        {
+            try
+            {
+                var response = await httpClient.GetAsync($"{nodeUrl}/v3/status", ct);
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var status = JsonConvert.DeserializeObject<JObject>(content);
+                    var syncing = status?["syncing"]?.Value<bool>() ?? true;
+                    var topHeight = status?["top_height"]?.Value<long>() ?? 0;
+                    var nodeVersion = status?["node_version"]?.Value<string>();
+
+                    logger.Info(() => $"Aeternity node sync status: version={nodeVersion}, height={topHeight}, syncing={syncing}");
+
+                    if (!syncing && topHeight > 0)
+                    {
+                        logger.Info(() => $"Aeternity node is fully synced at height {topHeight}");
+                        return;
+                    }
+
+                    if (syncing)
+                        logger.Info(() => $"Aeternity node is syncing... height={topHeight} (attempt {attempts + 1}/{maxAttempts})");
+                    else
+                        logger.Warn(() => $"Aeternity node shows not syncing but height is {topHeight}");
+                }
+                else
+                {
+                    logger.Error(() => $"Failed to get node status: {response.StatusCode}");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, () => $"Error checking node sync status (attempt {attempts + 1}/{maxAttempts})");
+            }
+
+            attempts++;
+            if (attempts < maxAttempts)
+            {
+                logger.Info(() => "Waiting 10 seconds before next sync check...");
+                await Task.Delay(TimeSpan.FromSeconds(10), ct);
+            }
+        }
+
+        throw new PoolStartupException($"Aeternity node failed to sync after {maxAttempts} attempts", poolConfig.Id);
     }
 
     protected override async Task PostStartInitAsync(CancellationToken ct)
@@ -375,6 +425,25 @@ public class AeternityJobManager : JobManagerBase<AeternityJob>
             {
                 logger.Error(() => "Node URL not configured");
                 return false;
+            }
+
+            // Check if node is still syncing before creating jobs
+            var statusResponse = await httpClient.GetAsync($"{nodeUrl}/v3/status", ct);
+            if (statusResponse.IsSuccessStatusCode)
+            {
+                var statusContent = await statusResponse.Content.ReadAsStringAsync();
+                var status = JsonConvert.DeserializeObject<JObject>(statusContent);
+                var syncing = status?["syncing"]?.Value<bool>() ?? true;
+                var nodeHeight = status?["top_height"]?.Value<long>() ?? 0;
+                
+                if (syncing || nodeHeight == 0)
+                {
+                    logger.Warn(() => $"Node is syncing (syncing={syncing}, height={nodeHeight}) - skipping job update");
+                    return false;
+                }
+                
+                // Update blockchain stats while we have the status
+                BlockchainStats.BlockHeight = (ulong)Math.Max(0, nodeHeight);
             }
 
             // Get mining template from Aeternity node using real API
@@ -396,18 +465,8 @@ public class AeternityJobManager : JobManagerBase<AeternityJob>
             var time = template?["time"]?.Value<long>() ?? 0;
             var version = template?["version"]?.Value<int>() ?? 0;
 
-            // Get node status for additional information
-            var statusResponse = await httpClient.GetAsync($"{nodeUrl}/v3/status", ct);
-            if (statusResponse.IsSuccessStatusCode)
-            {
-                var statusContent = await statusResponse.Content.ReadAsStringAsync();
-                var status = JsonConvert.DeserializeObject<JObject>(statusContent);
-                var nodeHeight = status?["top_height"]?.Value<long>() ?? 0;
-                
-                // Update blockchain stats
-                BlockchainStats.BlockHeight = (ulong)Math.Max(0, nodeHeight);
-                BlockchainStats.NetworkDifficulty = CalculateNetworkDifficulty(target);
-            }
+            // Calculate network difficulty from target
+            BlockchainStats.NetworkDifficulty = CalculateNetworkDifficulty(target);
 
             if (height == 0 || string.IsNullOrEmpty(prevHash))
             {
