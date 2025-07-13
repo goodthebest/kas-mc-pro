@@ -1,8 +1,8 @@
 {
     "aeternity": {
         "name": "Aeternity",
-        "canonicalName": "Aeternity", 
-        "symbol": "AE",
+        "canonicalName": "Aeternity",
+        "symbol": "AE", 
         "family": "aeternity",
         "website": "https://aeternity.com/",
         "github": "https://github.com/aeternity/aeternity",
@@ -11,12 +11,24 @@
         "telegram": "https://t.me/aeternity",
         "discord": "https://discord.gg/aeternity",
         "explorerBlockLinks": {
-            "block": "https://explorer.aeternity.io/keyblock/{0}",
-            "uncle": "https://explorer.aeternity.io/keyblock/{0}"
+            "block": "https://explorer.aeternity.io/generations/$height$",
+            "uncle": "https://explorer.aeternity.io/generations/$height$"
         },
         "explorerTxLink": "https://explorer.aeternity.io/transactions/{0}",
         "explorerAccountLink": "https://explorer.aeternity.io/accounts/{0}",
-        "algorithm": "cuckoo_cycle"
+        "coinbaseHasher": {
+            "hash": "blake2b"
+        },
+        "headerHasher": {
+            "hash": "blake2b"
+        },
+        "blockHasher": {
+            "hash": "blake2b"
+        },
+        "posBlockHasher": {
+            "hash": "blake2b"
+        },
+        "rpcMethodPrefix": "ae"
     },
     "5gcash": {
         "name": "5G Cash",
