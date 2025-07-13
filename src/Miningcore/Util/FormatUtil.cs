@@ -36,13 +36,20 @@ public static class FormatUtil
 
     public static string FormatQuantity(double value)
     {
+        if (double.IsNaN(value) || double.IsInfinity(value) || value <= 0)
+            return "0";
+
         var i = -1;
 
         do
         {
             value /= 1000;
             i++;
-        } while(value > 1000);
+        } while(value > 1000 && i < QuantityUnits.Length - 1);
+
+        // Ensure index is within bounds
+        i = Math.Min(i, QuantityUnits.Length - 1);
+        i = Math.Max(i, 0);
 
         return Math.Round(value, 2) + QuantityUnits[i];
     }

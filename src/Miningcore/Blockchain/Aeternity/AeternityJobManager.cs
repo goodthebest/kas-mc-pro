@@ -411,8 +411,15 @@ public class AeternityJobManager : JobManagerBase<AeternityJob>
 
             if (height == 0 || string.IsNullOrEmpty(prevHash))
             {
-                logger.Error(() => "Invalid mining template data");
+                logger.Error(() => $"Invalid mining template data: height={height}, prevHash={prevHash ?? "null"}");
                 return false;
+            }
+
+            // Ensure target has a reasonable default if missing
+            if (string.IsNullOrEmpty(target))
+            {
+                target = GetDefaultTarget();
+                logger.Warn(() => "No target in template, using default");
             }
 
             // Create mining job with proper Aeternity key-block format
@@ -449,7 +456,9 @@ public class AeternityJobManager : JobManagerBase<AeternityJob>
             // Notify subscribers
             jobSubject.OnNext(Unit.Default);
 
-            logger.Info(() => $"New job {job.JobId} at height {job.Height} with target {job.Target?.Substring(0, 16)}...");
+            var targetPreview = string.IsNullOrEmpty(job.Target) ? "null" : 
+                job.Target.Length > 16 ? job.Target.Substring(0, 16) + "..." : job.Target;
+            logger.Info(() => $"New job {job.JobId} at height {job.Height} with target {targetPreview}");
             return true;
         }
         catch (Exception ex)
@@ -468,23 +477,30 @@ public class AeternityJobManager : JobManagerBase<AeternityJob>
     private double CalculateNetworkDifficulty(string target)
     {
         if (string.IsNullOrEmpty(target))
-            return 0;
+            return 1000; // Default difficulty
 
         try
         {
             if (target.StartsWith("0x"))
                 target = target.Substring(2);
 
+            // Ensure target is at least 64 hex characters (32 bytes)
+            if (target.Length < 64)
+                target = target.PadLeft(64, '0');
+
             var targetBig = BigInteger.Parse(target, NumberStyles.HexNumber);
             if (targetBig == 0)
-                return 0;
+                return 1000; // Default difficulty
 
             var maxTarget = BigInteger.Parse("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", NumberStyles.HexNumber);
-            return (double)maxTarget / (double)targetBig;
+            var difficulty = (double)maxTarget / (double)targetBig;
+            
+            // Ensure difficulty is reasonable
+            return Math.Max(difficulty, 1);
         }
         catch
         {
-            return 0;
+            return 1000; // Default difficulty on error
         }
     }
 
