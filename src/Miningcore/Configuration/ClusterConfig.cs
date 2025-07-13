@@ -16,6 +16,9 @@ namespace Miningcore.Configuration;
 
 public enum CoinFamily
 {
+    [EnumMember(Value = "aeternity")]
+    Aeternity,
+    
     [EnumMember(Value = "alephium")]
     Alephium,
     
@@ -165,6 +168,7 @@ public abstract partial class CoinTemplate
     [JsonIgnore]
     public static readonly Dictionary<CoinFamily, Type> Families = new()
     {
+        {CoinFamily.Aeternity, typeof(AeternityCoinTemplate)},
         {CoinFamily.Alephium, typeof(AlephiumCoinTemplate)},
         {CoinFamily.Beam, typeof(BeamCoinTemplate)},
         {CoinFamily.Bitcoin, typeof(BitcoinTemplate)},
@@ -182,6 +186,18 @@ public abstract partial class CoinTemplate
         {CoinFamily.Xelis, typeof(XelisCoinTemplate)},
         {CoinFamily.Zano, typeof(ZanoCoinTemplate)},
     };
+}
+
+public partial class AeternityCoinTemplate : CoinTemplate
+{
+    #region Overrides of CoinTemplate
+
+    public override string GetAlgorithmName()
+    {
+        return "Cuckoo Cycle";
+    }
+
+    #endregion
 }
 
 public partial class AlephiumCoinTemplate : CoinTemplate

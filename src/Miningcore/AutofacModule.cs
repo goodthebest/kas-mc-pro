@@ -3,6 +3,7 @@ using Autofac;
 using Miningcore.Api;
 using Miningcore.Banning;
 using Miningcore.Blockchain.Alephium;
+using Miningcore.Blockchain.Aeternity;
 using Miningcore.Blockchain.Beam;
 using Miningcore.Blockchain.Bitcoin;
 using Miningcore.Blockchain.Conceal;
@@ -210,6 +211,11 @@ public class AutofacModule : Module
 
         builder.RegisterType<ErgoJobManager>();
 
+        //////////////////////
+        // Aeternity
+
+        builder.RegisterType<AeternityJobManager>();
+        
         //////////////////////
         // Ethereum
 
