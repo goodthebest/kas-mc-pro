@@ -20,6 +20,7 @@
  * 
  * This implementation follows the official Aeternity protocol documentation
  * for mining integration and block submission.
+ * this arent clean development - i am sorry for the mess
  */
 
 using System.Globalization;
