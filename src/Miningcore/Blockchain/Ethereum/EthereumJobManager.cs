@@ -7,6 +7,7 @@ using Autofac;
 using Miningcore.Blockchain.Bitcoin;
 using Miningcore.Blockchain.Ethereum.Configuration;
 using Miningcore.Blockchain.Ethereum.Custom.Cortex;
+using Miningcore.Blockchain.Ethereum.Custom.Aeternity;
 using Miningcore.Blockchain.Ethereum.DaemonResponses;
 using Miningcore.Configuration;
 using Miningcore.Crypto.Hashing.Ethash;
@@ -62,6 +63,9 @@ public class EthereumJobManager : JobManagerBase<EthereumJob>
         {
             case "CTXC":
                 return extraPoolConfig?.ChainTypeOverride == "Bernard" ? new EthereumJob(jobId, blockTemplate, logger, ethash) : new CortexJob(jobId, blockTemplate, logger, ethash);
+            
+            case "AE":
+                return new AeternityJob(jobId, blockTemplate, logger, ethash);
         }
 
         return new EthereumJob(jobId, blockTemplate, logger, ethash);

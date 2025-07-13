@@ -1,4 +1,24 @@
 {
+    "aeternity": {
+        "name": "Aeternity",
+        "canonicalName": "Aeternity", 
+        "symbol": "AE",
+        "family": "ethereum",
+        "website": "https://aeternity.com/",
+        "github": "https://github.com/aeternity/aeternity",
+        "market": "https://www.coingecko.com/en/coins/aeternity",
+        "twitter": "https://twitter.com/aeternity",
+        "telegram": "https://t.me/aeternity",
+        "discord": "https://discord.gg/aeternity",
+        "explorerBlockLinks": {
+            "block": "https://explorer.aeternity.io/generations/$height$",
+            "uncle": "https://explorer.aeternity.io/generations/$height$"
+        },
+        "explorerTxLink": "https://explorer.aeternity.io/transactions/{0}",
+        "explorerAccountLink": "https://explorer.aeternity.io/accounts/{0}",
+        "rpcMethodPrefix": "ae",
+        "ethasher": "ethash"
+    },
     "5gcash": {
         "name": "5G Cash",
         "symbol": "VGC",
