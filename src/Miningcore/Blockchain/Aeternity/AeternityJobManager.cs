@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using System.Text;
 using Autofac;
 using Miningcore.Configuration;
+using Miningcore.Extensions;
 using Miningcore.JsonRpc;
 using Miningcore.Messaging;
 using Miningcore.Mining;
@@ -34,11 +35,14 @@ public class AeternityJobManager : JobManagerBase<AeternityJob>
         Contract.RequiresNonNull(messageBus);
 
         this.clock = clock;
+        httpClient = new HttpClient();
     }
 
     private readonly IMasterClock clock;
     private readonly Dictionary<string, AeternityJob> validJobs = new();
     private readonly Subject<Unit> jobSubject = new();
+    private readonly HttpClient httpClient;
+    private string nodeUrl;
     
     public IObservable<Unit> Jobs { get; private set; }
     
@@ -49,6 +53,18 @@ public class AeternityJobManager : JobManagerBase<AeternityJob>
         base.Configure(pc, cc);
 
         var aeternityCoinTemplate = poolConfig.Template.As<AeternityCoinTemplate>();
+
+        // Configure node URL from daemon settings
+        var daemon = pc.Daemons?.FirstOrDefault();
+        if (daemon != null)
+        {
+            nodeUrl = $"http://{daemon.Host}:{daemon.Port}";
+            logger.Info(() => $"Configured Aeternity node URL: {nodeUrl}");
+        }
+        else
+        {
+            throw new PoolStartupException("No Aeternity daemon configured", poolConfig.Id);
+        }
 
         // Initialize Jobs observable
         Jobs = jobSubject.AsObservable();
@@ -160,14 +176,47 @@ public class AeternityJobManager : JobManagerBase<AeternityJob>
 
     protected override async Task<bool> AreDaemonsHealthyAsync(CancellationToken ct)
     {
-        // For REST API, always return true unless we can check node health
-        return true;
+        if (string.IsNullOrEmpty(nodeUrl))
+            return false;
+
+        try
+        {
+            var response = await httpClient.GetAsync($"{nodeUrl}/v3/status", ct);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            logger.Debug(() => $"Aeternity node health check failed: {ex.Message}");
+            return false;
+        }
     }
 
     protected override async Task<bool> AreDaemonsConnectedAsync(CancellationToken ct)
     {
-        // For REST API, always return true unless we can check node connection
-        return true;
+        if (string.IsNullOrEmpty(nodeUrl))
+            return false;
+
+        try
+        {
+            var response = await httpClient.GetAsync($"{nodeUrl}/v3/status", ct);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var status = JsonConvert.DeserializeObject<JObject>(content);
+                var syncing = status?["syncing"]?.Value<bool>() ?? true;
+                var nodeVersion = status?["node_version"]?.Value<string>();
+                var topHeight = status?["top_height"]?.Value<long>() ?? 0;
+                
+                logger.Info(() => $"Aeternity node status: version={nodeVersion}, height={topHeight}, syncing={syncing}");
+                return true;
+            }
+            return false;
+        }
+        catch (Exception ex)
+        {
+            logger.Debug(() => $"Aeternity node connection check failed: {ex.Message}");
+            return false;
+        }
     }
 
     protected override async Task EnsureDaemonsSynchedAsync(CancellationToken ct)
@@ -186,15 +235,43 @@ public class AeternityJobManager : JobManagerBase<AeternityJob>
         {
             logger.Debug(() => "Updating job from Aeternity node");
 
-            // Create dummy job for now - replace with actual REST API calls
+            if (string.IsNullOrEmpty(nodeUrl))
+            {
+                logger.Error(() => "Node URL not configured");
+                return false;
+            }
+
+            // Get current top block
+            var topResponse = await httpClient.GetAsync($"{nodeUrl}/v3/key-blocks/current", ct);
+            if (!topResponse.IsSuccessStatusCode)
+            {
+                logger.Error(() => $"Failed to get current block: {topResponse.StatusCode}");
+                return false;
+            }
+
+            var topContent = await topResponse.Content.ReadAsStringAsync();
+            var topBlock = JsonConvert.DeserializeObject<JObject>(topContent);
+            
+            var height = topBlock?["height"]?.Value<long>() ?? 0;
+            var hash = topBlock?["hash"]?.Value<string>();
+            var target = topBlock?["target"]?.Value<string>();
+            var prevHash = topBlock?["prev_hash"]?.Value<string>();
+
+            if (string.IsNullOrEmpty(hash))
+            {
+                logger.Error(() => "Failed to parse block data");
+                return false;
+            }
+
+            // Create new job
             var job = new AeternityJob
             {
                 JobId = Guid.NewGuid().ToString("N")[..8],
-                Height = 1000,
-                HeaderHash = "0x" + "1234567890abcdef".PadLeft(64, '0'),
-                SeedHash = "0x" + "abcdef1234567890".PadLeft(64, '0'),
-                Target = "0x" + "00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-                Difficulty = 1000,
+                Height = height,
+                HeaderHash = hash,
+                SeedHash = prevHash ?? "0x" + "0".PadLeft(64, '0'),
+                Target = target ?? "0x" + "00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                Difficulty = (ulong)CalculateDifficultyFromTarget(target),
                 Created = clock.Now
             };
 
@@ -224,6 +301,35 @@ public class AeternityJobManager : JobManagerBase<AeternityJob>
         }
     }
 
+    private double CalculateDifficultyFromTarget(string target)
+    {
+        if (string.IsNullOrEmpty(target))
+            return 1000; // Default difficulty
+
+        try
+        {
+            // Remove 0x prefix if present
+            if (target.StartsWith("0x"))
+                target = target.Substring(2);
+
+            // Parse as hex and calculate difficulty
+            var targetBig = BigInteger.Parse(target, NumberStyles.HexNumber);
+            if (targetBig == 0)
+                return 1000;
+
+            // Simple difficulty calculation (can be refined)
+            var maxTarget = BigInteger.Parse("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", NumberStyles.HexNumber);
+            var difficulty = (double)maxTarget / (double)targetBig;
+            
+            return Math.Max(difficulty, 1);
+        }
+        catch (Exception ex)
+        {
+            logger.Debug(() => $"Failed to calculate difficulty from target {target}: {ex.Message}");
+            return 1000;
+        }
+    }
+
     public override AeternityJob GetJobForStratum()
     {
         return currentJob;
@@ -240,6 +346,21 @@ public class AeternityJobManager : JobManagerBase<AeternityJob>
     }
 
     #endregion // Utility Methods
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            httpClient?.Dispose();
+            jobSubject?.Dispose();
+        }
+    }
 }
 
 public class AeternityJob
