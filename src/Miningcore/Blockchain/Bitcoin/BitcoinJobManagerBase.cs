@@ -226,7 +226,8 @@ public abstract class BitcoinJobManagerBase<TJob> : JobManagerBase<TJob>
             var results = await rpc.ExecuteBatchAsync(logger, ct,
                 new RpcRequest(BitcoinCommands.GetMiningInfo),
                 new RpcRequest(BitcoinCommands.GetNetworkInfo),
-                new RpcRequest(BitcoinCommands.GetNetworkHashPS)
+                new RpcRequest(BitcoinCommands.GetNetworkHashPS),
+                new RpcRequest(BitcoinCommands.GetBlockchainInfo)
             );
 
             if(results.Any(x => x.Error != null))
@@ -239,9 +240,19 @@ public abstract class BitcoinJobManagerBase<TJob> : JobManagerBase<TJob>
 
             var miningInfoResponse = results[0].Response.ToObject<MiningInfo>();
             var networkInfoResponse = results[1].Response.ToObject<NetworkInfo>();
+            var blockchainInfoResponse = results[3].Response?.ToObject<BlockchainInfo>();
 
             BlockchainStats.NetworkHashrate = miningInfoResponse.NetworkHashps;
             BlockchainStats.ConnectedPeers = networkInfoResponse.Connections;
+
+            // Update sync status information
+            if(blockchainInfoResponse != null)
+            {
+                var isSyncing = blockchainInfoResponse.VerificationProgress < 0.999; // Consider 99.9% as synced
+                BlockchainStats.IsSyncing = isSyncing;
+                BlockchainStats.SyncProgress = blockchainInfoResponse.VerificationProgress;
+                BlockchainStats.BlockDownloadProgress = blockchainInfoResponse.VerificationProgress * 100.0;
+            }
 
             // Fall back to alternative RPC if coin does not report Network HPS (Digibyte)
             if(BlockchainStats.NetworkHashrate == 0 && results[2].Error == null)
@@ -344,7 +355,8 @@ public abstract class BitcoinJobManagerBase<TJob> : JobManagerBase<TJob>
         try
         {
             var results = await rpc.ExecuteBatchAsync(logger, ct,
-                new RpcRequest(BitcoinCommands.GetConnectionCount)
+                new RpcRequest(BitcoinCommands.GetConnectionCount),
+                new RpcRequest(BitcoinCommands.GetInfo)
             );
 
             if(results.Any(x => x.Error != null))
@@ -356,9 +368,19 @@ public abstract class BitcoinJobManagerBase<TJob> : JobManagerBase<TJob>
             }
 
             var connectionCountResponse = results[0].Response.ToObject<object>();
+            var daemonInfoResponse = results[1].Response?.ToObject<DaemonInfo>();
 
-            //BlockchainStats.NetworkHashrate = miningInfoResponse.NetworkHashps;
             BlockchainStats.ConnectedPeers = (int) (long) connectionCountResponse!;
+            
+            // For legacy daemons, we estimate sync status based on peer connections
+            if(daemonInfoResponse != null)
+            {
+                // Legacy daemons don't provide verification progress, so we estimate
+                // If we have connections, assume we're syncing until proven otherwise
+                BlockchainStats.IsSyncing = BlockchainStats.ConnectedPeers > 0 ? (bool?)null : false;
+                BlockchainStats.SyncProgress = null; // Not available for legacy daemons
+                BlockchainStats.BlockDownloadProgress = null; // Not available for legacy daemons
+            }
         }
 
         catch(Exception e)

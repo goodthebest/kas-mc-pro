@@ -40,7 +40,7 @@
     },
     "paymentProcessing": {
         "enabled": true,
-        "interval": 600,
+        "interval": 3600,
         "shareRecoveryFile": "recovered-shares.txt"
     },
     "api": {
@@ -56,12 +56,17 @@
             "104.28.215.135"
         ],
         "rateLimiting": {
-            "disabled": true,
+            "disabled": false,
             "rules": [
                 {
                     "Endpoint": "*",
                     "Period": "1s",
-                    "Limit": 5
+                    "Limit": 30
+                },
+                {
+                    "Endpoint": "*/stats",
+                    "Period": "1s",
+                    "Limit": 50
                 }
             ],
             "ipWhitelist": [
@@ -72,9 +77,9 @@
         }
     },
     "statistics": {
-        "updateInterval": 15,
-        "hashrateCalculationWindow": 30,
-        "gcInterval": 1,
+        "updateInterval": 10,
+        "hashrateCalculationWindow": 20,
+        "gcInterval": 0.5,
         "cleanupDays": 1
     },
     "pools": [
@@ -282,10 +287,10 @@
                     "percentage": 0.3
                 }
             ],
-            "blockRefreshInterval": 500,
-            "jobRebroadcastTimeout": 10,
+            "blockRefreshInterval": 250,
+            "jobRebroadcastTimeout": 5,
             "clientConnectionTimeout": 600,
-            "vardiffIdleSweepInterval": 60,
+            "vardiffIdleSweepInterval": 30,
             "banning": {
                 "enabled": true,
                 "time": 600,
@@ -351,7 +356,11 @@
                     "host": "127.0.0.1",
                     "port": 22555,
                     "user": "imskaa",
-                    "password": "081915623665"
+                    "password": "081915623665",
+                    "extra": {
+                        "zmqBlockNotifySocket": "tcp://127.0.0.1:28332",
+                        "zmqBlockNotifyTopic": "hashblock"
+                    }
                 }
             ],
             "stratumServers": {
@@ -390,8 +399,8 @@
                     "percentage": 0.3
                 }
             ],
-            "blockRefreshInterval": 500,
-            "jobRebroadcastTimeout": 10,
+            "blockRefreshInterval": 250,
+            "jobRebroadcastTimeout": 5,
             "clientConnectionTimeout": 600,
             "vardiffIdleSweepInterval": 60,
             "banning": {
@@ -459,7 +468,11 @@
                     "host": "127.0.0.1",
                     "port": 22555,
                     "user": "imskaa",
-                    "password": "081915623665"
+                    "password": "081915623665",
+                    "extra": {
+                        "zmqBlockNotifySocket": "tcp://127.0.0.1:28332",
+                        "zmqBlockNotifyTopic": "hashblock"
+                    }
                 }
             ],
             "stratumServers": {
@@ -498,8 +511,8 @@
                     "percentage": 0.3
                 }
             ],
-            "blockRefreshInterval": 500,
-            "jobRebroadcastTimeout": 10,
+            "blockRefreshInterval": 250,
+            "jobRebroadcastTimeout": 5,
             "clientConnectionTimeout": 600,
             "vardiffIdleSweepInterval": 60,
             "banning": {
@@ -567,7 +580,11 @@
                     "host": "127.0.0.1",
                     "port": 9332,
                     "user": "imskaa",
-                    "password": "081915623665"
+                    "password": "081915623665",
+                    "extra": {
+                        "zmqBlockNotifySocket": "tcp://127.0.0.1:9433",
+                        "zmqBlockNotifyTopic": "hashblock"
+                    }
                 }
             ],
             "stratumServers": {
@@ -606,8 +623,8 @@
                     "percentage": 0.3
                 }
             ],
-            "blockRefreshInterval": 500,
-            "jobRebroadcastTimeout": 10,
+            "blockRefreshInterval": 250,
+            "jobRebroadcastTimeout": 5,
             "clientConnectionTimeout": 600,
             "vardiffIdleSweepInterval": 60,
             "banning": {
@@ -675,7 +692,11 @@
                     "host": "127.0.0.1",
                     "port": 9332,
                     "user": "imskaa",
-                    "password": "081915623665"
+                    "password": "081915623665",
+                    "extra": {
+                        "zmqBlockNotifySocket": "tcp://127.0.0.1:9433",
+                        "zmqBlockNotifyTopic": "hashblock"
+                    }
                 }
             ],
             "stratumServers": {
