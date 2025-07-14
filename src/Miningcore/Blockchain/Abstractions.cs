@@ -12,6 +12,21 @@ public class BlockchainStats
     public int ConnectedPeers { get; set; }
     public string NodeVersion { get; set; } = "Unknown";
     public string RewardType { get; set; }
+    
+    /// <summary>
+    /// Blockchain synchronization status
+    /// </summary>
+    public bool? IsSyncing { get; set; }
+    
+    /// <summary>
+    /// Blockchain synchronization progress (0.0 to 1.0)
+    /// </summary>
+    public double? SyncProgress { get; set; }
+    
+    /// <summary>
+    /// Current blockchain download percentage (0.0 to 100.0)
+    /// </summary>
+    public double? BlockDownloadProgress { get; set; }
 }
 
 public interface IExtraNonceProvider

@@ -6,7 +6,6 @@ using System.Text;
 using Autofac;
 using Miningcore.Blockchain.Bitcoin;
 using Miningcore.Blockchain.Ethereum.Configuration;
-using Miningcore.Blockchain.Ethereum.Custom.Cortex;
 using Miningcore.Blockchain.Ethereum.DaemonResponses;
 using Miningcore.Configuration;
 using Miningcore.Crypto.Hashing.Ethash;
@@ -61,7 +60,7 @@ public class EthereumJobManager : JobManagerBase<EthereumJob>
         switch(coin.Symbol)
         {
             case "CTXC":
-                return extraPoolConfig?.ChainTypeOverride == "Bernard" ? new EthereumJob(jobId, blockTemplate, logger, ethash) : new CortexJob(jobId, blockTemplate, logger, ethash);
+                return extraPoolConfig?.ChainTypeOverride == "Bernard" ? new EthereumJob(jobId, blockTemplate, logger, ethash) : new EthereumJob(jobId, blockTemplate, logger, ethash);
         }
 
         return new EthereumJob(jobId, blockTemplate, logger, ethash);
