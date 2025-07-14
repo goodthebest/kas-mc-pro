@@ -1,0 +1,706 @@
+{
+    "logging": {
+        "level": "info",
+        "enableConsoleLog": true,
+        "enableConsoleColors": true,
+        "logFile": "/miningcore.log",
+        "apiLogFile": "/miningcore_api.log",
+        "logBaseDirectory": "",
+        "perPoolLogFile": false
+    },
+    "banning": {
+        "manager": "Integrated",
+        "banOnJunkReceive": true,
+        "banOnInvalidShares": false
+    },
+    "notifications": {
+        "enabled": false,
+        "email": {
+            "host": "smtp.example.com",
+            "port": 587,
+            "user": "user",
+            "password": "password",
+            "fromAddress": "info@yourpool.org",
+            "fromName": "support"
+        },
+        "admin": {
+            "enabled": false,
+            "emailAddress": "user@example.com",
+            "notifyBlockFound": true
+        }
+    },
+    "persistence": {
+        "postgres": {
+            "host": "127.0.0.1",
+            "port": 5432,
+            "user": "miningcore",
+            "password": "anakkeren123",
+            "database": "miningcoredb"
+        }
+    },
+    "paymentProcessing": {
+        "enabled": true,
+        "interval": 600,
+        "shareRecoveryFile": "recovered-shares.txt"
+    },
+    "api": {
+        "enabled": true,
+        "listenAddress": "*",
+        "port": 4005,
+        "metricsIpWhitelist": [
+            "127.0.0.1",
+            "104.28.215.135"
+        ],
+        "adminIpWhitelist": [
+            "127.0.0.1",
+            "104.28.215.135"
+        ],
+        "rateLimiting": {
+            "disabled": true,
+            "rules": [
+                {
+                    "Endpoint": "*",
+                    "Period": "1s",
+                    "Limit": 5
+                }
+            ],
+            "ipWhitelist": [
+                "localhost",
+                "127.0.0.1",
+                "104.28.215.135"
+            ]
+        }
+    },
+    "statistics": {
+        "updateInterval": 15,
+        "hashrateCalculationWindow": 30,
+        "gcInterval": 1,
+        "cleanupDays": 1
+    },
+    "pools": [
+        {
+            "id": "tenz",
+            "enabled": true,
+            "coin": "tenzura",
+            "address": "Tw9n2mjBtq2xKdvVntZf3zWep5G3xLZqKw",
+            "GBTArgs": [
+                {
+                    "capabilities": [
+                        "coinbasetxn",
+                        "workid",
+                        "coinbase/append"
+                    ],
+                    "rules": [
+                        "segwit"
+                    ]
+                }
+            ],
+            "rewardRecipients": [
+                {
+                    "type": "op",
+                    "address": "TeyahcifY6tUUhR5yqAMm2tvBYJz92FZs2",
+                    "percentage": 1
+                }
+            ],
+            "blockRefreshInterval": 5,
+            "jobRebroadcastTimeout": 0,
+            "clientConnectionTimeout": 600,
+            "vardiffIdleSweepInterval": 60,
+            "banning": {
+                "enabled": true,
+                "time": 600,
+                "invalidPercent": 50,
+                "checkThreshold": 50
+            },
+            "ports": {
+                "3094": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 1,
+                    "varDiff": {
+                        "minDiff": 0.125,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                },
+                "3095": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 1,
+                    "tls": false,
+                    "varDiff": {
+                        "minDiff": 0.125,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                }
+            },
+            "daemons": [
+                {
+                    "host": "127.0.0.1",
+                    "port": 9766,
+                    "user": "imskaa",
+                    "password": "081915623665",
+                    "zmqBlockNotifySocket": "tcp://127.0.0.1:7772",
+                    "zmqBlockNotifyTopic": "rawblock"
+                }
+            ],
+            "stratumServers": {
+                "primary": {
+                    "host": "us.heroichashers.com",
+                    "region": "US East",
+                    "ports": ["3094", "3095"]
+                },
+                "secondary": {
+                    "host": "sg.heroichashers.com", 
+                    "region": "Singapore",
+                    "ports": ["3094", "3095"]
+                },
+                "loadBalanced": {
+                    "host": "connect.heroichashers.com",
+                    "region": "Global Load Balanced",
+                    "ports": ["3094", "3095"]
+                }
+            },
+            "paymentProcessing": {
+                "enabled": true,
+                "minimumPayment": 5,
+                "payoutScheme": "PPLNS",
+                "payoutSchemeConfig": {
+                    "factor": 0.5
+                }
+            }
+        },
+        {
+            "id": "tenz_solo",
+            "enabled": true,
+            "coin": "tenzura",
+            "address": "Tw9n2mjBtq2xKdvVntZf3zWep5G3xLZqKw",
+            "GBTArgs": [
+                {
+                    "capabilities": [
+                        "coinbasetxn",
+                        "workid",
+                        "coinbase/append"
+                    ],
+                    "rules": [
+                        "segwit"
+                    ]
+                }
+            ],
+            "rewardRecipients": [
+                {
+                    "type": "op",
+                    "address": "TeyahcifY6tUUhR5yqAMm2tvBYJz92FZs2",
+                    "percentage": 1
+                }
+            ],
+            "blockRefreshInterval": 5,
+            "jobRebroadcastTimeout": 0,
+            "clientConnectionTimeout": 600,
+            "vardiffIdleSweepInterval": 60,
+            "banning": {
+                "enabled": true,
+                "time": 600,
+                "invalidPercent": 50,
+                "checkThreshold": 50
+            },
+            "ports": {
+                "4094": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 1,
+                    "varDiff": {
+                        "minDiff": 0.125,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                },
+                "4095": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 1,
+                    "tls": false,
+                    "varDiff": {
+                        "minDiff": 0.125,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                }
+            },
+            "daemons": [
+                {
+                    "host": "127.0.0.1",
+                    "port": 9766,
+                    "user": "imskaa",
+                    "password": "081915623665",
+                    "zmqBlockNotifySocket": "tcp://127.0.0.1:7772",
+                    "zmqBlockNotifyTopic": "rawblock"
+                }
+            ],
+            "stratumServers": {
+                "primary": {
+                    "host": "us.heroichashers.com",
+                    "region": "US East",
+                    "ports": ["4094", "4095"]
+                },
+                "secondary": {
+                    "host": "sg.heroichashers.com", 
+                    "region": "Singapore",
+                    "ports": ["4094", "4095"]
+                },
+                "loadBalanced": {
+                    "host": "connect.heroichashers.com",
+                    "region": "Global Load Balanced",
+                    "ports": ["4094", "4095"]
+                }
+            },
+            "paymentProcessing": {
+                "enabled": true,
+                "minimumPayment": 100,
+                "payoutScheme": "SOLO",
+                "payoutSchemeConfig": {}
+            }
+        },
+        {
+            "id": "doge",
+            "enabled": true,
+            "coin": "dogecoin",
+            "address": "DAZngSUXy3mtGs4bRRgmcAjoZoz3zypunx",
+            "rewardRecipients": [
+                {
+                    "type": "op",
+                    "address": "DBjrJ2dP1okiU1qTqT1iCc43xWVRhZER7y",
+                    "percentage": 0.3
+                }
+            ],
+            "blockRefreshInterval": 500,
+            "jobRebroadcastTimeout": 10,
+            "clientConnectionTimeout": 600,
+            "vardiffIdleSweepInterval": 60,
+            "banning": {
+                "enabled": true,
+                "time": 600,
+                "invalidPercent": 50,
+                "checkThreshold": 50
+            },
+            "ports": {
+                "4096": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 1024,
+                    "name": "ASIC Mining",
+                    "varDiff": {
+                        "minDiff": 512,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                },
+                "4106": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 256,
+                    "name": "High Hash",
+                    "varDiff": {
+                        "minDiff": 128,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                },
+                "4116": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 64,
+                    "name": "Medium Hash",
+                    "varDiff": {
+                        "minDiff": 32,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                },
+                "4126": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 16,
+                    "name": "Low Hash",
+                    "varDiff": {
+                        "minDiff": 8,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                }
+            },
+            "daemons": [
+                {
+                    "host": "127.0.0.1",
+                    "port": 22555,
+                    "user": "imskaa",
+                    "password": "081915623665"
+                }
+            ],
+            "stratumServers": {
+                "primary": {
+                    "host": "us.heroichashers.com",
+                    "region": "US East",
+                    "ports": ["4096", "4106", "4116", "4126"]
+                },
+                "secondary": {
+                    "host": "sg.heroichashers.com", 
+                    "region": "Singapore",
+                    "ports": ["4096", "4106", "4116", "4126"]
+                },
+                "loadBalanced": {
+                    "host": "connect.heroichashers.com",
+                    "region": "Global Load Balanced",
+                    "ports": ["4096", "4106", "4116", "4126"]
+                }
+            },
+            "paymentProcessing": {
+                "enabled": true,
+                "minimumPayment": 0.5,
+                "payoutScheme": "PPLNS",
+                "payoutSchemeConfig": {}
+            }
+        },
+        {
+            "id": "doge_solo",
+            "enabled": true,
+            "coin": "dogecoin",
+            "address": "DAZngSUXy3mtGs4bRRgmcAjoZoz3zypunx",
+            "rewardRecipients": [
+                {
+                    "type": "op",
+                    "address": "DBjrJ2dP1okiU1qTqT1iCc43xWVRhZER7y",
+                    "percentage": 0.3
+                }
+            ],
+            "blockRefreshInterval": 500,
+            "jobRebroadcastTimeout": 10,
+            "clientConnectionTimeout": 600,
+            "vardiffIdleSweepInterval": 60,
+            "banning": {
+                "enabled": true,
+                "time": 600,
+                "invalidPercent": 50,
+                "checkThreshold": 50
+            },
+            "ports": {
+                "4097": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 1024,
+                    "name": "ASIC Mining",
+                    "varDiff": {
+                        "minDiff": 512,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                },
+                "4107": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 256,
+                    "name": "High Hash",
+                    "varDiff": {
+                        "minDiff": 128,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                },
+                "4117": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 64,
+                    "name": "Medium Hash",
+                    "varDiff": {
+                        "minDiff": 32,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                },
+                "4127": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 16,
+                    "name": "Low Hash",
+                    "varDiff": {
+                        "minDiff": 8,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                }
+            },
+            "daemons": [
+                {
+                    "host": "127.0.0.1",
+                    "port": 22555,
+                    "user": "imskaa",
+                    "password": "081915623665"
+                }
+            ],
+            "stratumServers": {
+                "primary": {
+                    "host": "us.heroichashers.com",
+                    "region": "US East",
+                    "ports": ["4097", "4107", "4117", "4127"]
+                },
+                "secondary": {
+                    "host": "sg.heroichashers.com", 
+                    "region": "Singapore",
+                    "ports": ["4097", "4107", "4117", "4127"]
+                },
+                "loadBalanced": {
+                    "host": "connect.heroichashers.com",
+                    "region": "Global Load Balanced",
+                    "ports": ["4097", "4107", "4117", "4127"]
+                }
+            },
+            "paymentProcessing": {
+                "enabled": true,
+                "minimumPayment": 0.5,
+                "payoutScheme": "SOLO",
+                "payoutSchemeConfig": {}
+            }
+        },
+        {
+            "id": "ltc",
+            "enabled": true,
+            "coin": "litecoin",
+            "address": "MDVJ1oWqwGuG8VKeyespLU6e8SPdsXpxXx",
+            "rewardRecipients": [
+                {
+                    "type": "op",
+                    "address": "MR5ABZ529yZWs7VGysin7tsexTGRKbfWkf",
+                    "percentage": 0.3
+                }
+            ],
+            "blockRefreshInterval": 500,
+            "jobRebroadcastTimeout": 10,
+            "clientConnectionTimeout": 600,
+            "vardiffIdleSweepInterval": 60,
+            "banning": {
+                "enabled": true,
+                "time": 600,
+                "invalidPercent": 50,
+                "checkThreshold": 50
+            },
+            "ports": {
+                "4098": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 1024,
+                    "name": "ASIC Mining",
+                    "varDiff": {
+                        "minDiff": 512,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                },
+                "4108": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 256,
+                    "name": "High Hash",
+                    "varDiff": {
+                        "minDiff": 128,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                },
+                "4118": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 64,
+                    "name": "Medium Hash",
+                    "varDiff": {
+                        "minDiff": 32,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                },
+                "4128": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 16,
+                    "name": "Low Hash",
+                    "varDiff": {
+                        "minDiff": 8,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                }
+            },
+            "daemons": [
+                {
+                    "host": "127.0.0.1",
+                    "port": 9332,
+                    "user": "imskaa",
+                    "password": "081915623665"
+                }
+            ],
+            "stratumServers": {
+                "primary": {
+                    "host": "us.heroichashers.com",
+                    "region": "US East",
+                    "ports": ["4098", "4108", "4118", "4128"]
+                },
+                "secondary": {
+                    "host": "sg.heroichashers.com", 
+                    "region": "Singapore",
+                    "ports": ["4098", "4108", "4118", "4128"]
+                },
+                "loadBalanced": {
+                    "host": "connect.heroichashers.com",
+                    "region": "Global Load Balanced",
+                    "ports": ["4098", "4108", "4118", "4128"]
+                }
+            },
+            "paymentProcessing": {
+                "enabled": true,
+                "minimumPayment": 0.01,
+                "payoutScheme": "PPLNS",
+                "payoutSchemeConfig": {}
+            }
+        },
+        {
+            "id": "ltc_solo",
+            "enabled": true,
+            "coin": "litecoin",
+            "address": "MDVJ1oWqwGuG8VKeyespLU6e8SPdsXpxXx",
+            "rewardRecipients": [
+                {
+                    "type": "op",
+                    "address": "MR5ABZ529yZWs7VGysin7tsexTGRKbfWkf",
+                    "percentage": 0.3
+                }
+            ],
+            "blockRefreshInterval": 500,
+            "jobRebroadcastTimeout": 10,
+            "clientConnectionTimeout": 600,
+            "vardiffIdleSweepInterval": 60,
+            "banning": {
+                "enabled": true,
+                "time": 600,
+                "invalidPercent": 50,
+                "checkThreshold": 50
+            },
+            "ports": {
+                "4099": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 1024,
+                    "name": "ASIC Mining",
+                    "varDiff": {
+                        "minDiff": 512,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                },
+                "4109": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 256,
+                    "name": "High Hash",
+                    "varDiff": {
+                        "minDiff": 128,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                },
+                "4119": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 64,
+                    "name": "Medium Hash",
+                    "varDiff": {
+                        "minDiff": 32,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                },
+                "4129": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 16,
+                    "name": "Low Hash",
+                    "varDiff": {
+                        "minDiff": 8,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500
+                    }
+                }
+            },
+            "daemons": [
+                {
+                    "host": "127.0.0.1",
+                    "port": 9332,
+                    "user": "imskaa",
+                    "password": "081915623665"
+                }
+            ],
+            "stratumServers": {
+                "primary": {
+                    "host": "us.heroichashers.com",
+                    "region": "US East",
+                    "ports": ["4099", "4109", "4119", "4129"]
+                },
+                "secondary": {
+                    "host": "sg.heroichashers.com", 
+                    "region": "Singapore",
+                    "ports": ["4099", "4109", "4119", "4129"]
+                },
+                "loadBalanced": {
+                    "host": "connect.heroichashers.com",
+                    "region": "Global Load Balanced",
+                    "ports": ["4099", "4109", "4119", "4129"]
+                }
+            },
+            "paymentProcessing": {
+                "enabled": true,
+                "minimumPayment": 0.01,
+                "payoutScheme": "SOLO",
+                "payoutSchemeConfig": {}
+            }
+        }
+    ]
+}

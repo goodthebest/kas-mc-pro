@@ -1386,6 +1386,11 @@ public partial class PoolConfig
     public int? VardiffIdleSweepInterval { get; set; }
 
     /// <summary>
+    /// Stratum server endpoints for miners to connect to
+    /// </summary>
+    public Dictionary<string, StratumServerConfig> StratumServers { get; set; }
+
+    /// <summary>
     /// Arbitrary extension data
     /// </summary>
     [JsonExtensionData]

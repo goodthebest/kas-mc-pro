@@ -68,6 +68,10 @@ public static class MiningPoolExtensions
                 portInfo.TlsPfxPassword = null;
             }
         }
+
+        // copy stratum servers configuration
+        poolInfo.StratumServers = poolConfig.StratumServers;
+
         return poolInfo;
     }
 }

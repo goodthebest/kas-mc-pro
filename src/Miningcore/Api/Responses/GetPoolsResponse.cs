@@ -76,6 +76,11 @@ public partial class PoolInfo
     public string Address { get; set; }
     public string AddressInfoLink { get; set; }
 
+    /// <summary>
+    /// Stratum server endpoints for miners to connect to
+    /// </summary>
+    public Dictionary<string, StratumServerConfig> StratumServers { get; set; }
+
     // Stats
     public PoolStats PoolStats { get; set; }
 

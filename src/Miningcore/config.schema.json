@@ -459,6 +459,15 @@
             "integer",
             "null"
           ]
+        },
+        "stratumServers": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "$ref": "#/definitions/StratumServerConfig"
+          }
         }
       },
       "required": [
@@ -877,6 +886,31 @@
           "type": "number"
         }
       }
+    },
+    "StratumServerConfig": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "ports": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "host",
+        "region",
+        "ports"
+      ]
     }
   },
   "type": "object",
