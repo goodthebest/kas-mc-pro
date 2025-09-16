@@ -5,7 +5,6 @@ using Miningcore.Blockchain.Alephium.Configuration;
 using Miningcore.Blockchain.Bitcoin.Configuration;
 using Miningcore.Blockchain.Ergo.Configuration;
 using Miningcore.Blockchain.Handshake.Configuration;
-using Miningcore.Blockchain.Kaspa.Configuration;
 using Miningcore.Blockchain.Warthog.Configuration;
 using Miningcore.Configuration;
 using Miningcore.Extensions;
@@ -48,9 +47,6 @@ public static class MiningPoolExtensions
                     break;
                 case "handshake":
                     extra.StripValue(nameof(HandshakePoolPaymentProcessingConfigExtra.WalletPassword));
-                    break;
-                case "kaspa":
-                    extra.StripValue(nameof(KaspaPaymentProcessingConfigExtra.WalletPassword));
                     break;
                 case "warthog":
                     extra.StripValue(nameof(WarthogPaymentProcessingConfigExtra.WalletPrivateKey));

@@ -30,11 +30,4 @@ public class KaspaPoolConfigExtra
     /// Default: "protowire.RPC"
     /// </summary>
     public string ProtobufDaemonRpcServiceName { get; set; }
-    
-        /// <summary>
-    /// Optional: Wallet RPC service name override
-    /// Should match the value of .proto file
-    /// Default: "kaspawalletd.kaspawalletd"
-    /// </summary>
-    public string ProtobufWalletRpcServiceName { get; set; }
 }

@@ -1,6 +1,6 @@
 using System;
+using System.Linq;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 using Autofac;
 using AutoMapper;
 using Grpc.Core;
@@ -19,7 +19,6 @@ using Miningcore.Util;
 using Block = Miningcore.Persistence.Model.Block;
 using Contract = Miningcore.Contracts.Contract;
 using static Miningcore.Util.ActionUtils;
-using kaspaWalletd = Miningcore.Blockchain.Kaspa.KaspaWalletd;
 using kaspad = Miningcore.Blockchain.Kaspa.Kaspad;
 
 namespace Miningcore.Blockchain.Kaspa;
@@ -49,11 +48,10 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
 
     protected readonly IComponentContext ctx;
     protected kaspad.KaspadRPC.KaspadRPCClient rpc;
-    protected kaspaWalletd.KaspaWalletdRPC.KaspaWalletdRPCClient walletRpc;
     private string network;
     private KaspaPoolConfigExtra extraPoolConfig;
     private KaspaPaymentProcessingConfigExtra extraPoolPaymentProcessingConfig;
-    private bool supportsMaxFee = false;
+    private bool payoutWarningLogged;
 
     protected override string LogCategory => "Kaspa Payout Handler";
     
@@ -74,17 +72,8 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
         var daemonEndpoints = pc.Daemons
             .Where(x => string.IsNullOrEmpty(x.Category))
             .ToArray();
-        
-        // extract wallet daemon endpoints
-        var walletDaemonEndpoints = pc.Daemons
-            .Where(x => x.Category?.ToLower() == KaspaConstants.WalletDaemonCategory)
-            .ToArray();
-
-        if(walletDaemonEndpoints.Length == 0)
-            throw new PaymentException("Wallet-RPC daemon is not configured (Daemon configuration for kaspa-pools require an additional entry of category 'wallet' pointing to the wallet daemon)");
 
         rpc = KaspaClientFactory.CreateKaspadRPCClient(daemonEndpoints, extraPoolConfig?.ProtobufDaemonRpcServiceName ?? KaspaConstants.ProtobufDaemonRpcServiceName);
-        walletRpc = KaspaClientFactory.CreateKaspaWalletdRPCClient(walletDaemonEndpoints, extraPoolConfig?.ProtobufWalletRpcServiceName ?? KaspaConstants.ProtobufWalletRpcServiceName);
         
         // we need a stream to communicate with Kaspad
         var stream = rpc.MessageStream(null, null, ct);
@@ -103,29 +92,10 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
         }
         await stream.RequestStream.CompleteAsync();
 
-        var callGetVersion = walletRpc.GetVersionAsync(new kaspaWalletd.GetVersionRequest());
-        var walletVersion = await Guard(() => callGetVersion.ResponseAsync,
-            ex=> logger.Debug(ex));
-        callGetVersion.Dispose();
-
-        if(!string.IsNullOrEmpty(walletVersion?.Version))
+        if(!payoutWarningLogged && clusterConfig.PaymentProcessing?.Enabled == true && poolConfig.PaymentProcessing?.Enabled == true)
         {
-            logger.Info(() => $"[{LogCategory}] Wallet version: {walletVersion.Version}");
-
-            if(!string.IsNullOrEmpty(extraPoolPaymentProcessingConfig?.VersionEnablingMaxFee))
-            {
-                logger.Info(() => $"[{LogCategory}] Wallet daemon version which enables MaxFee: {extraPoolPaymentProcessingConfig.VersionEnablingMaxFee}");
-
-                string walletVersionNumbersOnly = Regex.Replace(walletVersion.Version, "[^0-9.]", "");
-                string[] walletVersionNumbers = walletVersionNumbersOnly.Split(".");
-
-                string versionEnablingMaxFeeNumbersOnly = Regex.Replace(extraPoolPaymentProcessingConfig.VersionEnablingMaxFee, "[^0-9.]", "");
-                string[] versionEnablingMaxFeeNumbers = versionEnablingMaxFeeNumbersOnly.Split(".");
-
-                // update supports max fee
-                if(walletVersionNumbers.Length >= 3 && versionEnablingMaxFeeNumbers.Length >= 3)
-                    supportsMaxFee = ((Convert.ToUInt32(walletVersionNumbers[0]) > Convert.ToUInt32(versionEnablingMaxFeeNumbers[0])) || (Convert.ToUInt32(walletVersionNumbers[0]) == Convert.ToUInt32(versionEnablingMaxFeeNumbers[0]) && Convert.ToUInt32(walletVersionNumbers[1]) > Convert.ToUInt32(versionEnablingMaxFeeNumbers[1])) || (Convert.ToUInt32(walletVersionNumbers[0]) == Convert.ToUInt32(versionEnablingMaxFeeNumbers[0]) && Convert.ToUInt32(walletVersionNumbers[1]) == Convert.ToUInt32(versionEnablingMaxFeeNumbers[1]) && Convert.ToUInt32(walletVersionNumbers[2]) >= Convert.ToUInt32(versionEnablingMaxFeeNumbers[2])));
-            }
+            payoutWarningLogged = true;
+            logger.Warn(() => $"[{LogCategory}] Automated payouts for Kaspa are not supported because kaspawalletd is no longer available.");
         }
     }
     
@@ -364,167 +334,24 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
         return result.ToArray();
     }
     
-    public virtual async Task PayoutAsync(IMiningPool pool, Balance[] balances, CancellationToken ct)
+    public virtual Task PayoutAsync(IMiningPool pool, Balance[] balances, CancellationToken ct)
     {
         Contract.RequiresNonNull(balances);
-        
-        // build args
-        var amounts = balances
+
+        var payableBalances = balances
             .Where(x => x.Amount > 0)
-            .OrderBy(x => x.Updated)
-            .ThenByDescending(x => x.Amount)
-            .ToDictionary(x => x.Address, x => x.Amount);
+            .ToArray();
 
-        if(amounts.Count == 0)
-            return;
+        if(payableBalances.Length == 0)
+            return Task.CompletedTask;
 
-        var balancesTotal = amounts.Sum(x => x.Value);
-        
-        logger.Info(() => $"[{LogCategory}] Paying {FormatAmount(balancesTotal)} to {balances.Length} addresses");
-        
-        logger.Info(() => $"[{LogCategory}] Validating addresses...");
-        var coin = poolConfig.Template.As<KaspaCoinTemplate>();
-        foreach(var pair in amounts)
-        {
-            logger.Debug(() => $"[{LogCategory}] Address {pair.Key} with amount [{FormatAmount(pair.Value)}]");
-            var (kaspaAddressUtility, errorKaspaAddressUtility) = KaspaUtils.ValidateAddress(pair.Key, network, coin);
+        const string message = "Kaspa automated payouts are not supported because kaspawalletd is no longer available. Disable payment processing and settle balances manually.";
 
-            if(errorKaspaAddressUtility != null)
-                logger.Warn(()=> $"[{LogCategory}] Address {pair.Key} is not valid : {errorKaspaAddressUtility}");
-        }
-        
-        var callGetBalance = walletRpc.GetBalanceAsync(new kaspaWalletd.GetBalanceRequest());
-        var walletBalances = await Guard(() => callGetBalance.ResponseAsync,
-            ex=> logger.Debug(ex));
-        callGetBalance.Dispose();
-        
-        var walletBalancePending = (decimal) (walletBalances?.Pending == null ? 0 : walletBalances?.Pending) / KaspaConstants.SmallestUnit;
-        var walletBalanceAvailable = (decimal) (walletBalances?.Available == null ? 0 : walletBalances?.Available) / KaspaConstants.SmallestUnit;
-        
-        logger.Info(() => $"[{LogCategory}] Current wallet balance - Total: [{FormatAmount(walletBalancePending + walletBalanceAvailable)}] - Pending: [{FormatAmount(walletBalancePending)}] - Available: [{FormatAmount(walletBalanceAvailable)}]");
+        logger.Error(() => $"[{LogCategory}] {message}");
 
-        // bail if balance does not satisfy payments
-        if(walletBalanceAvailable < balancesTotal)
-        {
-            logger.Warn(() => $"[{LogCategory}] Wallet balance currently short of {FormatAmount(balancesTotal - walletBalanceAvailable)}. Will try again");
-            return;
-        }
+        NotifyPayoutFailure(poolConfig.Id, payableBalances, message, null);
 
-        var txFailures = new List<Tuple<KeyValuePair<string, decimal>, Exception>>();
-        var successBalances = new Dictionary<Balance, string>();
-
-        // Payments on KASPA are a bit tricky, it does not have a strong multi-recipient method, the only way is to create unsigned transactions, signed them and then broadcast them, let's do this!
-        foreach (var amount in amounts)
-        {
-            kaspaWalletd.CreateUnsignedTransactionsResponse unsignedTransaction;
-            kaspaWalletd.SignResponse signedTransaction;
-
-            // use a common id for all log entries related to this transfer
-            var transferId = CorrelationIdGenerator.GetNextId();
-
-            logger.Info(()=> $"[{LogCategory}] [{transferId}] Sending {FormatAmount(amount.Value)} to {amount.Key}");
-
-            logger.Info(()=> $"[{LogCategory}] [{transferId}] 1/3 Create an unsigned transaction");
-
-            var createUnsignedTransactionsRequest = new kaspaWalletd.CreateUnsignedTransactionsRequest
-            {
-                Address = amount.Key.ToLower(),
-                Amount = (ulong) (amount.Value * KaspaConstants.SmallestUnit),
-                UseExistingChangeAddress = false,
-                IsSendAll = false
-            };
-
-            if(supportsMaxFee)
-            {
-                ulong maxFee = extraPoolPaymentProcessingConfig?.MaxFee ?? 20000;
-
-                logger.Info(()=> $"[{LogCategory}] Max fee: {maxFee} SOMPI");
-
-                createUnsignedTransactionsRequest.FeePolicy = new kaspaWalletd.FeePolicy
-                {
-                    MaxFee = maxFee
-                };
-            }
-
-            var callUnsignedTransaction = walletRpc.CreateUnsignedTransactionsAsync(createUnsignedTransactionsRequest);
-
-            unsignedTransaction = await Guard(() => callUnsignedTransaction.ResponseAsync, ex =>
-            {
-                txFailures.Add(Tuple.Create(amount, ex));
-            });
-            callUnsignedTransaction.Dispose();
-
-            logger.Debug(()=> $"[{LogCategory}] [{transferId}] {(unsignedTransaction?.UnsignedTransactions == null ? 0 : unsignedTransaction?.UnsignedTransactions.Count)} unsigned transaction(s) created");
-
-            // we have transactions to sign
-            if(unsignedTransaction?.UnsignedTransactions.Count > 0)
-            {
-                logger.Info(()=> $"[{LogCategory}] [{transferId}] 2/3 Sign {unsignedTransaction.UnsignedTransactions.Count} unsigned transaction(s)");
-
-                var signRequest = new kaspaWalletd.SignRequest
-                {
-                    Password = extraPoolPaymentProcessingConfig?.WalletPassword ?? null
-                };
-                signRequest.UnsignedTransactions.Add(unsignedTransaction.UnsignedTransactions);
-
-                var callSignedTransaction = walletRpc.SignAsync(signRequest);
-                signedTransaction = await Guard(() => callSignedTransaction.ResponseAsync, ex =>
-                {
-                    txFailures.Add(Tuple.Create(amount, ex));
-                });
-                callSignedTransaction.Dispose();
-
-                logger.Debug(()=> $"[{LogCategory}] [{transferId}] {(signedTransaction?.SignedTransactions == null ? 0 : signedTransaction?.SignedTransactions.Count)} signed transaction(s) created");
-
-                // we have transactions to broadcast
-                if(signedTransaction?.SignedTransactions.Count > 0)
-                {
-                    var broadcastRequest = new kaspaWalletd.BroadcastRequest();
-                    kaspaWalletd.BroadcastResponse broadcastTransaction;
-
-                    logger.Info(()=> $"[{LogCategory}] [{transferId}] 3/3 Broadcast {signedTransaction.SignedTransactions.Count} signed transaction(s)");
-
-                    broadcastRequest.Transactions.Add(signedTransaction.SignedTransactions);
-                    var callBroadcast = walletRpc.BroadcastAsync(broadcastRequest);
-                    broadcastTransaction = await Guard(() => callBroadcast.ResponseAsync,
-                        ex=> logger.Warn(ex));
-                    callBroadcast.Dispose();
-
-                    logger.Debug(()=> $"[{LogCategory}] {(broadcastTransaction?.TxIDs == null ? 0 : broadcastTransaction?.TxIDs.Count)} transaction ID(s) returned");
-
-                    if(broadcastTransaction?.TxIDs.Count > 0)
-                    {
-                        var txId = broadcastTransaction?.TxIDs.First();
-
-                        logger.Info(() => $"[{LogCategory}] [{amount.Key} - {FormatAmount(amount.Value)}] Payment transaction id: {txId}");
-
-                        successBalances.Add(new Balance
-                        {
-                            PoolId = poolConfig.Id,
-                            Address = amount.Key,
-                            Amount = amount.Value,
-                        }, txId);
-                    }
-                }
-            }
-        }
-
-        if(successBalances.Any())
-        {
-            await PersistPaymentsAsync(successBalances);
-
-            NotifyPayoutSuccess(poolConfig.Id, successBalances.Keys.ToArray(), successBalances.Values.ToArray(), null);
-        }
-
-        if(txFailures.Any())
-        {
-            var failureBalances = txFailures.Select(x=> new Balance { Amount = x.Item1.Value }).ToArray();
-            var error = string.Join(", ", txFailures.Select(x => $"{x.Item1.Key} {FormatAmount(x.Item1.Value)}: {x.Item2.Message}"));
-
-            logger.Error(()=> $"[{LogCategory}] Failed to transfer the following balances: {error}");
-
-            NotifyPayoutFailure(poolConfig.Id, failureBalances, error, null);
-        }
+        throw new PaymentException(message);
     }
 
     public override double AdjustShareDifficulty(double difficulty)
