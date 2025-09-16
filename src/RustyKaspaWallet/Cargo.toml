@@ -1,0 +1,28 @@
+[package]
+name = "rusty-kaspa-wallet"
+version = "0.1.0"
+edition = "2021"
+authors = ["Kaspa Miningcore Contributors"]
+description = "Utility wrapper around kaspa wRPC and gRPC clients for wallet-style operations"
+license = "MIT OR Apache-2.0"
+
+[lib]
+name = "rusty_kaspa_wallet"
+crate-type = ["rlib"]
+
+[dependencies]
+thiserror = "1.0"
+hex = "0.4"
+tokio = { version = "1.37", features = ["macros", "rt-multi-thread", "sync"] }
+kaspa-wrpc-client = "0.15.0"
+kaspa-grpc-client = "0.15.0"
+kaspa-rpc-core = "0.15.0"
+kaspa-bip32 = "0.15.0"
+kaspa-addresses = "0.15.0"
+kaspa-consensus-core = "0.15.0"
+futures = "0.3"
+serde = { version = "1.0", features = ["derive"], optional = true }
+
+[features]
+default = []
+serde = ["dep:serde"]

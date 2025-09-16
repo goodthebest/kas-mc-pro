@@ -30,4 +30,24 @@ public class KaspaPoolConfigExtra
     /// Default: "protowire.RPC"
     /// </summary>
     public string ProtobufDaemonRpcServiceName { get; set; }
+
+    /// <summary>
+    /// Optional set of Kaspa wRPC endpoints used by RustyKaspaWallet-enabled tooling.
+    /// Each endpoint should reference a kaspad instance started with --utxoindex and the configured encoding.
+    /// </summary>
+    public KaspaWrpcEndpointConfig[] WrpcEndpoints { get; set; }
+}
+
+public class KaspaWrpcEndpointConfig : NetworkEndpointConfig
+{
+    /// <summary>
+    /// Encoding advertised by the kaspad wRPC server (borsh or json).
+    /// Default is "borsh" which matches kaspa-wrpc-client defaults.
+    /// </summary>
+    public string Encoding { get; set; } = "borsh";
+
+    /// <summary>
+    /// Optional flag indicating whether the endpoint requires TLS (wss).
+    /// </summary>
+    public bool UseTls { get; set; }
 }

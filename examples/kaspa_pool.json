@@ -74,6 +74,16 @@
                 "percentage": 1
             }
         ],
+        "extra": {
+            "wrpcEndpoints": [
+                {
+                    "host": "127.0.0.1",
+                    "port": 17110,
+                    "encoding": "borsh",
+                    "useTls": false
+                }
+            ]
+        },
         "enableAsicBoost": true,
         "clientConnectionTimeout": 600,
         "banning": {
