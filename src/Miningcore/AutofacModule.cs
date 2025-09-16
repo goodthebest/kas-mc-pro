@@ -12,6 +12,7 @@ using Miningcore.Blockchain.Ergo;
 using Miningcore.Blockchain.Ethereum;
 using Miningcore.Blockchain.Handshake;
 using Miningcore.Blockchain.Kaspa;
+using Miningcore.Blockchain.Kaspa.Wallet;
 using Miningcore.Blockchain.Nexa;
 using Miningcore.Blockchain.Progpow;
 using Miningcore.Blockchain.Satoshicash;
@@ -127,6 +128,10 @@ public class AutofacModule : Module
             .SingleInstance();
 
         builder.RegisterType<PushoverClient>()
+            .SingleInstance();
+
+        builder.RegisterType<RustyKaspaWalletFactory>()
+            .As<IRustyKaspaWalletFactory>()
             .SingleInstance();
 
         //////////////////////

@@ -6,6 +6,7 @@ using AutoMapper;
 using Grpc.Core;
 using Grpc.Net.Client;
 using Miningcore.Blockchain.Kaspa.Configuration;
+using Miningcore.Blockchain.Kaspa.Wallet;
 using Miningcore.Configuration;
 using Miningcore.Extensions;
 using Miningcore.Messaging;
@@ -36,18 +37,23 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
         IBalanceRepository balanceRepo,
         IPaymentRepository paymentRepo,
         IMasterClock clock,
-        IMessageBus messageBus) :
+        IMessageBus messageBus,
+        IRustyKaspaWalletFactory walletFactory) :
         base(cf, mapper, shareRepo, blockRepo, balanceRepo, paymentRepo, clock, messageBus)
     {
         Contract.RequiresNonNull(ctx);
         Contract.RequiresNonNull(balanceRepo);
         Contract.RequiresNonNull(paymentRepo);
+        Contract.RequiresNonNull(walletFactory);
 
         this.ctx = ctx;
+        this.walletFactory = walletFactory;
     }
 
     protected readonly IComponentContext ctx;
+    private readonly IRustyKaspaWalletFactory walletFactory;
     protected kaspad.KaspadRPC.KaspadRPCClient rpc;
+    private IRustyKaspaWallet wallet;
     private string network;
     private KaspaPoolConfigExtra extraPoolConfig;
     private KaspaPaymentProcessingConfigExtra extraPoolPaymentProcessingConfig;
@@ -74,6 +80,7 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
             .ToArray();
 
         rpc = KaspaClientFactory.CreateKaspadRPCClient(daemonEndpoints, extraPoolConfig?.ProtobufDaemonRpcServiceName ?? KaspaConstants.ProtobufDaemonRpcServiceName);
+        wallet = walletFactory.Create(rpc);
         
         // we need a stream to communicate with Kaspad
         var stream = rpc.MessageStream(null, null, ct);
@@ -361,7 +368,7 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
         return result.ToArray();
     }
     
-    public virtual Task PayoutAsync(IMiningPool pool, Balance[] balances, CancellationToken ct)
+    public virtual async Task PayoutAsync(IMiningPool pool, Balance[] balances, CancellationToken ct)
     {
         Contract.RequiresNonNull(balances);
 
@@ -370,7 +377,22 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
             .ToArray();
 
         if(payableBalances.Length == 0)
-            return Task.CompletedTask;
+            return;
+
+        try
+        {
+            if(wallet != null)
+            {
+                var utxos = await wallet.GetUtxosByAddressAsync(poolConfig.Address, ct);
+                var spendable = utxos.Sum(x => (decimal) (x.UtxoEntry.Amount / KaspaConstants.SmallestUnit));
+
+                logger.Info(() => $"[{LogCategory}] Wallet currently tracks {utxos.Length} UTXO(s) totalling {FormatAmount(spendable)} for payout address {poolConfig.Address}");
+            }
+        }
+        catch(Exception ex)
+        {
+            logger.Warn(ex, () => $"[{LogCategory}] Unable to query UTXOs using RustyKaspaWallet. Automated payouts remain disabled.");
+        }
 
         const string message = "Kaspa automated payouts are not supported because kaspawalletd is no longer available. Disable payment processing and settle balances manually.";
 
