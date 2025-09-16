@@ -31,7 +31,6 @@ using Miningcore.Time;
 using Newtonsoft.Json;
 using Contract = Miningcore.Contracts.Contract;
 using static Miningcore.Util.ActionUtils;
-using kaspaWalletd = Miningcore.Blockchain.Kaspa.KaspaWalletd;
 using kaspad = Miningcore.Blockchain.Kaspa.Kaspad;
 
 namespace Miningcore.Blockchain.Kaspa;
@@ -53,15 +52,12 @@ public class KaspaJobManager : JobManagerBase<KaspaJob>
     }
     
     private DaemonEndpointConfig[] daemonEndpoints;
-    private DaemonEndpointConfig[] walletDaemonEndpoints;
     private KaspaCoinTemplate coin;
     private kaspad.KaspadRPC.KaspadRPCClient rpc;
-    private kaspaWalletd.KaspaWalletdRPC.KaspaWalletdRPCClient walletRpc;
     private string network;
     private readonly IExtraNonceProvider extraNonceProvider;
     private readonly IMasterClock clock;
     private KaspaPoolConfigExtra extraPoolConfig;
-    private KaspaPaymentProcessingConfigExtra extraPoolPaymentProcessingConfig;
     protected int maxActiveJobs;
     protected string extraData;
     protected IHashAlgorithm customBlockHeaderHasher;
@@ -786,21 +782,6 @@ public class KaspaJobManager : JobManagerBase<KaspaJob>
         }
         await stream.RequestStream.CompleteAsync();
 
-        // Payment-processing setup
-        if(clusterConfig.PaymentProcessing?.Enabled == true && poolConfig.PaymentProcessing?.Enabled == true)
-        {
-            // we need a call to communicate with kaspadWallet
-            var call = walletRpc.ShowAddressesAsync(new kaspaWalletd.ShowAddressesRequest(), null, null, ct);
-
-            // check configured address belongs to wallet
-            var walletAddresses = await Guard(() => call.ResponseAsync,
-                ex=> throw new PoolStartupException($"Error validating pool address '{ex.GetType().Name}' : {ex}", poolConfig.Id));
-            call.Dispose();
-
-            if(!walletAddresses.Address.Contains(poolConfig.Address))
-                throw new PoolStartupException($"Pool address: {poolConfig.Address} is not controlled by pool wallet", poolConfig.Id);
-        }
-
         await UpdateNetworkStatsAsync(ct);
 
         // Periodically update network stats
@@ -819,8 +800,6 @@ public class KaspaJobManager : JobManagerBase<KaspaJob>
         coin = pc.Template.As<KaspaCoinTemplate>();
 
         extraPoolConfig = pc.Extra.SafeExtensionDataAs<KaspaPoolConfigExtra>();
-        extraPoolPaymentProcessingConfig = pc.PaymentProcessing.Extra.SafeExtensionDataAs<KaspaPaymentProcessingConfigExtra>();
-
         maxActiveJobs = extraPoolConfig?.MaxActiveJobs ?? 8;
         extraData = extraPoolConfig?.ExtraData ?? "Miningcore.developers[\"Cedric CRISPIN\"]";
 
@@ -828,17 +807,6 @@ public class KaspaJobManager : JobManagerBase<KaspaJob>
         daemonEndpoints = pc.Daemons
             .Where(x => string.IsNullOrEmpty(x.Category))
             .ToArray();
-
-        if(cc.PaymentProcessing?.Enabled == true && pc.PaymentProcessing?.Enabled == true)
-        {
-            // extract wallet daemon endpoints
-            walletDaemonEndpoints = pc.Daemons
-                .Where(x => x.Category?.ToLower() == KaspaConstants.WalletDaemonCategory)
-                .ToArray();
-
-            if(walletDaemonEndpoints.Length == 0)
-                throw new PoolStartupException("Wallet-RPC daemon is not configured (Daemon configuration for kaspa-pools require an additional entry of category 'wallet' pointing to the wallet daemon)", pc.Id);
-        }
 
         base.Configure(pc, cc);
     }
@@ -848,33 +816,10 @@ public class KaspaJobManager : JobManagerBase<KaspaJob>
         logger.Debug(() => $"ProtobufDaemonRpcServiceName: {extraPoolConfig?.ProtobufDaemonRpcServiceName ?? KaspaConstants.ProtobufDaemonRpcServiceName}");
         
         rpc = KaspaClientFactory.CreateKaspadRPCClient(daemonEndpoints, extraPoolConfig?.ProtobufDaemonRpcServiceName ?? KaspaConstants.ProtobufDaemonRpcServiceName);
-        
-        // Payment-processing setup
-        if(clusterConfig.PaymentProcessing?.Enabled == true && poolConfig.PaymentProcessing?.Enabled == true)
-        {
-            logger.Debug(() => $"ProtobufWalletRpcServiceName: {extraPoolConfig?.ProtobufWalletRpcServiceName ?? KaspaConstants.ProtobufWalletRpcServiceName}");
-
-            walletRpc = KaspaClientFactory.CreateKaspaWalletdRPCClient(walletDaemonEndpoints, extraPoolConfig?.ProtobufWalletRpcServiceName ?? KaspaConstants.ProtobufWalletRpcServiceName);
-        }
     }
 
     protected override async Task<bool> AreDaemonsHealthyAsync(CancellationToken ct)
     {
-        // Payment-processing setup
-        if(clusterConfig.PaymentProcessing?.Enabled == true && poolConfig.PaymentProcessing?.Enabled == true)
-        {
-            // we need a call to communicate with kaspadWallet
-            var call = walletRpc.ShowAddressesAsync(new kaspaWalletd.ShowAddressesRequest(), null, null, ct);
-
-            // check configured address belongs to wallet
-            var walletAddresses = await Guard(() => call.ResponseAsync,
-                ex=> logger.Debug(ex));
-            call.Dispose();
-
-            if(walletAddresses == null)
-                return false;
-        }
-        
         // we need a stream to communicate with Kaspad
         var stream = rpc.MessageStream(null, null, ct);
         
@@ -908,21 +853,6 @@ public class KaspaJobManager : JobManagerBase<KaspaJob>
 
     protected override async Task<bool> AreDaemonsConnectedAsync(CancellationToken ct)
     {
-        // Payment-processing setup
-        if(clusterConfig.PaymentProcessing?.Enabled == true && poolConfig.PaymentProcessing?.Enabled == true)
-        {
-            // we need a call to communicate with kaspadWallet
-            var call = walletRpc.ShowAddressesAsync(new kaspaWalletd.ShowAddressesRequest(), null, null, ct);
-
-            // check if daemon responds
-            var walletAddresses = await Guard(() => call.ResponseAsync,
-                ex=> logger.Debug(ex));
-            call.Dispose();
-
-            if(walletAddresses == null)
-                return false;
-        }
-        
         // we need a stream to communicate with Kaspad
         var stream = rpc.MessageStream(null, null, ct);
         

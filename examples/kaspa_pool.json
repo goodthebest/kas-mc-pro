@@ -39,7 +39,7 @@
         }
     },
     "paymentProcessing": {
-        "enabled": true,
+        "enabled": false,
         "interval": 600,
         "shareRecoveryFile": "recovered-shares.txt"
     },
@@ -74,7 +74,6 @@
                 "percentage": 1
             }
         ],
-        "protobufWalletRpcServiceName": "kaspawalletd.kaspawalletd",
         "enableAsicBoost": true,
         "clientConnectionTimeout": 600,
         "banning": {
@@ -118,21 +117,11 @@
                 "port": 16110,
                 "user": null,
                 "password": null
-            },
-            {
-                "host": "127.0.0.1",
-                "port": 8082,
-                "user": null,
-                "password": null,
-                "category": "wallet"
             }
         ],
         "paymentProcessing": {
-            "enabled": true,
-            "walletPassword": "<The Kaspa's wallet password which owns the pool address>",
+            "enabled": false,
             "minimumPayment": 1,
-            "versionEnablingMaxFee": "v0.12.18-rc5",
-            "maxFee": 200000,
             "payoutScheme": "PPLNS",
             "payoutSchemeConfig": {
                 "factor": 0.5

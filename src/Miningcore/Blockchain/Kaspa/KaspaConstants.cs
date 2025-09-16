@@ -8,8 +8,6 @@ namespace Miningcore.Blockchain.Kaspa;
 
 public static class KaspaConstants
 {
-    public const string WalletDaemonCategory = "wallet";
-    
     public const int Diff1TargetNumZero = 31;
     public static readonly BigInteger Diff1b = BigInteger.Parse("00ffff0000000000000000000000000000000000000000000000000000000000", NumberStyles.HexNumber);
     public static BigInteger Diff1 = BigInteger.Pow(2, 256);
@@ -33,7 +31,6 @@ public static class KaspaConstants
     public const string CoinbaseHeavyHash = "HeavyHash";
     
     public const string ProtobufDaemonRpcServiceName = "protowire.RPC";
-    public const string ProtobufWalletRpcServiceName = "kaspawalletd.kaspawalletd";
     
     public const byte PubKeyAddrID = 0x00;
     public const byte PubKeyECDSAAddrID = 0x01;
