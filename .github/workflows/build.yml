@@ -1,0 +1,31 @@
+name: build
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            7.0.x
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: .nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj','NuGet.config') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore ./kas-mc-pro.sln --no-cache --force-evaluate /v:n
+
+      - name: Build
+        run: dotnet build ./kas-mc-pro.sln -c Release --no-restore /v:n
