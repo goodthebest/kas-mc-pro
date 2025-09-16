@@ -78,17 +78,44 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
         // we need a stream to communicate with Kaspad
         var stream = rpc.MessageStream(null, null, ct);
         
-        var request = new kaspad.KaspadMessage();
-        request.GetCurrentNetworkRequest = new kaspad.GetCurrentNetworkRequestMessage();
-        await Guard(() => stream.RequestStream.WriteAsync(request),
+        var requestNetwork = new kaspad.KaspadMessage();
+        requestNetwork.GetCurrentNetworkRequest = new kaspad.GetCurrentNetworkRequestMessage();
+        await Guard(() => stream.RequestStream.WriteAsync(requestNetwork),
             ex=> throw new PaymentException($"Error writing a request in the communication stream '{ex.GetType().Name}' : {ex}"));
-        await foreach (var currentNetwork in stream.ResponseStream.ReadAllAsync(ct))
+
+        var requestServerInfo = new kaspad.KaspadMessage();
+        requestServerInfo.GetServerInfoRequest = new kaspad.GetServerInfoRequestMessage();
+        await Guard(() => stream.RequestStream.WriteAsync(requestServerInfo),
+            ex=> throw new PaymentException($"Error writing a request in the communication stream '{ex.GetType().Name}' : {ex}"));
+
+        var networkReceived = false;
+        var serverInfoReceived = false;
+
+        await foreach (var response in stream.ResponseStream.ReadAllAsync(ct))
         {
-            if(!string.IsNullOrEmpty(currentNetwork.GetCurrentNetworkResponse.Error?.Message))
-                throw new PaymentException($"Daemon reports: {currentNetwork.GetCurrentNetworkResponse.Error?.Message}");
-            
-            network = currentNetwork.GetCurrentNetworkResponse.CurrentNetwork;
-            break;
+            switch(response.PayloadCase)
+            {
+                case kaspad.KaspadMessage.PayloadOneofCase.GetCurrentNetworkResponse:
+                    if(!string.IsNullOrEmpty(response.GetCurrentNetworkResponse.Error?.Message))
+                        throw new PaymentException($"Daemon reports: {response.GetCurrentNetworkResponse.Error?.Message}");
+
+                    network = response.GetCurrentNetworkResponse.CurrentNetwork;
+                    networkReceived = true;
+                    break;
+
+                case kaspad.KaspadMessage.PayloadOneofCase.GetServerInfoResponse:
+                    if(!string.IsNullOrEmpty(response.GetServerInfoResponse.Error?.Message))
+                        throw new PaymentException($"Daemon reports: {response.GetServerInfoResponse.Error?.Message}");
+
+                    if(response.GetServerInfoResponse.HasUtxoIndex != true)
+                        throw new PaymentException("kaspad is not running with --utxoindex which is required for wallet operations");
+
+                    serverInfoReceived = true;
+                    break;
+            }
+
+            if(networkReceived && serverInfoReceived)
+                break;
         }
         await stream.RequestStream.CompleteAsync();
 
