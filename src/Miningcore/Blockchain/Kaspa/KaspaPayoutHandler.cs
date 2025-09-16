@@ -58,6 +58,7 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
     private KaspaPoolConfigExtra extraPoolConfig;
     private KaspaPaymentProcessingConfigExtra extraPoolPaymentProcessingConfig;
     private bool payoutWarningLogged;
+    private KaspaDerivedKey treasuryKey;
 
     protected override string LogCategory => "Kaspa Payout Handler";
     
@@ -126,12 +127,51 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
         }
         await stream.RequestStream.CompleteAsync();
 
+        TryInitializeTreasuryKey();
+
         if(!payoutWarningLogged && clusterConfig.PaymentProcessing?.Enabled == true && poolConfig.PaymentProcessing?.Enabled == true)
         {
             payoutWarningLogged = true;
             logger.Warn(() => $"[{LogCategory}] Automated payouts for Kaspa are not supported because kaspawalletd is no longer available.");
         }
     }
+
+    private void TryInitializeTreasuryKey()
+    {
+        var mnemonic = extraPoolConfig?.KaspaMnemonic?.Trim();
+        var seed = extraPoolConfig?.KaspaSeed?.Trim();
+
+        if(string.IsNullOrEmpty(mnemonic) && string.IsNullOrEmpty(seed))
+            return;
+
+        if(!string.IsNullOrEmpty(mnemonic) && !string.IsNullOrEmpty(seed))
+            throw new PaymentException("Kaspa pool extra configuration must specify either KaspaMnemonic or KaspaSeed, not both.");
+
+        if(string.IsNullOrEmpty(network))
+            throw new PaymentException("Unable to derive Kaspa treasury key before the network has been identified.");
+
+        var derivationPath = !string.IsNullOrWhiteSpace(extraPoolConfig?.KaspaDerivationPath)
+            ? extraPoolConfig.KaspaDerivationPath
+            : KaspaTreasuryKeyDeriver.DefaultDerivationPath;
+
+        var kaspaNetwork = KaspaNetworkExtensions.ParseNetworkId(network);
+
+        try
+        {
+            treasuryKey = !string.IsNullOrEmpty(mnemonic)
+                ? KaspaTreasuryKeyDeriver.DeriveFromMnemonic(mnemonic, derivationPath, kaspaNetwork)
+                : KaspaTreasuryKeyDeriver.DeriveFromSeed(seed!, derivationPath, kaspaNetwork);
+        }
+        catch(Exception ex)
+        {
+            throw new PaymentException($"Failed to derive Kaspa treasury key: {ex.Message}", ex);
+        }
+
+        logger.Info(() => $"[{LogCategory}] Derived Kaspa treasury address {treasuryKey.Address}");
+        logger.Debug(() => $"[{LogCategory}] Derived Kaspa treasury extended private key {treasuryKey.ExtendedPrivateKey}");
+    }
+
+    public KaspaDerivedKey TreasuryKey => treasuryKey;
     
     public virtual async Task<Block[]> ClassifyBlocksAsync(IMiningPool pool, Block[] blocks, CancellationToken ct)
     {

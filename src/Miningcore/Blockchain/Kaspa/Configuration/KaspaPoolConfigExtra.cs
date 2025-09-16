@@ -21,8 +21,26 @@ public class KaspaPoolConfigExtra
     /// Default: "Miningcore.developers["Cedric CRISPIN"]"
     /// </summary>
     public string ExtraData { get; set; }
-    
+
     public int? ExtraNonce1Size { get; set; }
+
+    /// <summary>
+    /// Optional BIP39 mnemonic used to derive the treasury extended private key and address.
+    /// When set, <see cref="KaspaSeed"/> must be left empty.
+    /// </summary>
+    public string KaspaMnemonic { get; set; }
+
+    /// <summary>
+    /// Optional hex-encoded BIP39 seed used to derive the treasury extended private key and address.
+    /// When set, <see cref="KaspaMnemonic"/> must be left empty.
+    /// </summary>
+    public string KaspaSeed { get; set; }
+
+    /// <summary>
+    /// Optional derivation path used when generating the treasury key material.
+    /// Defaults to m/44'/972/0'/0/0 if not specified.
+    /// </summary>
+    public string KaspaDerivationPath { get; set; }
     
     /// <summary>
     /// Optional: Daemon RPC service name override
