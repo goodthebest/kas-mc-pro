@@ -212,6 +212,15 @@ Refer to [this file](https://github.com/blackmennewstyle/miningcore/blob/master/
 - When running kaspad for Miningcore, enable the UTXO index (`--utxoindex`) so wallet tooling can query spendable outputs. Nodes without the index will be rejected by the new wallet helpers.
 - A lightweight wrapper around the Rusty-Kaspa ecosystem is available under `src/RustyKaspaWallet`. Configure pool `extra.wrpcEndpoints` entries (see `examples/kaspa_pool.json`) so external tooling can connect to the kaspad wRPC endpoint (default `ws://127.0.0.1:17110`).
 
+#### Securing Kaspa treasury mnemonics
+
+- Configure exactly one of `kaspaMnemonic` **or** `kaspaSeed` in the pool `extra` section; Miningcore rejects configurations that specify both secrets.
+- Keep the mnemonic/seed out of version control. Inject it at runtime via an external secrets manager, environment variables, or other deployment tooling whenever possible.
+- When a configuration file must contain the secret, store it on encrypted storage and restrict filesystem permissions so only the Miningcore service account can read it.
+- Rotate the mnemonic or seed on a regular schedule and document the associated operational procedures so treasury access can be recovered after an incident.
+- Debug logging prints the derived extended private key; disable debug logging in production or restrict access to log archives to prevent accidental disclosure.
+- Restart Miningcore after updating the secret so the derived treasury keys are recalculated at startup.
+
 ### ZCash
 
 - Pools needs to be configured with both a t-addr and z-addr (new configuration property "z-address" of the pool configuration element)

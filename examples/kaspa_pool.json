@@ -75,6 +75,9 @@
             }
         ],
         "extra": {
+            "kaspaMnemonic": null,
+            "kaspaSeed": null,
+            "kaspaDerivationPath": "m/44'/972/0'/0/0",
             "wrpcEndpoints": [
                 {
                     "host": "127.0.0.1",
