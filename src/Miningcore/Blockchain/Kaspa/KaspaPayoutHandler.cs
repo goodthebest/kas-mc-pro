@@ -444,12 +444,12 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
             throw new PaymentException("Kaspa network identifier is unknown. Call ConfigureAsync before processing payouts.");
 
         var coin = poolConfig.Template.As<KaspaCoinTemplate>();
-        kaspad.GetUtxosByAddressesResponseMessage.Types.Entry[] utxos;
+        kaspad.UtxosByAddressesEntry[] utxos;
 
         try
         {
             utxos = await wallet.GetUtxosByAddressAsync(poolConfig.Address, ct);
-            utxos ??= Array.Empty<kaspad.GetUtxosByAddressesResponseMessage.Types.Entry>();
+            utxos ??= Array.Empty<kaspad.UtxosByAddressesEntry>();
 
             var spendable = utxos.Sum(x => (decimal) x.UtxoEntry.Amount / KaspaConstants.SmallestUnit);
             logger.Info(() => $"[{LogCategory}] Wallet currently tracks {utxos.Length} UTXO(s) totalling {FormatAmount(spendable)} for payout address {poolConfig.Address}");

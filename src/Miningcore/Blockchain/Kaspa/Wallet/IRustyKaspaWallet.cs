@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Miningcore.Blockchain.Kaspa;
 using Miningcore.Blockchain.Kaspa.Configuration;
+using Miningcore.Configuration;
 using Miningcore.Contracts;
 using Miningcore.Persistence.Model;
 using Miningcore.Util;
@@ -16,7 +17,7 @@ namespace Miningcore.Blockchain.Kaspa.Wallet;
 
 public interface IRustyKaspaWallet : IDisposable
 {
-    Task<kaspad.GetUtxosByAddressesResponseMessage.Types.Entry[]> GetUtxosByAddressAsync(string address, CancellationToken ct);
+    Task<kaspad.UtxosByAddressesEntry[]> GetUtxosByAddressAsync(string address, CancellationToken ct);
 
     KaspaWalletTransactionResult BuildSignedTransaction(
         KaspaDerivedKey treasuryKey,
@@ -24,7 +25,7 @@ public interface IRustyKaspaWallet : IDisposable
         KaspaCoinTemplate coin,
         string changeAddress,
         Balance[] payouts,
-        kaspad.GetUtxosByAddressesResponseMessage.Types.Entry[] utxos);
+        kaspad.UtxosByAddressesEntry[] utxos);
 
     Task<string> SubmitTransactionAsync(kaspad.RpcTransaction transaction, bool allowOrphans, CancellationToken ct);
 }
@@ -59,7 +60,7 @@ public class RustyKaspaWallet : IRustyKaspaWallet
         KaspaCoinTemplate coin,
         string changeAddress,
         Balance[] payouts,
-        kaspad.GetUtxosByAddressesResponseMessage.Types.Entry[] utxos)
+        kaspad.UtxosByAddressesEntry[] utxos)
     {
         Contract.RequiresNonNull(treasuryKey);
         Contract.RequiresNonNull(payouts);
@@ -77,7 +78,7 @@ public class RustyKaspaWallet : IRustyKaspaWallet
         return builder.Build();
     }
 
-    public async Task<kaspad.GetUtxosByAddressesResponseMessage.Types.Entry[]> GetUtxosByAddressAsync(string address, CancellationToken ct)
+    public async Task<kaspad.UtxosByAddressesEntry[]> GetUtxosByAddressAsync(string address, CancellationToken ct)
     {
         Contract.Requires<ArgumentException>(!string.IsNullOrEmpty(address));
         ThrowIfDisposed();
@@ -194,7 +195,7 @@ internal class KaspaWalletTransactionBuilder
         KaspaDerivedKey treasuryKey,
         string changeAddress,
         IReadOnlyCollection<Balance> payouts,
-        IReadOnlyCollection<kaspad.GetUtxosByAddressesResponseMessage.Types.Entry> utxos)
+        IReadOnlyCollection<kaspad.UtxosByAddressesEntry> utxos)
     {
         this.coin = coin ?? throw new ArgumentNullException(nameof(coin));
         this.network = network ?? throw new ArgumentNullException(nameof(network));
@@ -213,7 +214,7 @@ internal class KaspaWalletTransactionBuilder
     private readonly KaspaDerivedKey treasuryKey;
     private readonly string changeAddress;
     private readonly IReadOnlyCollection<Balance> payouts;
-    private readonly IReadOnlyCollection<kaspad.GetUtxosByAddressesResponseMessage.Types.Entry> utxos;
+    private readonly IReadOnlyCollection<kaspad.UtxosByAddressesEntry> utxos;
 
     public KaspaWalletTransactionResult Build()
     {
@@ -343,13 +344,13 @@ internal class KaspaWalletTransactionBuilder
         return (ulong) Math.Floor(amount * KaspaConstants.SmallestUnit);
     }
 
-    private kaspad.GetUtxosByAddressesResponseMessage.Types.Entry[] SelectInputs(ulong totalRequired, int outputCount)
+    private kaspad.UtxosByAddressesEntry[] SelectInputs(ulong totalRequired, int outputCount)
     {
         var ordered = utxos
             .OrderByDescending(x => x.UtxoEntry.Amount)
             .ToArray();
 
-        var selected = new List<kaspad.GetUtxosByAddressesResponseMessage.Types.Entry>();
+        var selected = new List<kaspad.UtxosByAddressesEntry>();
         ulong total = 0;
 
         foreach(var utxo in ordered)

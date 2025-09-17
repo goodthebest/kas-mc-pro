@@ -93,7 +93,7 @@ public class KaspaPayoutHandlerTests
         };
         var utxos = new[]
         {
-            new kaspad.GetUtxosByAddressesResponseMessage.Types.Entry
+            new kaspad.UtxosByAddressesEntry
             {
                 Address = treasuryKey.Address,
                 Outpoint = new kaspad.RpcOutpoint { TransactionId = "input", Index = 0 },
@@ -193,7 +193,7 @@ public class KaspaPayoutHandlerTests
             PaymentProcessing = new ClusterPaymentProcessingConfig { Enabled = true }
         };
         var extraPoolConfig = new KaspaPoolConfigExtra();
-        var utxos = Array.Empty<kaspad.GetUtxosByAddressesResponseMessage.Types.Entry>();
+        var utxos = Array.Empty<kaspad.UtxosByAddressesEntry>();
         wallet.GetUtxosByAddressAsync(poolConfig.Address, Arg.Any<CancellationToken>()).Returns(Task.FromResult(utxos));
         wallet
             .BuildSignedTransaction(

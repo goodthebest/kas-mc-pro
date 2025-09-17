@@ -44,7 +44,7 @@ public class KaspaWalletTests
 
         var utxos = new[]
         {
-            new kaspad.GetUtxosByAddressesResponseMessage.Types.Entry
+            new kaspad.UtxosByAddressesEntry
             {
                 Address = treasuryKey.Address,
                 Outpoint = new kaspad.RpcOutpoint { TransactionId = "abc", Index = 0 },
@@ -88,7 +88,7 @@ public class KaspaWalletTests
 
         var utxos = new[]
         {
-            new kaspad.GetUtxosByAddressesResponseMessage.Types.Entry
+            new kaspad.UtxosByAddressesEntry
             {
                 Address = treasuryKey.Address,
                 Outpoint = new kaspad.RpcOutpoint { TransactionId = "abc", Index = 0 },
