@@ -1,8 +1,11 @@
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Miningcore.Blockchain.Kaspa;
+using Miningcore.Blockchain.Kaspa.Configuration;
+using Miningcore.Configuration;
 using Miningcore.Contracts;
+using Miningcore.Persistence.Model;
 using Miningcore.Util;
 using kaspad = Miningcore.Blockchain.Kaspa.Kaspad;
 
@@ -10,7 +13,15 @@ namespace Miningcore.Blockchain.Kaspa.Wallet;
 
 public interface IRustyKaspaWallet : IDisposable
 {
-    Task<kaspad.GetUtxosByAddressesResponseMessage.Types.Entry[]> GetUtxosByAddressAsync(string address, CancellationToken ct);
+    Task<kaspad.UtxosByAddressesEntry[]> GetUtxosByAddressAsync(string address, CancellationToken ct);
+
+    KaspaWalletTransactionResult BuildSignedTransaction(
+        KaspaDerivedKey treasuryKey,
+        string network,
+        KaspaCoinTemplate coin,
+        string changeAddress,
+        Balance[] payouts,
+        kaspad.UtxosByAddressesEntry[] utxos);
 
     Task<string> SubmitTransactionAsync(kaspad.RpcTransaction transaction, bool allowOrphans, CancellationToken ct);
 }
@@ -39,7 +50,31 @@ public class RustyKaspaWallet : IRustyKaspaWallet
     private readonly kaspad.KaspadRPC.KaspadRPCClient rpc;
     private bool disposed;
 
-    public async Task<kaspad.GetUtxosByAddressesResponseMessage.Types.Entry[]> GetUtxosByAddressAsync(string address, CancellationToken ct)
+    public KaspaWalletTransactionResult BuildSignedTransaction(
+        KaspaDerivedKey treasuryKey,
+        string network,
+        KaspaCoinTemplate coin,
+        string changeAddress,
+        Balance[] payouts,
+        kaspad.UtxosByAddressesEntry[] utxos)
+    {
+        Contract.RequiresNonNull(treasuryKey);
+        Contract.RequiresNonNull(payouts);
+        Contract.RequiresNonNull(utxos);
+        Contract.Requires<ArgumentException>(!string.IsNullOrEmpty(network));
+        Contract.RequiresNonNull(coin);
+        Contract.Requires<ArgumentException>(!string.IsNullOrEmpty(changeAddress));
+
+        ThrowIfDisposed();
+
+        if(payouts.Length == 0)
+            throw new RustyKaspaWalletException("No payouts were supplied");
+
+        var builder = new KaspaWalletTransactionBuilder(coin, network, treasuryKey, changeAddress, payouts, utxos);
+        return builder.Build();
+    }
+
+    public async Task<kaspad.UtxosByAddressesEntry[]> GetUtxosByAddressAsync(string address, CancellationToken ct)
     {
         Contract.Requires<ArgumentException>(!string.IsNullOrEmpty(address));
         ThrowIfDisposed();
@@ -56,8 +91,10 @@ public class RustyKaspaWallet : IRustyKaspaWallet
 
             await stream.RequestStream.WriteAsync(request).ConfigureAwait(false);
 
-            await foreach(var response in stream.ResponseStream.ReadAllAsync(ct))
+            while(await stream.ResponseStream.MoveNext(ct).ConfigureAwait(false))
             {
+                var response = stream.ResponseStream.Current;
+
                 if(response.PayloadCase != kaspad.KaspadMessage.PayloadOneofCase.GetUtxosByAddressesResponse)
                     continue;
 
@@ -98,8 +135,10 @@ public class RustyKaspaWallet : IRustyKaspaWallet
 
             await stream.RequestStream.WriteAsync(request).ConfigureAwait(false);
 
-            await foreach(var response in stream.ResponseStream.ReadAllAsync(ct))
+            while(await stream.ResponseStream.MoveNext(ct).ConfigureAwait(false))
             {
+                var response = stream.ResponseStream.Current;
+
                 if(response.PayloadCase != kaspad.KaspadMessage.PayloadOneofCase.SubmitTransactionResponse)
                     continue;
 
@@ -130,6 +169,22 @@ public class RustyKaspaWallet : IRustyKaspaWallet
         if(disposed)
             throw new ObjectDisposedException(nameof(RustyKaspaWallet));
     }
+}
+
+public class KaspaWalletTransactionResult
+{
+    public KaspaWalletTransactionResult(kaspad.RpcTransaction transaction, ulong fee)
+    {
+        Transaction = transaction;
+        Fee = fee;
+    }
+
+    public kaspad.RpcTransaction Transaction { get; }
+
+    /// <summary>
+    /// Computed transaction fee represented in sompi (the smallest Kaspa unit).
+    /// </summary>
+    public ulong Fee { get; }
 }
 
 public class RustyKaspaWalletFactory : IRustyKaspaWalletFactory

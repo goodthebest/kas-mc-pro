@@ -39,7 +39,7 @@
         }
     },
     "paymentProcessing": {
-        "enabled": false,
+        "enabled": true,
         "interval": 600,
         "shareRecoveryFile": "recovered-shares.txt"
     },
@@ -75,9 +75,10 @@
             }
         ],
         "extra": {
-            "kaspaMnemonic": null,
+            "kaspaMnemonic": "word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12",
             "kaspaSeed": null,
             "kaspaDerivationPath": "m/44'/972/0'/0/0",
+            "allowOrphanTransactions": false,
             "wrpcEndpoints": [
                 {
                     "host": "127.0.0.1",
@@ -133,7 +134,7 @@
             }
         ],
         "paymentProcessing": {
-            "enabled": false,
+            "enabled": true,
             "minimumPayment": 1,
             "payoutScheme": "PPLNS",
             "payoutSchemeConfig": {

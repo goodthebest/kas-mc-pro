@@ -44,6 +44,9 @@ public static class KaspaConstants
     public const int PublicKeySize = 32;
     public const int PublicKeySizeECDSA = 33;
     public const int Blake2bSize256 = 32;
+    public const ulong StorageMassParameter = 1000000000000; // SOMPI_PER_KASPA * 10_000
+    public const ulong MinimumRelayTransactionFee = 1000;
+    public const int SubnetworkIdLength = 20;
 }
 
 public static class KarlsencoinConstants

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using Autofac;
@@ -92,15 +93,17 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
             ex=> throw new PaymentException($"Error writing a request in the communication stream '{ex.GetType().Name}' : {ex}"));
 
         var requestServerInfo = new kaspad.KaspadMessage();
-        requestServerInfo.GetServerInfoRequest = new kaspad.GetServerInfoRequestMessage();
+        requestServerInfo.GetInfoRequest = new kaspad.GetInfoRequestMessage();
         await Guard(() => stream.RequestStream.WriteAsync(requestServerInfo),
             ex=> throw new PaymentException($"Error writing a request in the communication stream '{ex.GetType().Name}' : {ex}"));
 
         var networkReceived = false;
         var serverInfoReceived = false;
 
-        await foreach (var response in stream.ResponseStream.ReadAllAsync(ct))
+        while(await stream.ResponseStream.MoveNext(ct).ConfigureAwait(false))
         {
+            var response = stream.ResponseStream.Current;
+
             switch(response.PayloadCase)
             {
                 case kaspad.KaspadMessage.PayloadOneofCase.GetCurrentNetworkResponse:
@@ -111,11 +114,11 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
                     networkReceived = true;
                     break;
 
-                case kaspad.KaspadMessage.PayloadOneofCase.GetServerInfoResponse:
-                    if(!string.IsNullOrEmpty(response.GetServerInfoResponse.Error?.Message))
-                        throw new PaymentException($"Daemon reports: {response.GetServerInfoResponse.Error?.Message}");
+                case kaspad.KaspadMessage.PayloadOneofCase.GetInfoResponse:
+                    if(!string.IsNullOrEmpty(response.GetInfoResponse.Error?.Message))
+                        throw new PaymentException($"Daemon reports: {response.GetInfoResponse.Error?.Message}");
 
-                    if(response.GetServerInfoResponse.HasUtxoIndex != true)
+                    if(response.GetInfoResponse.IsUtxoIndexed != true)
                         throw new PaymentException("kaspad is not running with --utxoindex which is required for wallet operations");
 
                     serverInfoReceived = true;
@@ -129,10 +132,10 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
 
         TryInitializeTreasuryKey();
 
-        if(!payoutWarningLogged && clusterConfig.PaymentProcessing?.Enabled == true && poolConfig.PaymentProcessing?.Enabled == true)
+        if(!payoutWarningLogged && clusterConfig.PaymentProcessing?.Enabled == true && poolConfig.PaymentProcessing?.Enabled == true && treasuryKey == null)
         {
             payoutWarningLogged = true;
-            logger.Warn(() => $"[{LogCategory}] Automated payouts for Kaspa are not supported because kaspawalletd is no longer available.");
+            logger.Warn(() => $"[{LogCategory}] Automated payouts remain disabled because no treasury mnemonic or seed is configured.");
         }
     }
 
@@ -223,8 +226,10 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
                 };
                 await Guard(() => stream.RequestStream.WriteAsync(request),
                     ex=> logger.Debug(ex));
-                await foreach (var blockInfo in stream.ResponseStream.ReadAllAsync(ct))
+                while(await stream.ResponseStream.MoveNext(ct).ConfigureAwait(false))
                 {
+                    var blockInfo = stream.ResponseStream.Current;
+
                     // We lost that battle
                     if(!string.IsNullOrEmpty(blockInfo.GetBlockResponse.Error?.Message))
                     {
@@ -262,8 +267,10 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
                         };
                         await Guard(() => stream.RequestStream.WriteAsync(requestConfirmations),
                             ex=> logger.Debug(ex));
-                        await foreach (var responseConfirmations in stream.ResponseStream.ReadAllAsync(ct))
+                        while(await stream.ResponseStream.MoveNext(ct).ConfigureAwait(false))
                         {
+                            var responseConfirmations = stream.ResponseStream.Current;
+
                             logger.Debug(() => $"[{LogCategory}] Block {block.BlockHeight} [{responseConfirmations.GetBlocksResponse.BlockHashes.Count}]");
 
                             block.ConfirmationProgress = Math.Min(1.0d, (double) responseConfirmations.GetBlocksResponse.BlockHashes.Count / minConfirmations);
@@ -296,8 +303,10 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
                                 };
                                 await Guard(() => stream.RequestStream.WriteAsync(requestChildren),
                                     ex=> logger.Debug(ex));
-                                await foreach (var responseChildren in stream.ResponseStream.ReadAllAsync(ct))
+                                while(await stream.ResponseStream.MoveNext(ct).ConfigureAwait(false))
                                 {
+                                    var responseChildren = stream.ResponseStream.Current;
+
                                     // we only need the transaction(s) related to the block reward
                                     var childrenBlockRewardTransactions = responseChildren.GetBlockResponse.Block.Transactions
                                         .Where(x => x.Inputs.Count < 1)
@@ -419,28 +428,76 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
         if(payableBalances.Length == 0)
             return;
 
+        if(treasuryKey == null)
+        {
+            const string missingKeyMessage = "Kaspa treasury key is unavailable. Configure a mnemonic or seed to enable automated payouts.";
+
+            logger.Error(() => $"[{LogCategory}] {missingKeyMessage}");
+            NotifyPayoutFailure(poolConfig.Id, payableBalances, missingKeyMessage, null);
+
+            throw new PaymentException(missingKeyMessage);
+        }
+
+        if(wallet == null)
+        {
+            const string missingWalletMessage = "Kaspa wallet tooling is not initialized.";
+
+            logger.Error(() => $"[{LogCategory}] {missingWalletMessage}");
+            NotifyPayoutFailure(poolConfig.Id, payableBalances, missingWalletMessage, null);
+
+            throw new PaymentException(missingWalletMessage);
+        }
+
+        if(string.IsNullOrEmpty(network))
+            throw new PaymentException("Kaspa network identifier is unknown. Call ConfigureAsync before processing payouts.");
+
+        var coin = poolConfig.Template.As<KaspaCoinTemplate>();
+        kaspad.UtxosByAddressesEntry[] utxos;
+
         try
         {
-            if(wallet != null)
-            {
-                var utxos = await wallet.GetUtxosByAddressAsync(poolConfig.Address, ct);
-                var spendable = utxos.Sum(x => (decimal) (x.UtxoEntry.Amount / KaspaConstants.SmallestUnit));
+            utxos = await wallet.GetUtxosByAddressAsync(poolConfig.Address, ct);
+            utxos ??= Array.Empty<kaspad.UtxosByAddressesEntry>();
 
-                logger.Info(() => $"[{LogCategory}] Wallet currently tracks {utxos.Length} UTXO(s) totalling {FormatAmount(spendable)} for payout address {poolConfig.Address}");
-            }
+            var spendable = utxos
+                .Select(x => (decimal) x.UtxoEntry.Amount / KaspaConstants.SmallestUnit)
+                .Sum();
+            logger.Info(() => $"[{LogCategory}] Wallet currently tracks {utxos.Length} UTXO(s) totalling {FormatAmount(spendable)} for payout address {poolConfig.Address}");
         }
         catch(Exception ex)
         {
-            logger.Warn(ex, () => $"[{LogCategory}] Unable to query UTXOs using RustyKaspaWallet. Automated payouts remain disabled.");
+            var error = $"Failed to query Kaspa UTXOs: {ex.Message}";
+            logger.Error(ex, () => $"[{LogCategory}] {error}");
+            NotifyPayoutFailure(poolConfig.Id, payableBalances, error, ex);
+            throw new PaymentException(error, ex);
         }
 
-        const string message = "Kaspa automated payouts are not supported because kaspawalletd is no longer available. Disable payment processing and settle balances manually.";
+        try
+        {
+            var result = wallet.BuildSignedTransaction(treasuryKey, network, coin, treasuryKey.Address, payableBalances, utxos);
+            var allowOrphans = extraPoolConfig?.AllowOrphanTransactions ?? false;
+            var txId = await wallet.SubmitTransactionAsync(result.Transaction, allowOrphans, ct);
 
-        logger.Error(() => $"[{LogCategory}] {message}");
+            var feeDecimal = (decimal) result.Fee / KaspaConstants.SmallestUnit;
 
-        NotifyPayoutFailure(poolConfig.Id, payableBalances, message, null);
+            await PersistPaymentsAsync(payableBalances, txId);
 
-        throw new PaymentException(message);
+            NotifyPayoutSuccess(poolConfig.Id, payableBalances, new[] {txId}, feeDecimal);
+
+            logger.Info(() => $"[{LogCategory}] Submitted Kaspa payout transaction {txId} paying {FormatAmount(payableBalances.Sum(x => x.Amount))} to {payableBalances.Length} address(es) with a fee of {FormatAmount(feeDecimal)}");
+        }
+        catch(RustyKaspaWalletException ex)
+        {
+            logger.Error(ex, () => $"[{LogCategory}] Wallet rejected payout transaction assembly: {ex.Message}");
+            NotifyPayoutFailure(poolConfig.Id, payableBalances, ex.Message, ex);
+            throw new PaymentException(ex.Message);
+        }
+        catch(Exception ex)
+        {
+            logger.Error(ex, () => $"[{LogCategory}] Unexpected Kaspa payout failure: {ex.Message}");
+            NotifyPayoutFailure(poolConfig.Id, payableBalances, ex.Message, ex);
+            throw;
+        }
     }
 
     public override double AdjustShareDifficulty(double difficulty)
@@ -478,6 +535,10 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
     private class PaymentException : Exception
     {
         public PaymentException(string msg) : base(msg)
+        {
+        }
+
+        public PaymentException(string msg, Exception inner) : base(msg, inner)
         {
         }
     }

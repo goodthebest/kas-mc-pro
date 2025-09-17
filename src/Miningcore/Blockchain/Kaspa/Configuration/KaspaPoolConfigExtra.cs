@@ -41,7 +41,14 @@ public class KaspaPoolConfigExtra
     /// Defaults to m/44'/972/0'/0/0 if not specified.
     /// </summary>
     public string KaspaDerivationPath { get; set; }
-    
+
+    /// <summary>
+    /// When set to true, payout transactions will be submitted with the kaspad
+    /// orphan allowance flag enabled. This should typically remain <c>false</c>
+    /// unless explicitly required for a particular deployment.
+    /// </summary>
+    public bool AllowOrphanTransactions { get; set; }
+
     /// <summary>
     /// Optional: Daemon RPC service name override
     /// Should match the value of .proto file
