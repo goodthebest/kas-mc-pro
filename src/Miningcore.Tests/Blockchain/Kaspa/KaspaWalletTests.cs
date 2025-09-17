@@ -47,8 +47,16 @@ public class KaspaWalletTests
             new kaspad.UtxosByAddressesEntry
             {
                 Address = treasuryKey.Address,
-                Outpoint = new kaspad.RpcOutpoint { TransactionId = "abc", Index = 0 },
-                UtxoEntry = new kaspad.RpcUtxoEntry { Amount = Sompi(4m) }
+                Outpoint = new kaspad.RpcOutpoint { TransactionId = "4f".PadLeft(64, '0'), Index = 0 },
+                UtxoEntry = new kaspad.RpcUtxoEntry
+                {
+                    Amount = Sompi(4m),
+                    ScriptPublicKey = new kaspad.RpcScriptPublicKey
+                    {
+                        Version = KaspaConstants.PubKeyAddrID,
+                        ScriptPublicKey = BuildPayToPubKeyScriptHex(treasuryKey)
+                    }
+                }
             }
         };
 
@@ -63,13 +71,25 @@ public class KaspaWalletTests
         var result = builder.Build();
 
         Assert.Equal(utxos.Length, result.Transaction.Inputs.Count);
-        Assert.Equal(payouts.Length + 1, result.Transaction.Outputs.Count); // payouts + change
+        Assert.Equal(payouts.Length + 1, result.Transaction.Outputs.Count);
 
         var totalOutputSompi = result.Transaction.Outputs.Sum(x => x.Amount);
-        Assert.Equal(utxos.Sum(x => x.UtxoEntry.Amount) - result.Fee, totalOutputSompi);
+        var totalInputSompi = utxos.Sum(x => x.UtxoEntry.Amount);
+        Assert.Equal(totalInputSompi - result.Fee, totalOutputSompi);
 
-        var expectedSignature = ComputeSignature(treasuryKey.PrivateKeyHex, utxos[0].Outpoint.TransactionId, utxos[0].Outpoint.Index);
-        Assert.Equal(expectedSignature, result.Transaction.Inputs[0].SignatureScript);
+        Assert.True(result.Transaction.Mass > 0);
+        Assert.True(result.Fee > 0);
+
+        var changeOutput = result.Transaction.Outputs.Last();
+        var expectedChangeScript = BuildPayToPubKeyScriptBytes(treasuryKey);
+        Assert.Equal(Convert.ToHexString(expectedChangeScript).ToLowerInvariant(), changeOutput.ScriptPublicKey.ScriptPublicKey);
+
+        foreach(var input in result.Transaction.Inputs)
+        {
+            Assert.Equal(132, input.SignatureScript.Length);
+            Assert.Equal("01", input.SignatureScript[^2..]);
+            Assert.Equal<uint>(1, input.SigOpCount);
+        }
     }
 
     [Fact]
@@ -91,8 +111,16 @@ public class KaspaWalletTests
             new kaspad.UtxosByAddressesEntry
             {
                 Address = treasuryKey.Address,
-                Outpoint = new kaspad.RpcOutpoint { TransactionId = "abc", Index = 0 },
-                UtxoEntry = new kaspad.RpcUtxoEntry { Amount = Sompi(1m) }
+                Outpoint = new kaspad.RpcOutpoint { TransactionId = "5a".PadLeft(64, '0'), Index = 0 },
+                UtxoEntry = new kaspad.RpcUtxoEntry
+                {
+                    Amount = Sompi(1m),
+                    ScriptPublicKey = new kaspad.RpcScriptPublicKey
+                    {
+                        Version = KaspaConstants.PubKeyAddrID,
+                        ScriptPublicKey = BuildPayToPubKeyScriptHex(treasuryKey)
+                    }
+                }
             }
         };
 
@@ -107,11 +135,19 @@ public class KaspaWalletTests
         Assert.Throws<RustyKaspaWalletException>(() => builder.Build());
     }
 
-    private static string ComputeSignature(string privateKeyHex, string txId, uint index)
+    private static string BuildPayToPubKeyScriptHex(KaspaDerivedKey treasuryKey)
     {
-        var keyBytes = Convert.FromHexString(privateKeyHex);
-        using var hmac = new System.Security.Cryptography.HMACSHA256(keyBytes);
-        var data = System.Text.Encoding.UTF8.GetBytes($"{txId}:{index}");
-        return Convert.ToHexString(hmac.ComputeHash(data)).ToLowerInvariant();
+        var bytes = BuildPayToPubKeyScriptBytes(treasuryKey);
+        return Convert.ToHexString(bytes).ToLowerInvariant();
+    }
+
+    private static byte[] BuildPayToPubKeyScriptBytes(KaspaDerivedKey treasuryKey)
+    {
+        var payload = KaspaUtils.ValidateAddress(treasuryKey.Address, "kaspa-mainnet", CreateCoinTemplate()).Item1.KaspaAddress.ScriptAddress();
+        var script = new byte[payload.Length + 2];
+        script[0] = 0x20;
+        Buffer.BlockCopy(payload, 0, script, 1, payload.Length);
+        script[^1] = 0xac;
+        return script;
     }
 }
