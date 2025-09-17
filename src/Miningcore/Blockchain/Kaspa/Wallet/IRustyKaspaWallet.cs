@@ -95,8 +95,10 @@ public class RustyKaspaWallet : IRustyKaspaWallet
 
             await stream.RequestStream.WriteAsync(request).ConfigureAwait(false);
 
-            await foreach(var response in stream.ResponseStream.ReadAllAsync(ct))
+            while(await stream.ResponseStream.MoveNext(ct).ConfigureAwait(false))
             {
+                var response = stream.ResponseStream.Current;
+
                 if(response.PayloadCase != kaspad.KaspadMessage.PayloadOneofCase.GetUtxosByAddressesResponse)
                     continue;
 
@@ -137,8 +139,10 @@ public class RustyKaspaWallet : IRustyKaspaWallet
 
             await stream.RequestStream.WriteAsync(request).ConfigureAwait(false);
 
-            await foreach(var response in stream.ResponseStream.ReadAllAsync(ct))
+            while(await stream.ResponseStream.MoveNext(ct).ConfigureAwait(false))
             {
+                var response = stream.ResponseStream.Current;
+
                 if(response.PayloadCase != kaspad.KaspadMessage.PayloadOneofCase.SubmitTransactionResponse)
                     continue;
 
@@ -231,7 +235,7 @@ internal class KaspaWalletTransactionBuilder
 
         var totalRequired = payoutItems.Aggregate<KaspaPayoutItem, ulong>(0, (current, item) => checked(current + item.Amount));
         var selectedUtxos = SelectInputs(totalRequired, payoutItems.Length);
-        var selectedTotal = selectedUtxos.Sum(x => x.UtxoEntry.Amount);
+        var selectedTotal = selectedUtxos.Aggregate(0UL, (current, entry) => checked(current + entry.UtxoEntry.Amount));
 
         var outputCount = payoutItems.Length; // change added later when needed
         var estimatedFee = EstimateFee((ulong) selectedUtxos.Length, (ulong) outputCount);

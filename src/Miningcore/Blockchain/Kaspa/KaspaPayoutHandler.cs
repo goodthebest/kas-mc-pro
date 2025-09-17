@@ -93,15 +93,17 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
             ex=> throw new PaymentException($"Error writing a request in the communication stream '{ex.GetType().Name}' : {ex}"));
 
         var requestServerInfo = new kaspad.KaspadMessage();
-        requestServerInfo.GetServerInfoRequest = new kaspad.GetServerInfoRequestMessage();
+        requestServerInfo.GetInfoRequest = new kaspad.GetInfoRequestMessage();
         await Guard(() => stream.RequestStream.WriteAsync(requestServerInfo),
             ex=> throw new PaymentException($"Error writing a request in the communication stream '{ex.GetType().Name}' : {ex}"));
 
         var networkReceived = false;
         var serverInfoReceived = false;
 
-        await foreach (var response in stream.ResponseStream.ReadAllAsync(ct))
+        while(await stream.ResponseStream.MoveNext(ct).ConfigureAwait(false))
         {
+            var response = stream.ResponseStream.Current;
+
             switch(response.PayloadCase)
             {
                 case kaspad.KaspadMessage.PayloadOneofCase.GetCurrentNetworkResponse:
@@ -112,11 +114,11 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
                     networkReceived = true;
                     break;
 
-                case kaspad.KaspadMessage.PayloadOneofCase.GetServerInfoResponse:
-                    if(!string.IsNullOrEmpty(response.GetServerInfoResponse.Error?.Message))
-                        throw new PaymentException($"Daemon reports: {response.GetServerInfoResponse.Error?.Message}");
+                case kaspad.KaspadMessage.PayloadOneofCase.GetInfoResponse:
+                    if(!string.IsNullOrEmpty(response.GetInfoResponse.Error?.Message))
+                        throw new PaymentException($"Daemon reports: {response.GetInfoResponse.Error?.Message}");
 
-                    if(response.GetServerInfoResponse.HasUtxoIndex != true)
+                    if(response.GetInfoResponse.IsUtxoIndexed != true)
                         throw new PaymentException("kaspad is not running with --utxoindex which is required for wallet operations");
 
                     serverInfoReceived = true;
@@ -224,8 +226,10 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
                 };
                 await Guard(() => stream.RequestStream.WriteAsync(request),
                     ex=> logger.Debug(ex));
-                await foreach (var blockInfo in stream.ResponseStream.ReadAllAsync(ct))
+                while(await stream.ResponseStream.MoveNext(ct).ConfigureAwait(false))
                 {
+                    var blockInfo = stream.ResponseStream.Current;
+
                     // We lost that battle
                     if(!string.IsNullOrEmpty(blockInfo.GetBlockResponse.Error?.Message))
                     {
@@ -263,8 +267,10 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
                         };
                         await Guard(() => stream.RequestStream.WriteAsync(requestConfirmations),
                             ex=> logger.Debug(ex));
-                        await foreach (var responseConfirmations in stream.ResponseStream.ReadAllAsync(ct))
+                        while(await stream.ResponseStream.MoveNext(ct).ConfigureAwait(false))
                         {
+                            var responseConfirmations = stream.ResponseStream.Current;
+
                             logger.Debug(() => $"[{LogCategory}] Block {block.BlockHeight} [{responseConfirmations.GetBlocksResponse.BlockHashes.Count}]");
 
                             block.ConfirmationProgress = Math.Min(1.0d, (double) responseConfirmations.GetBlocksResponse.BlockHashes.Count / minConfirmations);
@@ -297,8 +303,10 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
                                 };
                                 await Guard(() => stream.RequestStream.WriteAsync(requestChildren),
                                     ex=> logger.Debug(ex));
-                                await foreach (var responseChildren in stream.ResponseStream.ReadAllAsync(ct))
+                                while(await stream.ResponseStream.MoveNext(ct).ConfigureAwait(false))
                                 {
+                                    var responseChildren = stream.ResponseStream.Current;
+
                                     // we only need the transaction(s) related to the block reward
                                     var childrenBlockRewardTransactions = responseChildren.GetBlockResponse.Block.Transactions
                                         .Where(x => x.Inputs.Count < 1)
@@ -451,7 +459,9 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
             utxos = await wallet.GetUtxosByAddressAsync(poolConfig.Address, ct);
             utxos ??= Array.Empty<kaspad.UtxosByAddressesEntry>();
 
-            var spendable = utxos.Sum(x => (decimal) x.UtxoEntry.Amount / KaspaConstants.SmallestUnit);
+            var spendable = utxos
+                .Select(x => (decimal) x.UtxoEntry.Amount / KaspaConstants.SmallestUnit)
+                .Sum();
             logger.Info(() => $"[{LogCategory}] Wallet currently tracks {utxos.Length} UTXO(s) totalling {FormatAmount(spendable)} for payout address {poolConfig.Address}");
         }
         catch(Exception ex)
@@ -525,6 +535,10 @@ public class KaspaPayoutHandler : PayoutHandlerBase,
     private class PaymentException : Exception
     {
         public PaymentException(string msg) : base(msg)
+        {
+        }
+
+        public PaymentException(string msg, Exception inner) : base(msg, inner)
         {
         }
     }
