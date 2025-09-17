@@ -207,10 +207,10 @@ Refer to [this file](https://github.com/blackmennewstyle/miningcore/blob/master/
 
 ### Kaspa
 
-- Miningcore no longer integrates with the `kaspawalletd` daemon. Automated payouts for Kaspa are not available.
-- Remove wallet-daemon endpoints from Kaspa pool configurations, disable payment processing for those pools and settle balances manually using external tooling.
-- When running kaspad for Miningcore, enable the UTXO index (`--utxoindex`) so wallet tooling can query spendable outputs. Nodes without the index will be rejected by the new wallet helpers.
-- A lightweight wrapper around the Rusty-Kaspa ecosystem is available under `src/RustyKaspaWallet`. Configure pool `extra.wrpcEndpoints` entries (see `examples/kaspa_pool.json`) so external tooling can connect to the kaspad wRPC endpoint (default `ws://127.0.0.1:17110`).
+- Miningcore no longer integrates with the legacy `kaspawalletd` daemon. Automated payouts are handled via the built-in Rusty Kaspa wallet wrapper once a treasury mnemonic or seed is configured.
+- Configure either `extra.kaspaMnemonic` **or** `extra.kaspaSeed` on the pool (never both). After configuration, enable payment processing for the pool to allow Miningcore to assemble, sign, and submit payouts automatically.
+- When running kaspad for Miningcore, enable the UTXO index (`--utxoindex`) so wallet tooling can query spendable outputs. Nodes without the index will be rejected by the wallet helpers.
+- Optional wRPC endpoints can still be advertised through `extra.wrpcEndpoints` (see `examples/kaspa_pool.json`) when external tooling needs to interact with kaspad directly.
 
 #### Securing Kaspa treasury mnemonics
 
